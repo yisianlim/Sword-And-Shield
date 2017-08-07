@@ -1,7 +1,6 @@
 package model.view;
 
 import model.Game;
-import game.model.listener.*;
 import model.listener.*;
 import model.piece.PlayerPiece;
 

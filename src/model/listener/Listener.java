@@ -4,6 +4,10 @@ import model.Game;
 
 import java.util.Scanner;
 
+/**
+ * The Listener class and its subclasses listens to the user input and execute the respective command
+ * that changes the game state accordingly.
+ */
 public abstract class Listener {
     protected Scanner scanner;
     protected Game game;

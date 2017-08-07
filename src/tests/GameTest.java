@@ -67,10 +67,10 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", UP);
+        game.movePiece("L", UP, false);
 
         try{
-            game.movePiece("L", LEFT);
+            game.movePiece("L", LEFT, false);
         } catch (IllegalArgumentException e){
 
         }
@@ -86,10 +86,36 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", UP);
+        game.movePiece("L", UP, false);
 
         Position pos = game.getBoard().findPiece("L").getPosition();
         assertTrue(pos.getX() == 1);
         assertTrue(pos.getY() == 2);
+    }
+
+    /**
+     * Attempt to move a piece with a neighbor should have both its own and neighbor's position modified.
+     */
+    @Test
+    public void test_NeighborMovePiece(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.movePiece("L", DOWN, false);
+
+        Position posL = game.getBoard().findPiece("L").getPosition();
+        assertTrue(posL.getX() == 3);
+        assertTrue(posL.getY() == 2);
+
+        // Attempt to move piece A should also move piece L down.
+        game.createPiece("A", 0);
+        game.movePiece("A", DOWN, false);
+
+        posL = game.getBoard().findPiece("L").getPosition();
+        assertTrue(posL.getX() == 4);
+        assertTrue(posL.getY() == 2);
+
     }
 }

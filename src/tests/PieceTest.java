@@ -3,6 +3,7 @@ package tests;
 import model.piece.PlayerPiece;
 import org.junit.Test;
 
+import static model.piece.PlayerPiece.Item.*;
 import static org.junit.Assert.assertEquals;
 
 public class PieceTest {

@@ -1,6 +1,5 @@
 package model;
 
-import game.model.piece.*;
 import model.piece.*;
 
 /**

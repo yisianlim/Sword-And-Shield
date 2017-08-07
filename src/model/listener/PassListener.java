@@ -4,6 +4,8 @@ import model.Game;
 
 import java.util.Scanner;
 
+import static model.Game.Phase.*;
+
 public class PassListener extends Listener {
 
     public PassListener(Scanner scanner, Game game){
@@ -20,9 +22,12 @@ public class PassListener extends Listener {
     public boolean parse() {
         scanner.next(); // Gobble up the "pass" command.
         switch(game.getGamePhase()){
-            case Game.Phase.CREATE:
+            case CREATE:
+                // If the user pass during the create phase, we will move on to action phase.
+                game.setGamePhase(ACTION);
                 return true;
-            case Game.Phase.ACTION:
+            case ACTION:
+                // If the user pass during the action phase, we change to the next player.
                 game.nextPlayer();
                 return true;
             default:

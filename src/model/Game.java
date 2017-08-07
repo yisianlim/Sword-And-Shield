@@ -1,11 +1,9 @@
 package model;
 
-import model.piece.BlankPiece;
-import model.piece.EmptyPiece;
-import model.piece.FacePiece;
-import model.piece.PlayerPiece;
+import model.piece.*;
 import model.player.GreenPlayer;
 import model.player.Player;
+import model.player.Player.Direction;
 import model.player.YellowPlayer;
 
 import java.util.Arrays;
@@ -18,7 +16,7 @@ public class Game {
     // Current phase of the game.
     public enum Phase{
         CREATE, ACTION
-    };
+    }
 
     // Current state of the board.
     private Board board;
@@ -124,7 +122,9 @@ public class Game {
      * Rotate a piece with a given letter on the board. For this to be acceptable, the piece must
      * belong to the currentPlayer as well as be in the board.
      * @param letter
+     *          letter of the PlayerPiece in the board we want to move.
      * @param rotation
+     *          angle of rotation.
      */
     public void rotatePiece(String letter, int rotation){
         PlayerPiece piece = board.findPiece(letter);
@@ -133,6 +133,8 @@ public class Game {
             throw new IllegalArgumentException("No such piece is found on the board");
         } else if(!currentPlayer.validPiece(piece)){
             throw new IllegalArgumentException("This piece does not belong to you");
+        } else if(rotation!= 0 && rotation != 90 && rotation!= 180 && rotation != 270){
+            throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
         }
 
         // Update the piece's rotation.
@@ -149,10 +151,16 @@ public class Game {
     /**
      * Move a piece with a given letter on the board. For this to be acceptable, the piece must
      * belong to the currentPlayer, be on the board and be a valid move.
+     * Also check and move neighboring pieces recursively.
      * @param letter
+     *          letter of the PlayerPiece in the board we want to move.
      * @param direction
+     *          direction of movement
+     * @param isNeighbor
+     *          flag if it is a neighbor (being pushed by a dominant piece)
+     *
      */
-    public void movePiece(String letter, Player.Direction direction){
+    public void movePiece(String letter, Direction direction, boolean isNeighbor){
         PlayerPiece piece = board.findPiece(letter);
 
         if(piece == null){
@@ -172,9 +180,21 @@ public class Game {
         position = position.moveBy(direction);
         piece.setPosition(position);
 
-        // Update the game state.
-        unactedPieces.remove(piece);
-        unactedPieces.remove(null);
+        // Check for neighbor.
+        Piece neighbor = board.getSquare(position);
+
+        // Update the game state of unacted piece only if it is not a neighboring piece.
+        if(!isNeighbor) {
+            unactedPieces.remove(piece);
+            unactedPieces.remove(null);
+        }
+
+        // If there is a neighbor, we will move the piece to the same direction as well.
+        if(neighbor instanceof PlayerPiece){
+            PlayerPiece p = (PlayerPiece) neighbor;
+            System.out.println(p.getLetter());
+            movePiece(p.getLetter(), direction, true);
+        }
 
         // Update the board.
         board.setSquare(position, piece);
@@ -198,9 +218,8 @@ public class Game {
      */
     public void drawActionPhase(){
         board.draw();
-        System.out.println("\n\nYou can now choose to move or rotate any of YOUR pieces on the board");
-        System.out.println("Or you can input pass to finish your turn\n");
-        drawTurn();
+        System.out.println("You can now choose to move or rotate any of YOUR pieces on the board");
+        System.out.println("Or you can input pass to finish your turn");
     }
 
     /**
