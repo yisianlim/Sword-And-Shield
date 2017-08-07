@@ -1,4 +1,4 @@
-package game.model.piece;
+package model.piece;
 
 /**
  * Represents the empty piece inside the Board that should never have any piece placed.

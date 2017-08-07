@@ -1,6 +1,6 @@
-package game.model;
+package model;
 
-import game.model.player.Player.Direction;
+import model.player.Player;
 
 /**
  * Represents an (x,y) position on the game board.
@@ -44,7 +44,7 @@ public final class Position {
         return y;
     }
 
-    public Position moveBy(Direction direction){
+    public Position moveBy(Player.Direction direction){
         switch(direction){
             case UP:
                 return new Position(x-1, y);

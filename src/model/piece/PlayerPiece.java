@@ -1,6 +1,6 @@
-package game.model.piece;
+package model.piece;
 
-import game.model.Position;
+import model.Position;
 
 public class PlayerPiece extends Piece {
 

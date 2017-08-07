@@ -1,6 +1,7 @@
-package game.model;
+package model;
 
 import game.model.piece.*;
+import model.piece.*;
 
 /**
  * Represents the 10x10 board in the Game. Each square on the board can either be empty, or hold Piece. The board

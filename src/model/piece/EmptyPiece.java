@@ -1,4 +1,4 @@
-package game.model.piece;
+package model.piece;
 
 /**
  * This class represents an EmptyPiece in the Board. The purpose of create a class for an empty piece for code reuse

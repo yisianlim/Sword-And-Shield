@@ -1,6 +1,6 @@
-import game.model.Board;
-import game.model.Game;
-import game.model.view.Interface;
+import model.Board;
+import model.Game;
+import model.view.Interface;
 
 public class Main {
 

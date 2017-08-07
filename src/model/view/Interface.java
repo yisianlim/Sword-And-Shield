@@ -1,12 +1,13 @@
-package game.model.view;
+package model.view;
 
-import game.model.Game;
+import model.Game;
 import game.model.listener.*;
-import game.model.piece.PlayerPiece;
+import model.listener.*;
+import model.piece.PlayerPiece;
 
 import java.util.Scanner;
 
-import static game.model.Game.Phase.*;
+import static model.Game.Phase.*;
 
 /**
  * Provides a simple interface for the Sword and Shield Game.

@@ -1,13 +1,13 @@
 package tests;
 
-import game.model.Board;
-import game.model.Game;
-import game.model.Position;
-import game.model.player.GreenPlayer;
-import game.model.player.Player;
+import model.Board;
+import model.Game;
+import model.Position;
+import model.player.GreenPlayer;
+import model.player.Player;
 import org.junit.Test;
 
-import static game.model.player.Player.Direction.*;
+import static model.player.Player.Direction.*;
 import static org.junit.Assert.*;
 
 public class GameTest {

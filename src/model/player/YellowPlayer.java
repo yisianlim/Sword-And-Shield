@@ -1,15 +1,14 @@
-package game.model.player;
+package model.player;
 
-import game.model.Game;
-import game.model.Position;
-import game.model.piece.EmptyPiece;
-import game.model.piece.PlayerPiece;
+import model.Game;
+import model.Position;
+import model.piece.EmptyPiece;
+import model.piece.PlayerPiece;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
-import static game.model.piece.PlayerPiece.Item.*;
+import static model.piece.PlayerPiece.Item.*;
 
 public class YellowPlayer extends Player {
 

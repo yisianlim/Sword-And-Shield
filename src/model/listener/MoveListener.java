@@ -1,15 +1,15 @@
-package game.model.listener;
+package model.listener;
 
-import game.model.Game;
-import game.model.player.Player.Direction;
-import game.model.view.Interface;
+import model.Game;
+import model.view.Interface;
+import model.player.Player;
 
 import java.util.Scanner;
 
 public class MoveListener extends Listener {
 
     private String letter;
-    private Direction direction;
+    private Player.Direction direction;
 
     public MoveListener(Scanner scanner, Game game){
        super(scanner, game);
@@ -38,17 +38,17 @@ public class MoveListener extends Listener {
         }
     }
 
-    private Direction parseDirection(Scanner s) {
+    private Player.Direction parseDirection(Scanner s) {
         String dir = s.next().toLowerCase();
         switch(dir){
             case "up":
-                return Direction.UP;
+                return Player.Direction.UP;
             case "down":
-                return Direction.DOWN;
+                return Player.Direction.DOWN;
             case "left":
-                return Direction.LEFT;
+                return Player.Direction.LEFT;
             case "right":
-                return Direction.RIGHT;
+                return Player.Direction.RIGHT;
             default:
                 return null;
         }

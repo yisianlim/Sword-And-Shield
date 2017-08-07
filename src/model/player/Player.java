@@ -1,10 +1,10 @@
-package game.model.player;
+package model.player;
 
-import game.model.Game;
-import game.model.Position;
-import game.model.piece.EmptyPiece;
-import game.model.piece.Piece;
-import game.model.piece.PlayerPiece;
+import model.Game;
+import model.Position;
+import model.piece.EmptyPiece;
+import model.piece.Piece;
+import model.piece.PlayerPiece;
 
 import java.util.*;
 

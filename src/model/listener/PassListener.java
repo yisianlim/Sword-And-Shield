@@ -1,7 +1,6 @@
-package game.model.listener;
+package model.listener;
 
-import game.model.Game;
-import game.model.view.Interface.*;
+import model.Game;
 
 import java.util.Scanner;
 
@@ -21,9 +20,9 @@ public class PassListener extends Listener {
     public boolean parse() {
         scanner.next(); // Gobble up the "pass" command.
         switch(game.getGamePhase()){
-            case CREATE:
+            case Game.Phase.CREATE:
                 return true;
-            case ACTION:
+            case Game.Phase.ACTION:
                 game.nextPlayer();
                 return true;
             default:

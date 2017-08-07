@@ -1,7 +1,7 @@
-package game.model.listener;
+package model.listener;
 
-import game.model.Game;
-import game.model.view.Interface;
+import model.Game;
+import model.view.Interface;
 
 import java.util.Scanner;
 

@@ -1,4 +1,4 @@
-package game.model.piece;
+package model.piece;
 
 /**
  * This class represents an FacePiece in the Board to display the playerName.

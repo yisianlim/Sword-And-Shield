@@ -1,6 +1,6 @@
 package tests;
 
-import game.model.Board;
+import model.Board;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

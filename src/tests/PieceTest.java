@@ -1,11 +1,8 @@
 package tests;
 
-import game.model.Board;
-import game.model.piece.PlayerPiece;
-import game.model.player.Player;
+import model.piece.PlayerPiece;
 import org.junit.Test;
 
-import static game.model.piece.PlayerPiece.Item.*;
 import static org.junit.Assert.assertEquals;
 
 public class PieceTest {

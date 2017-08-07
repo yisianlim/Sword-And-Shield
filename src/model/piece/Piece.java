@@ -1,4 +1,4 @@
-package game.model.piece;
+package model.piece;
 
 /**
  * This class represents the piece.

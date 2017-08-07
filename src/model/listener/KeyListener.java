@@ -1,6 +1,6 @@
-package game.model.listener;
+package model.listener;
 
-import game.model.Game;
+import model.Game;
 
 import java.util.Scanner;
 

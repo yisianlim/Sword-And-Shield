@@ -1,13 +1,12 @@
-package game.model;
+package model;
 
-import game.model.piece.BlankPiece;
-import game.model.piece.EmptyPiece;
-import game.model.piece.FacePiece;
-import game.model.piece.PlayerPiece;
-import game.model.player.GreenPlayer;
-import game.model.player.Player;
-import game.model.player.Player.Direction;
-import game.model.player.YellowPlayer;
+import model.piece.BlankPiece;
+import model.piece.EmptyPiece;
+import model.piece.FacePiece;
+import model.piece.PlayerPiece;
+import model.player.GreenPlayer;
+import model.player.Player;
+import model.player.YellowPlayer;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -153,7 +152,7 @@ public class Game {
      * @param letter
      * @param direction
      */
-    public void movePiece(String letter, Direction direction){
+    public void movePiece(String letter, Player.Direction direction){
         PlayerPiece piece = board.findPiece(letter);
 
         if(piece == null){
