@@ -51,6 +51,10 @@ public class Board {
         return board[pos.getX()][pos.getY()];
     }
 
+    public boolean pushToCemetery(Position pos){
+        return pos.getX() < 0 || pos.getX() >= 10 && pos.getY() < 0 || pos.getY() >= 10;
+    }
+
     public PlayerPiece findPiece(String letter){
         for(int x = 0; x < board.length; x++){
             for(int y = 0; y < board[0].length; y++){

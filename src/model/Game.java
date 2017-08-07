@@ -28,6 +28,9 @@ public class Game {
     private Player currentPlayer;
     private List<Player> players;
 
+    // PlayerPiece that have been pushed out of the board.
+    private List<PlayerPiece> cemetery;
+
     // Pieces in the game that is yet to be acted by the player.
     private Set<PlayerPiece> unactedPieces;
 
@@ -178,6 +181,10 @@ public class Game {
 
         // Update the piece.
         position = position.moveBy(direction);
+        if(board.pushToCemetery(position)){
+            cemetery.add(piece);
+        }
+
         piece.setPosition(position);
 
         // Check for neighbor.
@@ -239,6 +246,10 @@ public class Game {
 
     public void setGamePhase(Phase phase){
         this.gamePhase = phase;
+    }
+
+    public List<PlayerPiece> getCemetery(){
+        return this.cemetery;
     }
 
     public Set<PlayerPiece> getUnactedPieces(){

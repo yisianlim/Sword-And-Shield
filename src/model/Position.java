@@ -16,12 +16,6 @@ public final class Position {
      * @param y
      */
     public Position(int x, int y) {
-        if(x < 0 || x >= 10) {
-            throw new IllegalArgumentException("Invalid X component: " + x);
-        }
-        if(y < 0 || y >= 10) {
-            throw new IllegalArgumentException("Invalid Y component: " + y);
-        }
         this.x = x;
         this.y = y;
     }

@@ -3,6 +3,7 @@ package tests;
 import model.Board;
 import model.Game;
 import model.Position;
+import model.piece.PlayerPiece;
 import model.player.GreenPlayer;
 import model.player.Player;
 import org.junit.Test;
@@ -116,6 +117,28 @@ public class GameTest {
         posL = game.getBoard().findPiece("L").getPosition();
         assertTrue(posL.getX() == 4);
         assertTrue(posL.getY() == 2);
+
+    }
+
+    /**
+     * Attempt to move a neighbor piece out of the board should result in the piece being the cemetery.
+     */
+    @Test
+    public void test_PushToCemetery(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        PlayerPiece piece_L = board.findPiece("L");
+        game.movePiece("L", UP, false);
+
+        game.createPiece("A", 0);
+        game.movePiece("A", UP, false);
+        game.movePiece("A", UP, false);
+
+        // Piece L should be in the cemetery by now.
+        assertTrue(game.getCemetery().contains(piece_L));
 
     }
 }
