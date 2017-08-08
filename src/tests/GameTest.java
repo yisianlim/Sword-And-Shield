@@ -193,4 +193,14 @@ public class GameTest {
 
         }
     }
+
+    @Test
+    public void test_UndoMove(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.movePiece("L", LEFT, false);
+    }
 }

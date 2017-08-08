@@ -19,7 +19,7 @@ public abstract class Player {
             this.value = value;
         }
 
-        Direction opposite(){
+        public Direction opposite(){
             switch (value){
                 case 1:
                     return DOWN;
@@ -114,6 +114,14 @@ public abstract class Player {
 
     public void removeFromHand(PlayerPiece piece){
         m_hand.remove(piece);
+    }
+
+    public List<PlayerPiece> getPiecesFromHand(){
+        List<PlayerPiece> list = new ArrayList<>();
+        for(PlayerPiece p : m_hand){
+            list.add(p);
+        }
+        return list;
     }
 
     public void addToPiecesInBoard(PlayerPiece piece){

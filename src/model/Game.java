@@ -34,9 +34,7 @@ public class Game {
     private boolean gameOver;
     private Phase gamePhase;
 
-    /**
-     * Commands that were executed during a Player's round
-     */
+    private CommandManager commandManager;
 
     /**
      * Construct a new game from a given starting board.
@@ -49,6 +47,7 @@ public class Game {
         gameOver = false;
         setGamePhase(Phase.CREATE);
         cemetery = new ArrayList<>();
+        commandManager = new CommandManager();
     }
 
 
@@ -61,20 +60,6 @@ public class Game {
         moves++;
         setCurrentPlayer(players.get(moves % players.size()));
         unactedPieces = new HashSet<>();
-    }
-
-    private void beginGame() {
-        // Loop until the game is over.
-        boolean gameOver = false;
-
-        // Number of moves taken throughout the game. Used to determine which player's turn.
-        moves = 1;
-
-
-        while (!gameOver) {
-            setCurrentPlayer(players.get(moves % players.size()));
-            moves++;
-        }
     }
 
     /**
@@ -95,28 +80,7 @@ public class Game {
      *            rotation of the PlayerPiece input by the user.
      */
     public void createPiece(String letter, int rotation){
-        PlayerPiece piece = currentPlayer.getPieceFromHand(letter);
-
-        if(!currentPlayer.validCreation()){
-            throw new IllegalArgumentException("Your creation grid is occupied");
-        } else if(piece == null){
-            throw new IllegalArgumentException("You do not have such piece to create");
-        } else if (rotation!=0 && rotation != 90 && rotation!= 180 && rotation !=270){
-            throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
-        }
-
-        // Update the piece's rotation and position.
-        piece.rotate(rotation);
-        piece.setPosition(currentPlayer.getCreationGrid());
-
-        // Update the player's state.
-        currentPlayer.removeFromHand(piece);
-        currentPlayer.addToPiecesInBoard(piece);
-
-        // Update the game state.
-        unactedPieces.add(piece);
-
-        board.setSquare(currentPlayer.getCreationGrid(), piece);
+        commandManager.executeCommand(new CreatePieceCommand(this, letter, rotation));
     }
 
     /**
@@ -128,27 +92,7 @@ public class Game {
      *          angle of rotation.
      */
     public void rotatePiece(String letter, int rotation){
-        PlayerPiece piece = board.findPiece(letter);
-
-        if(piece == null){
-            throw new IllegalArgumentException("No such piece is found on the board");
-        } else if(!currentPlayer.validPiece(piece)){
-            throw new IllegalArgumentException("This piece does not belong to you");
-        } else if(rotation!= 0 && rotation != 90 && rotation!= 180 && rotation != 270){
-            throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
-        }else if(!unactedPieces.contains(piece)){
-            throw new IllegalArgumentException("This piece has already been acted");
-        }
-
-        // Update the piece's rotation.
-        piece.rotate(rotation);
-
-        // Update the game state.
-        unactedPieces.remove(piece);
-        unactedPieces.remove(null);
-
-        // Update the board.
-        board.setSquare(piece.getPosition(), piece);
+        commandManager.executeCommand(new RotatePieceCommand(this, letter, rotation));
     }
 
     /**
@@ -164,54 +108,7 @@ public class Game {
      *
      */
     public void movePiece(String letter, Direction direction, boolean isNeighbor){
-        PlayerPiece piece = board.findPiece(letter);
-
-        if(piece == null){
-            throw new IllegalArgumentException("No such piece is found on the board");
-        } else if(!currentPlayer.validPiece(piece)){
-            throw new IllegalArgumentException("This piece does not belong to you");
-        } else if(!unactedPieces.contains(piece)  && !isNeighbor){
-            throw new IllegalArgumentException("This piece has already been acted");
-        }
-
-        Position old_position = piece.getPosition();
-        Position new_position = old_position.moveBy(direction);
-
-        // If the piece goes out of the board, it should be added to the cemetery.
-        if(board.isCemetery(new_position) ||
-                board.getSquare(new_position) instanceof FacePiece ||
-                board.getSquare(new_position) instanceof BlankPiece){
-            cemetery.add(piece);
-            currentPlayer.removeFromPiecesInBoard(piece);
-            removeFromUnactedPieces(piece);
-
-            // Update the board.
-            board.setSquare(old_position, new EmptyPiece());
-
-            System.out.println("Piece " + piece.getLetter() + " has been pushed to the cemetery :(\n\n");
-            return;
-        }
-
-        // Update the piece.
-        piece.setPosition(new_position);
-
-        // Check for neighbor.
-        Piece neighbor = board.getSquare(new_position);
-
-        // Update the game state of unacted piece only if it is not a neighboring piece.
-        if(!isNeighbor) {
-            removeFromUnactedPieces(piece);
-        }
-
-        // If there is a neighbor, we will move the piece to the same direction as well.
-        if(neighbor instanceof PlayerPiece){
-            PlayerPiece p = (PlayerPiece) neighbor;
-            movePiece(p.getLetter(), direction, true);
-        }
-
-        // Update the board.
-        board.setSquare(new_position, piece);
-        board.setSquare(old_position, new EmptyPiece());
+        commandManager.executeCommand(new MovePieceCommand(this, letter, direction, isNeighbor));
     }
 
     public void removeFromUnactedPieces(PlayerPiece piece){
@@ -236,10 +133,9 @@ public class Game {
      * For action phase of the game, we do not need to draw the player's hand as no pieces can be created.
      */
     public void drawActionPhase(){
-        board.draw();
+        drawCreatePhase();
         System.out.println("You can now choose to move or rotate any of YOUR pieces on the board");
         System.out.println("Or you can input pass to finish your turn");
-        drawCreatePhase();
     }
 
     /**
@@ -281,6 +177,208 @@ public class Game {
      */
     public void updateUnactedPieces() {
         unactedPieces = currentPlayer.getAllPiecesInBoard();
+    }
+
+    private class MovePieceCommand implements Command{
+
+        private Game game;
+
+        // Previous states.
+        private List<PlayerPiece> prev_cemetery;
+        private Set<PlayerPiece> prev_player_pieces_in_board;
+        private Set<PlayerPiece> prev_unacted_pieces;
+        private Board prev_board;
+        private PlayerPiece prev_piece;
+
+        // Move command.
+        private String letter;
+        private Direction direction;
+        private boolean isNeighbor;
+
+        public MovePieceCommand(Game game, String letter, Direction direction, boolean isNeighbor){
+            this.game = game;
+
+            this.prev_cemetery = game.getCemetery();
+            this.prev_player_pieces_in_board = game.currentPlayer.getAllPiecesInBoard();
+            this.prev_unacted_pieces = game.getUnactedPieces();
+            this.prev_board = game.getBoard();
+            this.prev_piece = game.getBoard().findPiece(letter);
+
+            this.letter = letter;
+            this.direction = direction;
+            this.isNeighbor = isNeighbor;
+        }
+
+        @Override
+        public void execute() {
+            PlayerPiece piece = board.findPiece(letter);
+
+            if(piece == null){
+                throw new IllegalArgumentException("No such piece is found on the board");
+            } else if(!currentPlayer.validPiece(piece)){
+                throw new IllegalArgumentException("This piece does not belong to you");
+            } else if(!unactedPieces.contains(piece)  && !isNeighbor){
+                throw new IllegalArgumentException("This piece has already been moved/rotated");
+            }
+
+            Position old_position = piece.getPosition();
+            Position new_position = old_position.moveBy(direction);
+
+            // If the piece goes out of the board, it should be added to the cemetery.
+            if(board.isCemetery(new_position) ||
+                    board.getSquare(new_position) instanceof FacePiece ||
+                    board.getSquare(new_position) instanceof BlankPiece){
+                cemetery.add(piece);
+                currentPlayer.removeFromPiecesInBoard(piece);
+                removeFromUnactedPieces(piece);
+
+                // Update the board.
+                board.setSquare(old_position, new EmptyPiece());
+                System.out.println("Piece " + piece.getLetter() + " has been pushed to the cemetery :(\n\n");
+                return;
+            }
+
+            // Update the piece.
+            piece.setPosition(new_position);
+
+            // Update the game state of unacted piece only if it is not a neighboring piece.
+            if(!isNeighbor) {
+                removeFromUnactedPieces(piece);
+            }
+
+            // Check for neighbor.
+            // If there is a neighbor, we will move the piece to the same direction as well.
+            Piece neighbor = board.getSquare(new_position);
+            if(neighbor instanceof PlayerPiece){
+                PlayerPiece p = (PlayerPiece) neighbor;
+                MovePieceCommand movePieceCommand = new MovePieceCommand(game, p.getLetter(), direction, true);
+                movePieceCommand.execute();
+            }
+
+            // Update the board.
+            board.setSquare(new_position, piece);
+            board.setSquare(old_position, new EmptyPiece());
+        }
+
+        @Override
+        public void undo() {
+
+        }
+    }
+
+    private class RotatePieceCommand implements Command{
+
+        private Game game;
+
+        // Previous states.
+        private Set<PlayerPiece> prev_unacted_pieces;
+        private Board prev_board;
+        private PlayerPiece prev_piece;
+
+        // Rotate command.
+        String letter;
+        int rotation;
+
+        public RotatePieceCommand(Game game, String letter, int rotation){
+            this.game = game;
+
+            this.prev_unacted_pieces = game.getUnactedPieces();
+            this.prev_board = game.getBoard();
+            this.prev_piece = game.getBoard().findPiece(letter);
+
+            this.letter = letter;
+            this.rotation = rotation;
+        }
+
+
+        @Override
+        public void execute() {
+            PlayerPiece piece = board.findPiece(letter);
+
+            if(piece == null){
+                throw new IllegalArgumentException("No such piece is found on the board");
+            } else if(!currentPlayer.validPiece(piece)){
+                throw new IllegalArgumentException("This piece does not belong to you");
+            } else if(rotation!= 0 && rotation != 90 && rotation!= 180 && rotation != 270){
+                throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
+            } else if(!unactedPieces.contains(piece)){
+                throw new IllegalArgumentException("This piece has already been acted");
+            }
+
+            // Update the piece's rotation.
+            piece.rotate(rotation);
+
+            // Update the game state.
+            unactedPieces.remove(piece);
+            unactedPieces.remove(null);
+
+            // Update the board.
+            board.setSquare(piece.getPosition(), piece);
+        }
+
+        @Override
+        public void undo() {
+
+        }
+    }
+
+    private class CreatePieceCommand implements Command{
+        private Game game;
+
+        // Previous states.
+        private List<PlayerPiece> prev_player_hand;
+        private Set<PlayerPiece> prev_player_pieces_in_board;
+        private Set<PlayerPiece> prev_unacted_pieces;
+        private Board prev_board;
+        private PlayerPiece prev_piece;
+
+        // Create command.
+        private String letter;
+        private int rotation;
+
+        public CreatePieceCommand(Game game, String letter, int rotation){
+            this.game = game;
+
+            this.prev_player_hand = currentPlayer.getPiecesFromHand();
+            this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
+            this.prev_unacted_pieces = getUnactedPieces();
+            this.prev_board = game.getBoard();
+            this.prev_piece = currentPlayer.getPieceFromHand(letter);
+
+            this.letter = letter;
+            this.rotation = rotation;
+        }
+
+        @Override
+        public void execute() {
+            PlayerPiece piece = currentPlayer.getPieceFromHand(letter);
+
+            if(!currentPlayer.validCreation()){
+                throw new IllegalArgumentException("Your creation grid is occupied");
+            } else if(piece == null){
+                throw new IllegalArgumentException("You do not have such piece to create");
+            } else if (rotation!=0 && rotation != 90 && rotation!= 180 && rotation !=270){
+                throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
+            }
+
+            // Update the piece's rotation and position.
+            piece.rotate(rotation);
+            piece.setPosition(currentPlayer.getCreationGrid());
+
+            // Update the player's state.
+            currentPlayer.removeFromHand(piece);
+            currentPlayer.addToPiecesInBoard(piece);
+
+            // Update the game state.
+            unactedPieces.add(piece);
+
+            board.setSquare(currentPlayer.getCreationGrid(), piece);
+        }
+
+        @Override
+        public void undo() {
+
+        }
     }
 
 }
