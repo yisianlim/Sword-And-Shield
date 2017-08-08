@@ -27,8 +27,6 @@ public class PassListener extends Listener {
                 game.setGamePhase(ACTION);
                 return true;
             case ACTION:
-                // If the user pass during the action phase, we change to the next player.
-                game.nextPlayer();
                 return true;
             default:
                 return false;

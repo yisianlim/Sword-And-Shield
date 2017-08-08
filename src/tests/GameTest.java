@@ -6,7 +6,10 @@ import model.Position;
 import model.piece.PlayerPiece;
 import model.player.GreenPlayer;
 import model.player.Player;
+import model.player.YellowPlayer;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import static model.player.Player.Direction.*;
 import static org.junit.Assert.*;
@@ -20,9 +23,10 @@ public class GameTest {
         Board board = new Board();
         Game game = new Game(board);
         game.setCurrentPlayer(new GreenPlayer(game));
+        game.createPiece("L", 0);
         try {
-            game.createPiece("L", 0);
             game.createPiece("B", 0);
+            fail("Cannot create if CREATION_GRID is occupied.");
         } catch (IllegalArgumentException e){
 
         }
@@ -38,6 +42,7 @@ public class GameTest {
         game.setCurrentPlayer(new GreenPlayer(game));
         try {
             game.createPiece("l", 0);
+            fail("An exception have to be throw for attempt to create a piece the player don't have");
         } catch (IllegalArgumentException e){
 
         }
@@ -127,18 +132,65 @@ public class GameTest {
     public void test_PushToCemetery(){
         Board board = new Board();
         Game game = new Game(board);
-        Player player = new GreenPlayer(game);
-        game.setCurrentPlayer(player);
+        Player greenPlayer = new GreenPlayer(game);
+
+        game.setCurrentPlayer(greenPlayer);
         game.createPiece("L", 0);
         PlayerPiece piece_L = board.findPiece("L");
         game.movePiece("L", UP, false);
 
+        game.updateUnactedPieces();
+
         game.createPiece("A", 0);
         game.movePiece("A", UP, false);
+
+        game.updateUnactedPieces();
+
         game.movePiece("A", UP, false);
 
         // Piece L should be in the cemetery by now.
         assertTrue(game.getCemetery().contains(piece_L));
 
+        // Piece L should not be in the m_pieces_in_board for player.
+        assertFalse(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+    }
+
+    /**
+     * Attempt to move a piece twice during a round should throw an exception.
+     */
+    @Test
+    public void test_CannotMoveTwice(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.movePiece("L", UP, false);
+
+        try{
+            game.movePiece("L", UP, false);
+            fail("An exception have to be throw for attempt to move twice");
+        } catch (IllegalArgumentException e){
+
+        }
+    }
+
+    /**
+     * Attempt to move a piece twice during a round should throw an exception.
+     */
+    @Test
+    public void test_CannotRotateTwice(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.rotatePiece("L", 90);
+        try{
+            game.rotatePiece("L", 90);
+            fail("An exception have to be throw for attempt to rotate twice");
+        } catch (IllegalArgumentException e){
+
+        }
     }
 }

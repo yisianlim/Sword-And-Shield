@@ -120,6 +120,10 @@ public abstract class Player {
         m_pieces_in_board.add(piece);
     }
 
+    public void removeFromPiecesInBoard(PlayerPiece piece){
+        m_pieces_in_board.remove(piece);
+    }
+
     public void drawHand() {
         System.out.println("******** " + m_playerName + "'s piece to create ********");
         System.out.println(handToString());

@@ -40,7 +40,6 @@ public class Interface {
 
     private void beginGame(){
         while(!game.gameOver()) {
-            //
             createPhase();
             actionPhase();
             game.nextPlayer();
@@ -58,6 +57,7 @@ public class Interface {
             return;
         }
 
+        // Action phase goes on as long as there are still unacted pieces.
         while(!game.getUnactedPieces().isEmpty()){
             System.out.print("You can move the following pieces: ");
             for (PlayerPiece playerPiece : game.getUnactedPieces()) {
@@ -68,6 +68,10 @@ public class Interface {
             Listener listener = parseActionPhase(READER);
 
             if(listener != null){
+
+                // If it is a pass, then we end action phase.
+                if(listener instanceof PassListener) break;
+
                 // Add it to record.
             } else {
                 fail("Please try again\n");

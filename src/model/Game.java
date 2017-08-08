@@ -6,10 +6,7 @@ import model.player.Player;
 import model.player.Player.Direction;
 import model.player.YellowPlayer;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Game {
 
@@ -51,6 +48,7 @@ public class Game {
         setupPlayers();
         gameOver = false;
         setGamePhase(Phase.CREATE);
+        cemetery = new ArrayList<>();
     }
 
 
@@ -138,6 +136,8 @@ public class Game {
             throw new IllegalArgumentException("This piece does not belong to you");
         } else if(rotation!= 0 && rotation != 90 && rotation!= 180 && rotation != 270){
             throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
+        }else if(!unactedPieces.contains(piece)){
+            throw new IllegalArgumentException("This piece has already been acted");
         }
 
         // Update the piece's rotation.
@@ -170,41 +170,53 @@ public class Game {
             throw new IllegalArgumentException("No such piece is found on the board");
         } else if(!currentPlayer.validPiece(piece)){
             throw new IllegalArgumentException("This piece does not belong to you");
-        } else if (board.getSquare(piece.getPosition().moveBy(direction)) instanceof FacePiece){
-            throw new IllegalArgumentException("You cannot move into a FacePiece");
-        } else if (board.getSquare(piece.getPosition().moveBy(direction)) instanceof BlankPiece){
-            throw new IllegalArgumentException("You cannot move into a BlankPiece");
+        } else if(!unactedPieces.contains(piece)  && !isNeighbor){
+            throw new IllegalArgumentException("This piece has already been acted");
         }
 
-        Position position = piece.getPosition();
-        board.setSquare(position, new EmptyPiece());
+        Position old_position = piece.getPosition();
+        Position new_position = old_position.moveBy(direction);
+
+        // If the piece goes out of the board, it should be added to the cemetery.
+        if(board.isCemetery(new_position)
+                || board.getSquare(new_position) instanceof FacePiece
+                || board.getSquare(new_position) instanceof BlankPiece){
+            cemetery.add(piece);
+            currentPlayer.removeFromPiecesInBoard(piece);
+            removeFromUnactedPieces(piece);
+
+            // Update the board.
+            board.setSquare(old_position, new EmptyPiece());
+
+            System.out.println("Piece " + piece.getLetter() + " has been pushed to the cemetery :(\n\n");
+            return;
+        }
 
         // Update the piece.
-        position = position.moveBy(direction);
-        if(board.pushToCemetery(position)){
-            cemetery.add(piece);
-        }
-
-        piece.setPosition(position);
+        piece.setPosition(new_position);
 
         // Check for neighbor.
-        Piece neighbor = board.getSquare(position);
+        Piece neighbor = board.getSquare(new_position);
 
         // Update the game state of unacted piece only if it is not a neighboring piece.
         if(!isNeighbor) {
-            unactedPieces.remove(piece);
-            unactedPieces.remove(null);
+            removeFromUnactedPieces(piece);
         }
 
         // If there is a neighbor, we will move the piece to the same direction as well.
         if(neighbor instanceof PlayerPiece){
             PlayerPiece p = (PlayerPiece) neighbor;
-            System.out.println(p.getLetter());
             movePiece(p.getLetter(), direction, true);
         }
 
         // Update the board.
-        board.setSquare(position, piece);
+        board.setSquare(new_position, piece);
+        board.setSquare(old_position, new EmptyPiece());
+    }
+
+    public void removeFromUnactedPieces(PlayerPiece piece){
+        unactedPieces.remove(piece);
+        unactedPieces.remove(null);
     }
 
     public void setCurrentPlayer(Player player){
@@ -256,6 +268,9 @@ public class Game {
         return unactedPieces;
     }
 
+    /**
+     * updateUnactedPieces is invoked when the game moves on to the action phase.
+     */
     public void updateUnactedPieces() {
         unactedPieces = currentPlayer.getAllPiecesInBoard();
     }

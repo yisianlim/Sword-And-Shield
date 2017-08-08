@@ -51,7 +51,7 @@ public class Board {
         return board[pos.getX()][pos.getY()];
     }
 
-    public boolean pushToCemetery(Position pos){
+    public boolean isCemetery(Position pos){
         return pos.getX() < 0 || pos.getX() >= 10 && pos.getY() < 0 || pos.getY() >= 10;
     }
 
