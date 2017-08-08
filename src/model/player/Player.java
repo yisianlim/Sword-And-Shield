@@ -37,10 +37,10 @@ public abstract class Player {
     protected String m_playerName;
 
     // PlayerPiece that are on hand to be created.
-    protected List<PlayerPiece> m_hand;
+    public List<PlayerPiece> m_hand;
 
     // PlayerPiece that are currently on the board.
-    protected Set<PlayerPiece> m_pieces_in_board;
+    public Set<PlayerPiece> m_pieces_in_board;
 
     protected Game m_game;
 

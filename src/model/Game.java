@@ -1,5 +1,7 @@
 package model;
 
+import model.command.Command;
+import model.command.CommandManager;
 import model.piece.*;
 import model.player.GreenPlayer;
 import model.player.Player;
@@ -111,6 +113,10 @@ public class Game {
         commandManager.executeCommand(new MovePieceCommand(this, letter, direction, isNeighbor));
     }
 
+    public void undo(){
+        commandManager.undo();
+    }
+
     public void removeFromUnactedPieces(PlayerPiece piece){
         unactedPieces.remove(piece);
         unactedPieces.remove(null);
@@ -165,11 +171,19 @@ public class Game {
     }
 
     public List<PlayerPiece> getCemetery(){
-        return this.cemetery;
+        List<PlayerPiece> list_copy = new ArrayList<>();
+        for(PlayerPiece piece : cemetery){
+            list_copy.add(piece);
+        }
+        return list_copy;
     }
 
     public Set<PlayerPiece> getUnactedPieces(){
-        return unactedPieces;
+        Set<PlayerPiece> copy_set = new HashSet<>();
+        for(PlayerPiece piece : unactedPieces){
+            copy_set.add(piece);
+        }
+        return copy_set;
     }
 
     /**
@@ -179,7 +193,7 @@ public class Game {
         unactedPieces = currentPlayer.getAllPiecesInBoard();
     }
 
-    private class MovePieceCommand implements Command{
+    private class MovePieceCommand implements Command {
 
         private Game game;
 
@@ -188,7 +202,6 @@ public class Game {
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_unacted_pieces;
         private Board prev_board;
-        private PlayerPiece prev_piece;
 
         // Move command.
         private String letter;
@@ -201,8 +214,7 @@ public class Game {
             this.prev_cemetery = game.getCemetery();
             this.prev_player_pieces_in_board = game.currentPlayer.getAllPiecesInBoard();
             this.prev_unacted_pieces = game.getUnactedPieces();
-            this.prev_board = game.getBoard();
-            this.prev_piece = game.getBoard().findPiece(letter);
+            this.prev_board = game.getBoard().clone();
 
             this.letter = letter;
             this.direction = direction;
@@ -262,7 +274,10 @@ public class Game {
 
         @Override
         public void undo() {
-
+            game.cemetery = prev_cemetery;
+            currentPlayer.m_pieces_in_board = prev_player_pieces_in_board;
+            game.unactedPieces = prev_unacted_pieces;
+            game.board = prev_board;
         }
     }
 

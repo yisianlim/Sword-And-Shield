@@ -194,13 +194,126 @@ public class GameTest {
         }
     }
 
-    @Test
-    public void test_UndoMove(){
+  /**
+   * Test if undo move is successful.
+   */
+  @Test
+    public void test_UndoMove1(){
         Board board = new Board();
         Game game = new Game(board);
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
         game.movePiece("L", LEFT, false);
+        PlayerPiece piece_l = game.getBoard().findPiece("L");
+
+        assertTrue(piece_l.getPosition().getX() == 2);
+        assertTrue(piece_l.getPosition().getY() == 1);
+
+        game.undo();
+
+        piece_l = game.getBoard().findPiece("L");
+        assertTrue(piece_l.getPosition().getX() == 2);
+        assertTrue(piece_l.getPosition().getY() == 2);
     }
+
+    /**
+     * Test if undo move twice is successful.
+     */
+    @Test
+    public void test_UndoMove2(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.movePiece("L", LEFT, false);
+        game.updateUnactedPieces();
+        game.movePiece("L", LEFT, false);
+        PlayerPiece piece_l = game.getBoard().findPiece("L");
+
+        assertTrue(piece_l.getPosition().getX() == 2);
+        assertTrue(piece_l.getPosition().getY() == 0);
+
+        game.undo();
+        game.undo();
+
+        piece_l = game.getBoard().findPiece("L");
+        assertTrue(piece_l.getPosition().getX() == 2);
+        assertTrue(piece_l.getPosition().getY() == 2);
+    }
+
+  /**
+   * Test if undo move that push a neighboring piece is successful.
+   */
+    @Test
+    public void test_UndoMove3(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.movePiece("L", DOWN, false);
+
+        Position posL = game.getBoard().findPiece("L").getPosition();
+        assertTrue(posL.getX() == 3);
+        assertTrue(posL.getY() == 2);
+
+        // Attempt to move piece A should also move piece L down.
+        game.createPiece("A", 0);
+        game.movePiece("A", DOWN, false);
+
+        posL = game.getBoard().findPiece("L").getPosition();
+        assertTrue(posL.getX() == 4);
+        assertTrue(posL.getY() == 2);
+
+        game.undo();
+        game.undo();
+        game.undo();
+
+        // Piece L should now be back in CREATION GRID.
+        posL = game.getBoard().findPiece("L").getPosition();
+        assertTrue(posL.getX() == 2);
+        assertTrue(posL.getY() == 2);
+    }
+
+  /**
+   * Test if undo move the pushes a neighboring piece to the cemetery is successful.
+   */
+  @Test
+    public void test_UndoMove4(){
+      Board board = new Board();
+      Game game = new Game(board);
+      Player greenPlayer = new GreenPlayer(game);
+
+      game.setCurrentPlayer(greenPlayer);
+      game.createPiece("L", 0);
+      PlayerPiece piece_L = board.findPiece("L");
+      game.movePiece("L", UP, false);
+
+      game.updateUnactedPieces();
+
+      game.createPiece("A", 0);
+      game.movePiece("A", UP, false);
+
+      game.updateUnactedPieces();
+
+      game.movePiece("A", UP, false);
+
+      // Piece L should be in the cemetery by now.
+      assertTrue(game.getCemetery().contains(piece_L));
+
+      // Piece L should not be in the m_pieces_in_board for player.
+      assertFalse(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+
+      game.undo();
+
+      // Piece L should not be in the cemetery after undo.
+      assertFalse(game.getCemetery().contains(piece_L));
+
+      // Piece L should be back in the m_pieces_in_board for player.
+      assertTrue(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+
+    }
+
 }

@@ -1,8 +1,14 @@
 package tests;
 
 import model.Board;
+import model.Position;
+import model.piece.PlayerPiece;
 import org.junit.Test;
 
+import static model.piece.PlayerPiece.Item.HORIZONTAL_SWORD;
+import static model.piece.PlayerPiece.Item.NO_ITEM;
+import static model.piece.PlayerPiece.Item.SHIELD;
+import static model.piece.PlayerPiece.Item.VERTICAL_SWORD;
 import static org.junit.Assert.assertEquals;
 
 public class BoardTest {
@@ -57,5 +63,107 @@ public class BoardTest {
 
         Board board = new Board();
         assertEquals(output, board.toString());
+    }
+
+    /**
+     * Test whether the Board was deep cloned correctly.
+     */
+    @Test
+    public void test_ValidClone(){
+        String original_output =
+            "     0   1   2   3   4   5   6   7   8   9  \n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |XXX|XXX|   |   |   |   |   |   |   |   |\n" +
+            " 0 |XXX|XXX|   |   |   |   |   |   |   |   |\n" +
+            "   |XXX|XXX|   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |XXX|   |   |   |   |   |   |   |   |   |\n" +
+            " 1 |XXX| 1 |   |   |   |   |   |   |   |   |\n" +
+            "   |XXX|   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 2 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 3 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 4 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 5 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 6 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 7 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |XXX|\n" +
+            " 8 |   |   |   |   |   |   |   |   | 0 |XXX|\n" +
+            "   |   |   |   |   |   |   |   |   |   |XXX|\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |XXX|XXX|\n" +
+            " 9 |   |   |   |   |   |   |   |   |XXX|XXX|\n" +
+            "   |   |   |   |   |   |   |   |   |XXX|XXX|\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" ;
+
+        String clone_output =
+            "     0   1   2   3   4   5   6   7   8   9  \n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |XXX|XXX|   |   |   |   |   |   |   |   |\n" +
+            " 0 |XXX|XXX|   |   |   |   |   |   |   |   |\n" +
+            "   |XXX|XXX|   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |XXX|   |   |   |   |   |   |   |   |   |\n" +
+            " 1 |XXX| 1 |   |   |   |   |   |   |   |   |\n" +
+            "   |XXX|   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 2 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 3 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 4 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   | | |   |   |   |   |\n" +
+            " 5 |   |   |   |   |   |-X#|   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 6 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            " 7 |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   |   |   |   |   |   |   |   |   |   |   |\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |   |XXX|\n" +
+            " 8 |   |   |   |   |   |   |   |   | 0 |XXX|\n" +
+            "   |   |   |   |   |   |   |   |   |   |XXX|\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" +
+            "   |   |   |   |   |   |   |   |   |XXX|XXX|\n" +
+            " 9 |   |   |   |   |   |   |   |   |XXX|XXX|\n" +
+            "   |   |   |   |   |   |   |   |   |XXX|XXX|\n" +
+            "   +---+---+---+---+---+---+---+---+---+---+\n" ;
+
+        Board original = new Board();
+        Board clone = original.clone();
+        clone.setSquare(new Position(5,5), new PlayerPiece(VERTICAL_SWORD, HORIZONTAL_SWORD, NO_ITEM, SHIELD, "X"));
+
+        // Changes to the clone board should not change the original board.
+        assertEquals(original_output, original.toString());
+        assertEquals(clone_output, clone.toString());
     }
 }

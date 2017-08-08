@@ -24,4 +24,8 @@ public abstract class Piece {
         return  topLine() + "\n" + midLine() + "\n" + bottomLine() + "\n";
     }
 
+    public Piece clone(){
+        return this;
+    }
+
 }

@@ -1,4 +1,4 @@
-package model;
+package model.command;
 
 /**
  * Command pattern is used to separate the actions performed by user input from user interface code.

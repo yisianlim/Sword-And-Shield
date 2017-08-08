@@ -135,4 +135,11 @@ public class PlayerPiece extends Piece {
     public Position getPosition(){
         return m_position;
     }
+
+    @Override
+    public Piece clone() {
+        PlayerPiece clone = new PlayerPiece(m_top, m_left, m_bottom, m_right, m_letter);
+        clone.setPosition(m_position);
+        return clone;
+    }
 }
