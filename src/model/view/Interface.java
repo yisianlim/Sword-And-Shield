@@ -1,12 +1,17 @@
 package model.view;
 
-import model.Game;
-import model.listener.*;
-import model.piece.PlayerPiece;
+import static model.Game.Phase.ACTION;
+import static model.Game.Phase.CREATE;
 
 import java.util.Scanner;
-
-import static model.Game.Phase.*;
+import model.Game;
+import model.listener.CreateListener;
+import model.listener.KeyListener;
+import model.listener.Listener;
+import model.listener.MoveListener;
+import model.listener.PassListener;
+import model.listener.RotateListener;
+import model.piece.PlayerPiece;
 
 /**
  * Provides a simple interface for the Sword and Shield Game.
@@ -57,6 +62,9 @@ public class Interface {
             return;
         }
 
+        // Listener that listens to the user input at this stage.
+        Listener listener;
+
         // Action phase goes on as long as there are still unacted pieces.
         while(!game.getUnactedPieces().isEmpty()){
             System.out.print("You can move the following pieces: ");
@@ -65,12 +73,12 @@ public class Interface {
             }
             System.out.println();
 
-            Listener listener = parseActionPhase(READER);
+            listener = parseInitialActionPhase(READER);
 
             if(listener != null){
 
                 // If it is a pass, then we end action phase.
-                if(listener instanceof PassListener) break;
+                if(listener instanceof PassListener) return;
 
                 // Add it to record.
             } else {
@@ -79,42 +87,21 @@ public class Interface {
                 continue;
             }
 
-            // Only draw the game state if it is not empty.
-            // We exit the action phase and move on to create phase once all pieces are acted.
-            if(!game.getUnactedPieces().isEmpty())
-                game.drawActionPhase();
+            game.drawActionPhase();
         }
 
-    }
-
-    private Listener parseActionPhase(Scanner scan){
-        Listener listener = new MoveListener(scan, game);
-        if(listener.isMove()){
-            if(listener.parse()){
-                return listener;
-            } else {
-                return null;
+        // The final stage of the action phase is when all the pieces have been acted.
+        // The user can only input "pass" to move onto the next user or "undo" to go back.
+        listener = null;
+        while(listener == null) {
+            listener = parseFinalActionPhase(READER);
+            if (listener instanceof PassListener)
+                return;
+            else {
+                fail("Please try again\n");
+                READER.nextLine();
             }
         }
-
-        listener = new RotateListener(READER, game);
-        if(listener.isRotate()){
-            if(listener.parse()){
-                return listener;
-            } else {
-                return null;
-            }
-        }
-
-        listener = new PassListener(READER, game);
-        if(listener.isPass()){
-            if(listener.parse()){
-                return listener;
-            } else {
-                return null;
-            }
-        }
-        return null;
     }
 
     private void createPhase() {
@@ -129,7 +116,7 @@ public class Interface {
                 // Add it to record.
                 break;
             } else {
-                fail("Please try again");
+                fail("Please try again\n");
                 READER.nextLine();
                 continue;
             }
@@ -159,7 +146,47 @@ public class Interface {
         return null;
     }
 
-//    public Listener parseActionPhase(Scanner scan);
+    private Listener parseInitialActionPhase(Scanner scan){
+        Listener listener = new MoveListener(scan, game);
+        if(listener.isMove()){
+            if(listener.parse()){
+                return listener;
+            } else {
+                return null;
+            }
+        }
+
+        listener = new RotateListener(READER, game);
+        if(listener.isRotate()){
+            if(listener.parse()){
+                return listener;
+            } else {
+                return null;
+            }
+        }
+
+        listener = new PassListener(READER, game);
+        if(listener.isPass()){
+            if(listener.parse()){
+                return listener;
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public Listener parseFinalActionPhase(Scanner scan){
+        Listener listener = new PassListener(scan, game);
+        if(listener.isPass()){
+            if(listener.parse()){
+                return listener;
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
 
     public static void fail(String message){
         System.out.println(message);

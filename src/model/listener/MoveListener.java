@@ -1,10 +1,9 @@
 package model.listener;
 
-import model.Game;
-import model.view.Interface;
-import model.player.Player;
-
 import java.util.Scanner;
+import model.Game;
+import model.player.Player;
+import model.view.Interface;
 
 public class MoveListener extends Listener {
 

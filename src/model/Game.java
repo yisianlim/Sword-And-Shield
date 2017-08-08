@@ -87,8 +87,8 @@ public class Game {
     }
 
     /**
-     * Create a piece with a given letter on hand on the board. For this to be accepted, the piece must
-     * be appropriate for the playerName who's turn it currently is.
+     * Create a piece with a given letter on hand on the board. For this to be accepted,
+     * the piece must be appropriate for the playerName who's turn it currently is.
      * @param letter
      *            Name of the PlayerPiece to place; cannot be null.
      * @param rotation
@@ -178,9 +178,9 @@ public class Game {
         Position new_position = old_position.moveBy(direction);
 
         // If the piece goes out of the board, it should be added to the cemetery.
-        if(board.isCemetery(new_position)
-                || board.getSquare(new_position) instanceof FacePiece
-                || board.getSquare(new_position) instanceof BlankPiece){
+        if(board.isCemetery(new_position) ||
+                board.getSquare(new_position) instanceof FacePiece ||
+                board.getSquare(new_position) instanceof BlankPiece){
             cemetery.add(piece);
             currentPlayer.removeFromPiecesInBoard(piece);
             removeFromUnactedPieces(piece);
@@ -239,6 +239,7 @@ public class Game {
         board.draw();
         System.out.println("You can now choose to move or rotate any of YOUR pieces on the board");
         System.out.println("Or you can input pass to finish your turn");
+        drawCreatePhase();
     }
 
     /**
@@ -246,6 +247,13 @@ public class Game {
      */
     public void drawTurn(){
         System.out.println("\n******** " + currentPlayer.getName() + " player's turn ********\n");
+    }
+
+    /**
+     * Display to the user the PlayerPiece that are in the cemetery.
+     */
+    public void drawCemetery(){
+
     }
 
     public boolean gameOver(){

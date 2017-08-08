@@ -50,7 +50,7 @@ public class GameTest {
 
     /**
      * Creating a Piece and making sure that the Player's state is updated according.
-     * The player should not have that piece on their hand anymore.
+     * The player should not have that piece on their hand anymore.listener = parseFinalActionPhase(READER);
      */
     @Test
     public void test_CreatePiece(){

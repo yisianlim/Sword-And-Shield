@@ -84,7 +84,7 @@ public class Board {
      * @return
      */
     public String toString(){
-        String output = "     0   1   2   3   4   5   6   7   8   9  \n" + drawBorder();
+        String output = "\n     0   1   2   3   4   5   6   7   8   9  \n" + drawBorder();
         String line1, line2, line3;
 
         for(int row = 0; row < board.length; row++){
