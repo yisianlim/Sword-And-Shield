@@ -7,7 +7,11 @@ import java.util.Stack;
  */
 public class CommandManager {
 
-    private Stack<Command> undos = new Stack<>();
+    private Stack<Command> undos;
+
+    public CommandManager(){
+        this.undos = new Stack<>();
+    }
 
     public void executeCommand(Command c){
         c.execute();
@@ -16,6 +20,10 @@ public class CommandManager {
 
     public boolean isUndoAvailable(){
         return !undos.isEmpty();
+    }
+
+    public int commands(){
+        return undos.size();
     }
 
     public void undo(){

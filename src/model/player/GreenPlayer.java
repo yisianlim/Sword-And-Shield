@@ -1,5 +1,6 @@
 package model.player;
 
+import java.util.List;
 import model.Game;
 import model.Position;
 import model.piece.EmptyPiece;
@@ -14,7 +15,7 @@ public class GreenPlayer extends Player {
 
     public GreenPlayer(Game game){
         super("Green", game);
-        m_hand = new ArrayList<>(
+        List<PlayerPiece> pieces = new ArrayList<>(
                 Arrays.asList(
                         new PlayerPiece(PlayerPiece.Item.NO_ITEM, PlayerPiece.Item.NO_ITEM, PlayerPiece.Item.SHIELD, PlayerPiece.Item.NO_ITEM, "A"),
                         new PlayerPiece(PlayerPiece.Item.NO_ITEM, PlayerPiece.Item.NO_ITEM, PlayerPiece.Item.NO_ITEM, PlayerPiece.Item.NO_ITEM, "B"),
@@ -42,11 +43,12 @@ public class GreenPlayer extends Player {
                         new PlayerPiece(PlayerPiece.Item.VERTICAL_SWORD, PlayerPiece.Item.HORIZONTAL_SWORD, PlayerPiece.Item.NO_ITEM, PlayerPiece.Item.SHIELD, "X")
                 )
         );
+        hand = new Hand(pieces);
     }
 
     @Override
     public boolean validCreation() {
-        return m_game.getBoard().getSquare(CREATION_GRID) instanceof EmptyPiece;
+        return game.getBoard().getSquare(CREATION_GRID) instanceof EmptyPiece;
     }
 
     @Override

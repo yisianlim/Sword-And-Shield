@@ -5,12 +5,7 @@ import static model.Game.Phase.CREATE;
 
 import java.util.Scanner;
 import model.Game;
-import model.listener.CreateListener;
-import model.listener.KeyListener;
-import model.listener.Listener;
-import model.listener.MoveListener;
-import model.listener.PassListener;
-import model.listener.RotateListener;
+import model.listener.*;
 import model.piece.PlayerPiece;
 
 /**
@@ -76,11 +71,15 @@ public class Interface {
             listener = parseInitialActionPhase(READER);
 
             if(listener != null){
-
                 // If it is a pass, then we end action phase.
                 if(listener instanceof PassListener) return;
+                
+                // If it is an undo, we need to check if we need to go back to create phase.
+                if(listener instanceof UndoListener && game.commandsExecuted() == 1){
+                    System.out.println("?");
+                    createPhase();
+                }
 
-                // Add it to record.
             } else {
                 fail("Please try again\n");
                 READER.nextLine();
@@ -90,13 +89,20 @@ public class Interface {
             game.drawActionPhase();
         }
 
+        finalActionPhase();
+    }
+
+    private void finalActionPhase(){
         // The final stage of the action phase is when all the pieces have been acted.
         // The user can only input "pass" to move onto the next user or "undo" to go back.
-        listener = null;
+        Listener listener = null;
         while(listener == null) {
             listener = parseFinalActionPhase(READER);
-            if (listener instanceof PassListener)
+            if (listener instanceof PassListener) {
                 return;
+            } else if (listener instanceof UndoListener){
+                actionPhase();
+            }
             else {
                 fail("Please try again\n");
                 READER.nextLine();
@@ -156,7 +162,7 @@ public class Interface {
             }
         }
 
-        listener = new RotateListener(READER, game);
+        listener = new RotateListener(scan, game);
         if(listener.isRotate()){
             if(listener.parse()){
                 return listener;
@@ -165,8 +171,17 @@ public class Interface {
             }
         }
 
-        listener = new PassListener(READER, game);
+        listener = new PassListener(scan, game);
         if(listener.isPass()){
+            if(listener.parse()){
+                return listener;
+            } else {
+                return null;
+            }
+        }
+
+        listener = new UndoListener(scan, game);
+        if(listener.isUndo()){
             if(listener.parse()){
                 return listener;
             } else {
@@ -179,6 +194,15 @@ public class Interface {
     public Listener parseFinalActionPhase(Scanner scan){
         Listener listener = new PassListener(scan, game);
         if(listener.isPass()){
+            if(listener.parse()){
+                return listener;
+            } else {
+                return null;
+            }
+        }
+
+        listener = new UndoListener(scan, game);
+        if(listener.isUndo()){
             if(listener.parse()){
                 return listener;
             } else {

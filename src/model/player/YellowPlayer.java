@@ -1,5 +1,6 @@
 package model.player;
 
+import java.util.List;
 import model.Game;
 import model.Position;
 import model.piece.EmptyPiece;
@@ -16,7 +17,7 @@ public class YellowPlayer extends Player {
 
     public YellowPlayer(Game game){
         super("Yellow", game);
-        m_hand = new ArrayList<>(
+        List<PlayerPiece> pieces = new ArrayList<>(
                 Arrays.asList(
                         new PlayerPiece(NO_ITEM, NO_ITEM, SHIELD, NO_ITEM, "a"),
                         new PlayerPiece(NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM, "b"),
@@ -44,11 +45,12 @@ public class YellowPlayer extends Player {
                         new PlayerPiece(VERTICAL_SWORD, HORIZONTAL_SWORD, NO_ITEM, SHIELD, "x")
                 )
         );
+        hand = new Hand(pieces);
     }
 
     @Override
     public boolean validCreation() {
-        return m_game.getBoard().getSquare(CREATION_GRID) instanceof EmptyPiece;
+        return game.getBoard().getSquare(CREATION_GRID) instanceof EmptyPiece;
     }
 
     @Override

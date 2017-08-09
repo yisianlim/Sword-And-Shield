@@ -33,8 +33,8 @@ public abstract class Listener {
         return scanner.hasNext("move");
     }
 
-    public boolean hasNext(String input){
-        return scanner.hasNext(input);
+    public boolean isUndo(){
+        return scanner.hasNext("undo");
     }
 
     public abstract boolean parse();

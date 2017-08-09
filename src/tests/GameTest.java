@@ -58,9 +58,9 @@ public class GameTest {
         Game game = new Game(board);
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
-        assertTrue(player.getPieceFromHand("L") != null);
+        assertTrue(player.hand.getPiece("L") != null);
         game.createPiece("L", 0);
-        assertTrue(player.getPieceFromHand("L") == null);
+        assertTrue(player.hand.getPiece("L") == null);
     }
 
     /**
@@ -151,7 +151,7 @@ public class GameTest {
         // Piece L should be in the cemetery by now.
         assertTrue(game.getCemetery().contains(piece_L));
 
-        // Piece L should not be in the m_pieces_in_board for player.
+        // Piece L should not be in the piecesInBoard for player.
         assertFalse(greenPlayer.getAllPiecesInBoard().contains(piece_L));
     }
 
@@ -169,7 +169,7 @@ public class GameTest {
 
         try{
             game.movePiece("L", UP, false);
-            fail("An exception have to be throw for attempt to move twice");
+            fail("An exception have to be thrown for attempt to move twice");
         } catch (IllegalArgumentException e){
 
         }
@@ -278,7 +278,7 @@ public class GameTest {
     }
 
   /**
-   * Test if undo move the pushes a neighboring piece to the cemetery is successful.
+   * Test if undo move that pushes a neighboring piece to the cemetery is successful.
    */
   @Test
     public void test_UndoMove4(){
@@ -303,7 +303,7 @@ public class GameTest {
       // Piece L should be in the cemetery by now.
       assertTrue(game.getCemetery().contains(piece_L));
 
-      // Piece L should not be in the m_pieces_in_board for player.
+      // Piece L should not be in the piecesInBoard for player.
       assertFalse(greenPlayer.getAllPiecesInBoard().contains(piece_L));
 
       game.undo();
@@ -311,8 +311,37 @@ public class GameTest {
       // Piece L should not be in the cemetery after undo.
       assertFalse(game.getCemetery().contains(piece_L));
 
-      // Piece L should be back in the m_pieces_in_board for player.
+      // Piece L should be back in the piecesInBoard for player.
       assertTrue(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+
+    }
+
+    @Test
+    public void test_UndoRotation(){
+        String before =
+                " | \n" +
+                "-L-\n" +
+                " # \n";
+
+        String after =
+                " | \n" +
+                "-L#\n" +
+                " | \n";
+
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.rotatePiece("L", 90);
+
+        PlayerPiece piece_L = game.getBoard().findPiece("L");
+        assertEquals(after, piece_L.toString());
+
+        game.undo();
+
+        piece_L = game.getBoard().findPiece("L");
+        assertEquals(before, piece_L.toString());
 
     }
 

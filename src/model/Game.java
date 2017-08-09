@@ -4,6 +4,7 @@ import model.command.Command;
 import model.command.CommandManager;
 import model.piece.*;
 import model.player.GreenPlayer;
+import model.player.Hand;
 import model.player.Player;
 import model.player.Player.Direction;
 import model.player.YellowPlayer;
@@ -62,6 +63,7 @@ public class Game {
         moves++;
         setCurrentPlayer(players.get(moves % players.size()));
         unactedPieces = new HashSet<>();
+        commandManager = new CommandManager();
     }
 
     /**
@@ -114,6 +116,9 @@ public class Game {
     }
 
     public void undo(){
+        if(!commandManager.isUndoAvailable()){
+            throw new IllegalArgumentException("There are no more commands to undo");
+        }
         commandManager.undo();
     }
 
@@ -131,7 +136,7 @@ public class Game {
      */
     public void drawCreatePhase() {
         board.draw();
-        currentPlayer.drawHand();
+        currentPlayer.hand.draw();
         drawTurn();
     }
 
@@ -149,6 +154,10 @@ public class Game {
      */
     public void drawTurn(){
         System.out.println("\n******** " + currentPlayer.getName() + " player's turn ********\n");
+    }
+
+    public int commandsExecuted(){
+        return commandManager.commands();
     }
 
     /**
@@ -275,7 +284,7 @@ public class Game {
         @Override
         public void undo() {
             game.cemetery = prev_cemetery;
-            currentPlayer.m_pieces_in_board = prev_player_pieces_in_board;
+            currentPlayer.piecesInBoard = prev_player_pieces_in_board;
             game.unactedPieces = prev_unacted_pieces;
             game.board = prev_board;
         }
@@ -298,7 +307,7 @@ public class Game {
             this.game = game;
 
             this.prev_unacted_pieces = game.getUnactedPieces();
-            this.prev_board = game.getBoard();
+            this.prev_board = game.getBoard().clone();
             this.prev_piece = game.getBoard().findPiece(letter);
 
             this.letter = letter;
@@ -333,7 +342,8 @@ public class Game {
 
         @Override
         public void undo() {
-
+            game.unactedPieces = prev_unacted_pieces;
+            game.board = prev_board;
         }
     }
 
@@ -341,11 +351,10 @@ public class Game {
         private Game game;
 
         // Previous states.
-        private List<PlayerPiece> prev_player_hand;
+        private Hand prev_player_hand;
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_unacted_pieces;
         private Board prev_board;
-        private PlayerPiece prev_piece;
 
         // Create command.
         private String letter;
@@ -354,11 +363,10 @@ public class Game {
         public CreatePieceCommand(Game game, String letter, int rotation){
             this.game = game;
 
-            this.prev_player_hand = currentPlayer.getPiecesFromHand();
+            this.prev_player_hand = currentPlayer.hand.clone();
             this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
             this.prev_unacted_pieces = getUnactedPieces();
-            this.prev_board = game.getBoard();
-            this.prev_piece = currentPlayer.getPieceFromHand(letter);
+            this.prev_board = game.getBoard().clone();
 
             this.letter = letter;
             this.rotation = rotation;
@@ -366,7 +374,7 @@ public class Game {
 
         @Override
         public void execute() {
-            PlayerPiece piece = currentPlayer.getPieceFromHand(letter);
+            PlayerPiece piece = currentPlayer.hand.getPiece(letter);
 
             if(!currentPlayer.validCreation()){
                 throw new IllegalArgumentException("Your creation grid is occupied");
@@ -381,7 +389,7 @@ public class Game {
             piece.setPosition(currentPlayer.getCreationGrid());
 
             // Update the player's state.
-            currentPlayer.removeFromHand(piece);
+            currentPlayer.hand.remove(piece);
             currentPlayer.addToPiecesInBoard(piece);
 
             // Update the game state.
@@ -392,7 +400,10 @@ public class Game {
 
         @Override
         public void undo() {
-
+            game.currentPlayer.hand = prev_player_hand;
+            game.currentPlayer.piecesInBoard = prev_player_pieces_in_board;
+            game.unactedPieces = prev_unacted_pieces;
+            game.board = prev_board;
         }
     }
 

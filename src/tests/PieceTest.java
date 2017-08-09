@@ -84,7 +84,6 @@ public class PieceTest {
     // Changing the position of the clone should not alter the original piece as well.
     assertFalse(original.getPosition().getX() == clone.getPosition().getX());
     assertFalse(original.getPosition().getY() == clone.getPosition().getY());
-
   }
 
 }
