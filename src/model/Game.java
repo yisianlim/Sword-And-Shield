@@ -29,7 +29,7 @@ public class Game {
     private List<Player> players;
 
     // PlayerPiece that have been pushed out of the board.
-    private List<PlayerPiece> cemetery;
+    private Cemetery cemetery;
 
     // Pieces in the game that is yet to be acted by the player.
     private Set<PlayerPiece> unactedPieces;
@@ -49,7 +49,7 @@ public class Game {
         setupPlayers();
         gameOver = false;
         setGamePhase(Phase.CREATE);
-        cemetery = new ArrayList<>();
+        cemetery = new Cemetery();
         commandManager = new CommandManager();
     }
 
@@ -135,6 +135,7 @@ public class Game {
      * For create phase of the game, we draw the player's hand.
      */
     public void drawCreatePhase() {
+        cemetery.draw();
         board.draw();
         currentPlayer.hand.draw();
         drawTurn();
@@ -160,13 +161,6 @@ public class Game {
         return commandManager.commands();
     }
 
-    /**
-     * Display to the user the PlayerPiece that are in the cemetery.
-     */
-    public void drawCemetery(){
-
-    }
-
     public boolean gameOver(){
         return gameOver;
     }
@@ -179,12 +173,8 @@ public class Game {
         this.gamePhase = phase;
     }
 
-    public List<PlayerPiece> getCemetery(){
-        List<PlayerPiece> list_copy = new ArrayList<>();
-        for(PlayerPiece piece : cemetery){
-            list_copy.add(piece);
-        }
-        return list_copy;
+    public Cemetery getCemetery(){
+        return cemetery.clone();
     }
 
     public Set<PlayerPiece> getUnactedPieces(){
@@ -207,7 +197,7 @@ public class Game {
         private Game game;
 
         // Previous states.
-        private List<PlayerPiece> prev_cemetery;
+        private Cemetery prev_cemetery;
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_unacted_pieces;
         private Board prev_board;
@@ -246,16 +236,13 @@ public class Game {
             Position new_position = old_position.moveBy(direction);
 
             // If the piece goes out of the board, it should be added to the cemetery.
-            if(board.isCemetery(new_position) ||
-                    board.getSquare(new_position) instanceof FacePiece ||
-                    board.getSquare(new_position) instanceof BlankPiece){
+            if(board.outOfBoard(new_position)) {
                 cemetery.add(piece);
                 currentPlayer.removeFromPiecesInBoard(piece);
                 removeFromUnactedPieces(piece);
 
                 // Update the board.
                 board.setSquare(old_position, new EmptyPiece());
-                System.out.println("Piece " + piece.getLetter() + " has been pushed to the cemetery :(\n\n");
                 return;
             }
 
@@ -297,7 +284,6 @@ public class Game {
         // Previous states.
         private Set<PlayerPiece> prev_unacted_pieces;
         private Board prev_board;
-        private PlayerPiece prev_piece;
 
         // Rotate command.
         String letter;
@@ -308,7 +294,6 @@ public class Game {
 
             this.prev_unacted_pieces = game.getUnactedPieces();
             this.prev_board = game.getBoard().clone();
-            this.prev_piece = game.getBoard().findPiece(letter);
 
             this.letter = letter;
             this.rotation = rotation;

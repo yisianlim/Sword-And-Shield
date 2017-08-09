@@ -48,7 +48,7 @@ public class Hand {
    * Return the String representation of the player's hand in a 8 * 3 board.
    * @return
    */
-  public String handToString(){
+  public String toString(){
     int ROWS = 3;
     int COLS = 8;
     Piece[][] pieces = new Piece[ROWS][COLS];
@@ -71,30 +71,31 @@ public class Hand {
       }
     }
 
-    String output =  "   +---+---+---+---+---+---+---+---+\n";
+    String output =  " # +---+---+---+---+---+---+---+---+ #\n";
     String line1, line2, line3;
 
     for(row = 0; row < pieces.length; row++){
-      line1 = "   |";
-      line2 = "   |";
-      line3 = "   |";
+      line1 = " # |";
+      line2 = " # |";
+      line3 = " # |";
       for(col = 0; col < pieces[0].length; col++){
         Piece piece = pieces[row][col];
         line1 += piece.topLine()    + "|";
         line2 += piece.midLine()    + "|";
         line3 += piece.bottomLine() + "|";
       }
-      line1 += "\n";
-      line2 +="\n";
-      line3 += "\n";
-      output += line1 + line2 + line3 + "   +---+---+---+---+---+---+---+---+\n";
+      line1 += " #\n";
+      line2 +=" #\n";
+      line3 += " #\n";
+      output += line1 + line2 + line3 + " # +---+---+---+---+---+---+---+---+ #\n";
     }
+    output += " #####################################";
     return output;
   }
 
   public void draw() {
-    System.out.println("########## You can create the following pieces ##########");
-    System.out.println(handToString());
+    System.out.println(" ########## CREATION SHELF ###########");
+    System.out.println(toString());
     System.out.println();
   }
 

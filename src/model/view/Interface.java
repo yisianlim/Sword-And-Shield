@@ -41,21 +41,19 @@ public class Interface {
     private void beginGame(){
         while(!game.gameOver()) {
             createPhase();
-            actionPhase();
+            actionPhase(false);
             game.nextPlayer();
         }
     }
 
-    private void actionPhase() {
+    private void actionPhase(boolean undo) {
         game.drawActionPhase();
         game.setGamePhase(ACTION);
-        game.updateUnactedPieces();
 
-        if(game.getUnactedPieces().isEmpty()){
-            System.out.println("Since you have no pieces on the board, we are going to move to the next player\n\n");
-            sleep();
-            return;
-        }
+        // Undo command does not need to update.
+        // We simply use the previous state of unactedPieces.
+        if(!undo)
+            game.updateUnactedPieces();
 
         // Listener that listens to the user input at this stage.
         Listener listener;
@@ -73,10 +71,9 @@ public class Interface {
             if(listener != null){
                 // If it is a pass, then we end action phase.
                 if(listener instanceof PassListener) return;
-                
+
                 // If it is an undo, we need to check if we need to go back to create phase.
-                if(listener instanceof UndoListener && game.commandsExecuted() == 1){
-                    System.out.println("?");
+                if(listener instanceof UndoListener && game.commandsExecuted() == 0){
                     createPhase();
                 }
 
@@ -101,7 +98,7 @@ public class Interface {
             if (listener instanceof PassListener) {
                 return;
             } else if (listener instanceof UndoListener){
-                actionPhase();
+                actionPhase(true);
             }
             else {
                 fail("Please try again\n");

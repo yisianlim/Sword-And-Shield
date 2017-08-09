@@ -51,8 +51,13 @@ public class Board {
         return board[pos.getX()][pos.getY()];
     }
 
-    public boolean isCemetery(Position pos){
-        return pos.getX() < 0 || pos.getX() >= 10 && pos.getY() < 0 || pos.getY() >= 10;
+    public boolean outOfBoard(Position pos){
+        return pos.getX() < 0 ||
+                pos.getX() >= 10 ||
+                pos.getY() < 0 ||
+                pos.getY() >= 10 ||
+                getSquare(pos) instanceof FacePiece ||
+                getSquare(pos) instanceof BlankPiece;
     }
 
     public PlayerPiece findPiece(String letter){
