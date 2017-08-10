@@ -1,6 +1,6 @@
 package model;
 
-import model.player.Player;
+import model.player.Player.Direction;
 
 /**
  * Represents an (x,y) position on the game board.
@@ -38,7 +38,7 @@ public final class Position {
         return y;
     }
 
-    public Position moveBy(Player.Direction direction){
+    public Position moveBy(Direction direction){
         switch(direction){
             case UP:
                 return new Position(x-1, y);
@@ -50,6 +50,10 @@ public final class Position {
                 return new Position(x, y+1);
         }
         return null;
+    }
+
+    public boolean outsideOfBoard(){
+        return this.getX() < 0 || this.getY() < 0 || this.getX() >= 10 || this.getY() >= 10;
     }
 
     /**

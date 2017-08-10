@@ -348,4 +348,44 @@ public class GameTest {
         assertEquals(before, piece_L.toString());
     }
 
+    @Test
+    public void testReaction_Create_Sword_Nothing(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player greenPlayer = new GreenPlayer(game);
+
+        game.setCurrentPlayer(greenPlayer);
+        game.createPiece("L", 0);
+        PlayerPiece piece_L = board.findPiece("L");
+        game.movePiece("L", UP, false);
+
+        game.updateUnactedPieces();
+
+        game.createPiece("A", 0);
+        game.movePiece("A", UP, false);
+
+        game.updateUnactedPieces();
+
+        // Push piece L into the cemetery.
+        game.movePiece("A", UP, false);
+
+        // Piece L should be in the cemetery by now.
+        assertTrue(game.getCemetery().contains(piece_L));
+
+        // Piece L should not be in the piecesInBoard for player.
+        assertFalse(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+
+        game.undo();
+
+        // Piece L should not be in the cemetery after undo.
+        assertFalse(game.getCemetery().contains(piece_L));
+
+        // Piece L should be back in the piecesInBoard for player.
+        assertTrue(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+
+        // Piece L should be back in the unacted pieces.
+        assertTrue(game.getUnactedPieces().contains(piece_L));
+
+    }
+
 }

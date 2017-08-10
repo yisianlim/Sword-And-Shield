@@ -8,6 +8,10 @@ import model.player.Hand;
 import model.player.Player;
 import model.player.Player.Direction;
 import model.player.YellowPlayer;
+import model.reaction.EliminateResult;
+import model.reaction.PushedResult;
+import model.reaction.Reaction;
+import model.reaction.ReactionResult;
 
 import java.util.*;
 
@@ -436,6 +440,7 @@ public class Game {
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_unacted_pieces;
         private Board prev_board;
+        private Cemetery prev_cemetery;
 
         // Create command.
         private String letter;
@@ -448,6 +453,7 @@ public class Game {
             this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
             this.prev_unacted_pieces = getUnactedPieces();
             this.prev_board = game.getBoard().clone();
+            this.prev_cemetery = cemetery.clone();
 
             this.letter = letter;
             this.rotation = rotation;
@@ -455,32 +461,60 @@ public class Game {
 
         @Override
         public void execute() {
-            PlayerPiece piece = currentPlayer.hand.getPiece(letter);
+            PlayerPiece pieceToCreate = currentPlayer.hand.getPiece(letter);
 
             if(!currentPlayer.validCreation()){
                 throw new IllegalArgumentException("Your creation grid is occupied");
-            } else if(piece == null){
+            } else if(pieceToCreate == null){
                 throw new IllegalArgumentException("You do not have such piece to create");
             } else if (rotation!=0 && rotation != 90 && rotation!= 180 && rotation !=270){
                 throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
             }
 
             // Update the piece's rotation and position.
-            piece.rotate(rotation);
-            piece.setPosition(currentPlayer.getCreationGrid());
+            pieceToCreate.rotate(rotation);
+            pieceToCreate.setPosition(currentPlayer.getCreationGrid());
 
             // Update the player's state.
-            currentPlayer.hand.remove(piece);
-            currentPlayer.addToPiecesInBoard(piece);
+            currentPlayer.hand.remove(pieceToCreate);
+            currentPlayer.addToPiecesInBoard(pieceToCreate);
 
             // Update the game state.
-            unactedPieces.add(piece);
+            unactedPieces.add(pieceToCreate);
 
-            board.setSquare(currentPlayer.getCreationGrid(), piece);
+            // Update the board.
+            Position newPosition = currentPlayer.getCreationGrid();
+            board.setSquare(newPosition, pieceToCreate);
 
-            // Check for reaction.
+            // Check for reactions at all directions and store it in the list.
+            List<ReactionResult> reactions = new ArrayList<>();
+            for(Direction direction: pieceToCreate.DIRECTIONS){
 
-            // for each item in directiion of piece.
+                // Retrieve the position at the corresponding direction.
+                Position positionAtDirection = currentPlayer.getCreationGrid().moveBy(direction);
+
+                // If positionAtDirection is outside of the board, we do not need to check for reactions.
+                if(positionAtDirection.outsideOfBoard()){
+                    continue;
+                }
+
+                // Get the piece at that direction.
+                Piece pieceAtDirection = board.getSquare(positionAtDirection);
+
+                // Determine what reaction has occured and store it in the list.
+                if(pieceAtDirection instanceof PlayerPiece){
+                    Reaction reaction = new Reaction(pieceToCreate, (PlayerPiece) pieceAtDirection, direction);
+                    ReactionResult result = reaction.getReactionResult();
+
+                    if(result != null){
+                        reactions.add(result);
+                    }
+                }
+
+                // Finally, lets execute the reactions.
+                executeReaction(reactions);
+
+            }
         }
 
         @Override
@@ -489,6 +523,34 @@ public class Game {
             game.currentPlayer.piecesInBoard = prev_player_pieces_in_board;
             game.unactedPieces = prev_unacted_pieces;
             game.board = prev_board;
+            game.cemetery = prev_cemetery;
+        }
+    }
+
+    private void executeReaction(List<ReactionResult> reactions) {
+        for(ReactionResult reactionResult : reactions){
+            if(reactionResult instanceof EliminateResult){
+                List<PlayerPiece> toEliminate = ((EliminateResult) reactionResult).getToEliminate();
+                eliminate(toEliminate);
+            }
+
+            if(reactionResult instanceof PushedResult){
+                PushedResult pushedResult = (PushedResult) reactionResult;
+                PlayerPiece toPush = pushedResult.getPushedBack();
+                Direction direction = pushedResult.getPushedDirection();
+
+                // TODO:Find a way to keep the previous states but don't store command in command manager.
+                new MovePieceCommand(this, toPush.getLetter(), direction, true).execute();
+            }
+        }
+    }
+
+    private void eliminate(List<PlayerPiece> toEliminate) {
+        for(PlayerPiece piece : toEliminate){
+            cemetery.add(piece);
+            currentPlayer.removeFromPiecesInBoard(piece);
+            removeFromUnactedPieces(piece);
+            board.setSquare(piece.getPosition(), new EmptyPiece());
         }
     }
 

@@ -99,8 +99,7 @@ public class Interface {
                 return;
             } else if (listener instanceof UndoListener){
                 actionPhase(true);
-            }
-            else {
+            } else {
                 fail("Please try again\n");
                 READER.nextLine();
             }
@@ -116,7 +115,6 @@ public class Interface {
         while(true) {
             Listener listener = parseCreatePhase(READER);
             if(listener != null){
-                // Add it to record.
                 break;
             } else {
                 fail("Please try again\n");

@@ -1,7 +1,10 @@
 package model.piece;
 
 import model.Position;
+import model.player.Player;
 import model.player.Player.Direction;
+
+import static model.player.Player.Direction.*;
 
 public class PlayerPiece extends Piece {
 
@@ -12,6 +15,25 @@ public class PlayerPiece extends Piece {
 
         Item(int value){
             this.value = value;
+        }
+
+        public boolean isSword(){
+            switch(value){
+                case 1:
+                    return true;
+                case 2:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public boolean isShield(){
+            return value == 4;
+        }
+
+        public boolean isNothing(){
+            return value == 3;
         }
 
         @Override
@@ -51,6 +73,7 @@ public class PlayerPiece extends Piece {
     private Item m_top, m_left, m_bottom, m_right;
     private String m_letter;
     private Position m_position;
+    public static final Direction[] DIRECTIONS = new Direction[]{UP, LEFT, DOWN, RIGHT};
 
     public PlayerPiece(Item top, Item left, Item bottom, Item right, String letter){
         m_top = top;

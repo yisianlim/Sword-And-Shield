@@ -16,6 +16,20 @@ public abstract class Player {
         Direction(int value){
             this.value = value;
         }
+
+        public Direction opposite(){
+            switch (value){
+                case 1:
+                    return DOWN;
+                case 2:
+                    return UP;
+                case 3:
+                    return RIGHT;
+                case 4:
+                    return LEFT;
+            }
+            return null;
+        }
     }
 
     protected String playerName;
