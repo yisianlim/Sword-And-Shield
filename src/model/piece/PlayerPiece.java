@@ -1,6 +1,7 @@
 package model.piece;
 
 import model.Position;
+import model.player.Player.Direction;
 
 public class PlayerPiece extends Piece {
 
@@ -134,6 +135,26 @@ public class PlayerPiece extends Piece {
 
     public Position getPosition(){
         return m_position;
+    }
+
+    /**
+     * Return the corresponding item based on the direction.
+     * @param direction
+     * @return
+     */
+    public Item getItem(Direction direction){
+        switch(direction){
+            case UP:
+                return m_top;
+            case DOWN:
+                return m_bottom;
+            case LEFT:
+                return m_left;
+            case RIGHT:
+                return m_right;
+            default:
+                return null;
+        }
     }
 
     @Override

@@ -73,7 +73,7 @@ public class Interface {
                 if(listener instanceof PassListener) return;
 
                 // If it is an undo, we need to check if we need to go back to create phase.
-                if(listener instanceof UndoListener && game.commandsExecuted() == 0){
+                if(listener instanceof UndoListener && !game.isUndoAvailable()){
                     createPhase();
                 }
 

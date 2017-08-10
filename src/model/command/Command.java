@@ -7,5 +7,10 @@ package model.command;
  */
 public interface Command {
     public void execute();
+
+    /**
+     * Undo the command. It restores the current game state to the previous game state resulting in the command
+     * that was executed to be undone.
+     */
     public void undo();
 }

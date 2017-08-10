@@ -13,30 +13,59 @@ import java.util.*;
 
 public class Game {
 
-    // Current phase of the game.
+    /**
+     * Sword and Shield game is separated into two phases, CREATE and ACTION.
+     *
+     * CREATE phase is when the user can choose a PlayerPiece from its creation shelf to create. At this point,
+     * the user can only choose to create or pass.
+     *
+     * ACTION phase is when the user can move or rotate any of its PlayerPiece that is in the board. The user can also
+     * undo its move and go back to CREATE phase or pass to pass the game to the next player.
+     */
     public enum Phase{
         CREATE, ACTION
     }
 
-    // Current state of the board.
+    /**
+     * Current state of the board.
+     */
     private Board board;
 
-    // Counts the total number of moves played during this game.
-    // From this, you can determine who's turn it is to play.
+    /**
+     * Counts the total number of moves played during this game.
+     * From this, you can determine whose turn it is to play.
+     */
     private int moves;
 
+    /**
+     * Players of the game.
+     */
     private Player currentPlayer;
     private List<Player> players;
 
-    // PlayerPiece that have been pushed out of the board.
+    /**
+     * Store the information of the PlayerPiece being pushed out of the game.
+     */
     private Cemetery cemetery;
 
-    // Pieces in the game that is yet to be acted by the player.
+    /**
+     * PlayerPiece that have yet to be moved / rotated by the current player.
+     */
     private Set<PlayerPiece> unactedPieces;
 
+    /**
+     * Flag to check if game is over.
+     */
     private boolean gameOver;
+
+    /**
+     * Represents the phase the game is currently in.
+     */
     private Phase gamePhase;
 
+    /**
+     * Stores and manages the commands that have been executed by the current player.
+     */
     private CommandManager commandManager;
 
     /**
@@ -53,12 +82,19 @@ public class Game {
         commandManager = new CommandManager();
     }
 
-
+    /**
+     * Set up the players of the game.
+     */
     private void setupPlayers() {
         this.players = Arrays.asList(new YellowPlayer(this), new GreenPlayer(this));
         nextPlayer();
     }
 
+    /**
+     * When passing the game to the next player, we need to clear the unacted pieces as well as clear all the commands
+     * executed by the previous player (by creating a new CommandManager) so that the next player cannot undo the
+     * previous player's move.
+     */
     public void nextPlayer(){
         moves++;
         setCurrentPlayer(players.get(moves % players.size()));
@@ -100,9 +136,7 @@ public class Game {
     }
 
     /**
-     * Move a piece with a given letter on the board. For this to be acceptable, the piece must
-     * belong to the currentPlayer, be on the board and be a valid move.
-     * Also check and move neighboring pieces recursively.
+     * Move a piece with a given letter on the board.
      * @param letter
      *          letter of the PlayerPiece in the board we want to move.
      * @param direction
@@ -115,6 +149,10 @@ public class Game {
         commandManager.executeCommand(new MovePieceCommand(this, letter, direction, isNeighbor));
     }
 
+    /**
+     * Undo the previous command of the game. For this to be valid,
+     * commandManager will check if there are any commands left before undo.
+     */
     public void undo(){
         if(!commandManager.isUndoAvailable()){
             throw new IllegalArgumentException("There are no more commands to undo");
@@ -122,6 +160,11 @@ public class Game {
         commandManager.undo();
     }
 
+    /**
+     * Remove the instance of Piece in unactedPieces set.
+     * @param piece
+     *          PlayerPiece to be removed.
+     */
     public void removeFromUnactedPieces(PlayerPiece piece){
         unactedPieces.remove(piece);
         unactedPieces.remove(null);
@@ -132,9 +175,10 @@ public class Game {
     }
 
     /**
-     * For create phase of the game, we draw the player's hand.
+     * Draw the create phase of the game.
      */
     public void drawCreatePhase() {
+        prepareForNewRound();
         cemetery.draw();
         board.draw();
         currentPlayer.hand.draw();
@@ -142,12 +186,21 @@ public class Game {
     }
 
     /**
-     * For action phase of the game, we do not need to draw the player's hand as no pieces can be created.
+     * Draw the action phase of the game. We simply let the user know that they can move their pieces on the board.
      */
     public void drawActionPhase(){
         drawCreatePhase();
         System.out.println("You can now choose to move or rotate any of YOUR pieces on the board");
-        System.out.println("Or you can input pass to finish your turn");
+        System.out.println("Or you can input pass to finish your turn or undo previous moves");
+    }
+
+    /**
+     * Prints a gap before it renders the game for the next round.
+     */
+    private void prepareForNewRound() {
+        for(int i=0; i < 10; i++){
+            System.out.println();
+        }
     }
 
     /**
@@ -157,22 +210,46 @@ public class Game {
         System.out.println("\n******** " + currentPlayer.getName() + " player's turn ********\n");
     }
 
-    public int commandsExecuted(){
-        return commandManager.commands();
+    /**
+     * Checks if there are any commands to undo.
+     * @return
+     *      true if there are still commands left to undo
+     */
+    public boolean isUndoAvailable(){
+        return commandManager.isUndoAvailable();
     }
 
+    /**
+     * Checks if the game is over.
+     * @return
+     *      true if game is over.
+     */
     public boolean gameOver(){
         return gameOver;
     }
 
+    /**
+     * Retrieve the information on the game phase.
+     * @return
+     *      current Phase of the game.
+     */
     public Phase getGamePhase(){
         return gamePhase;
     }
 
+    /**
+     * Set the phase of the game.
+     * @param phase
+     *          phase we want to the set the game to.
+     */
     public void setGamePhase(Phase phase){
         this.gamePhase = phase;
     }
 
+    /**
+     * Retrieve the cemetery to know what PlayerPieces have been pushed out of the game.
+     * @return
+     */
     public Cemetery getCemetery(){
         return cemetery.clone();
     }
@@ -186,23 +263,34 @@ public class Game {
     }
 
     /**
-     * updateUnactedPieces is invoked when the game moves on to the action phase.
+     * updateUnactedPieces is invoked when the game moves on to the action phase. Get all the current player's
+     * PlayerPiece that are on the board.
      */
     public void updateUnactedPieces() {
         unactedPieces = currentPlayer.getAllPiecesInBoard();
     }
 
+    /**
+     * MovePieceCommand class executes the move as well as undo the move.
+     * It stores the information of the state of the game before the PlayerPiece is moved.
+     * It also stores the user inputs in order to execute the command.
+     */
     private class MovePieceCommand implements Command {
 
         private Game game;
 
-        // Previous states.
+        /**
+         * Previous state of the game before move is executed. They are basically the attributes that are going to
+         * be modified after being moved.
+         */
         private Cemetery prev_cemetery;
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_unacted_pieces;
         private Board prev_board;
 
-        // Move command.
+        /**
+         * The parameters input by the user to carry out the move.
+         */
         private String letter;
         private Direction direction;
         private boolean isNeighbor;
@@ -220,6 +308,12 @@ public class Game {
             this.isNeighbor = isNeighbor;
         }
 
+        /**
+         * For this to be acceptable, the piece must belong to the currentPlayer, be on the board and must not have
+         * been moved by the player in the same round.
+         * We also check for neighbors in the direction of the move and call the execute the move recursively if
+         * neighbors is present, which will take care of all the successive neighbors.
+         */
         @Override
         public void execute() {
             PlayerPiece piece = board.findPiece(letter);
@@ -250,12 +344,13 @@ public class Game {
             piece.setPosition(new_position);
 
             // Update the game state of unacted piece only if it is not a neighboring piece.
+            // Neighbor pieces are still to be moved / rotated.
             if(!isNeighbor) {
                 removeFromUnactedPieces(piece);
             }
 
             // Check for neighbor.
-            // If there is a neighbor, we will move the piece to the same direction as well.
+            // If there is a neighbor, we will move the neighbor piece to the same direction as well.
             Piece neighbor = board.getSquare(new_position);
             if(neighbor instanceof PlayerPiece){
                 PlayerPiece p = (PlayerPiece) neighbor;
@@ -267,6 +362,7 @@ public class Game {
             board.setSquare(new_position, piece);
             board.setSquare(old_position, new EmptyPiece());
         }
+
 
         @Override
         public void undo() {
@@ -381,6 +477,10 @@ public class Game {
             unactedPieces.add(piece);
 
             board.setSquare(currentPlayer.getCreationGrid(), piece);
+
+            // Check for reaction.
+
+            // for each item in directiion of piece.
         }
 
         @Override

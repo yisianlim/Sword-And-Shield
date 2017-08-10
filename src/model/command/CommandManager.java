@@ -22,10 +22,6 @@ public class CommandManager {
         return !undos.isEmpty();
     }
 
-    public int commands(){
-        return undos.size();
-    }
-
     public void undo(){
         assert(!undos.isEmpty());
         Command command = undos.pop();
