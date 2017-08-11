@@ -29,7 +29,7 @@ public class MoveListener extends Listener {
         }
 
         try{
-            game.movePiece(letter, direction, false);
+            game.movePiece(letter, direction, true);
             return true;
         } catch (IllegalArgumentException e) {
             Interface.fail(e.getMessage());

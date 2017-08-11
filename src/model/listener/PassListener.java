@@ -23,10 +23,11 @@ public class PassListener extends Listener {
         scanner.next(); // Gobble up the "pass" command.
         switch(game.getGamePhase()){
             case CREATE:
-                // If the user pass during the create phase, we will move on to action phase.
                 game.setGamePhase(ACTION);
+                game.pass();
                 return true;
             case ACTION:
+                game.pass();
                 return true;
             default:
                 return false;

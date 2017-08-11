@@ -6,10 +6,7 @@ import model.Position;
 import model.piece.PlayerPiece;
 import model.player.GreenPlayer;
 import model.player.Player;
-import model.player.YellowPlayer;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import static model.player.Player.Direction.*;
 import static org.junit.Assert.*;
@@ -26,7 +23,7 @@ public class GameTest {
         game.createPiece("L", 0);
         try {
             game.createPiece("B", 0);
-            fail("Cannot create if CREATION_GRID is occupied.");
+            fail("Cannot create if CREATION_GRID if occupied.");
         } catch (IllegalArgumentException e){
 
         }
@@ -73,10 +70,10 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", UP, false);
+        game.movePiece("L", UP, true);
 
         try{
-            game.movePiece("L", LEFT, false);
+            game.movePiece("L", LEFT, true);
         } catch (IllegalArgumentException e){
 
         }
@@ -92,7 +89,7 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", UP, false);
+        game.movePiece("L", UP, true);
 
         Position pos = game.getBoard().findPiece("L").getPosition();
         assertTrue(pos.getX() == 1);
@@ -109,7 +106,7 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", DOWN, false);
+        game.movePiece("L", DOWN, true);
 
         Position posL = game.getBoard().findPiece("L").getPosition();
         assertTrue(posL.getX() == 3);
@@ -117,7 +114,7 @@ public class GameTest {
 
         // Attempt to move piece A should also move piece L down.
         game.createPiece("A", 0);
-        game.movePiece("A", DOWN, false);
+        game.movePiece("A", DOWN, true);
 
         posL = game.getBoard().findPiece("L").getPosition();
         assertTrue(posL.getX() == 4);
@@ -137,16 +134,16 @@ public class GameTest {
         game.setCurrentPlayer(greenPlayer);
         game.createPiece("L", 0);
         PlayerPiece piece_L = board.findPiece("L");
-        game.movePiece("L", UP, false);
+        game.movePiece("L", UP, true);
 
-        game.updateUnactedPieces();
+        game.resetFuture();
 
         game.createPiece("A", 0);
-        game.movePiece("A", UP, false);
+        game.movePiece("A", UP, true);
 
-        game.updateUnactedPieces();
+        game.resetFuture();
 
-        game.movePiece("A", UP, false);
+        game.movePiece("A", UP, true);
 
         // Piece L should be in the cemetery by now.
         assertTrue(game.getCemetery().contains(piece_L));
@@ -165,10 +162,10 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", UP, false);
+        game.movePiece("L", UP, true);
 
         try{
-            game.movePiece("L", UP, false);
+            game.movePiece("L", UP, true);
             fail("An exception have to be thrown for attempt to move twice");
         } catch (IllegalArgumentException e){
 
@@ -227,9 +224,9 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", LEFT, false);
-        game.updateUnactedPieces();
-        game.movePiece("L", LEFT, false);
+        game.movePiece("L", LEFT, true);
+        game.resetFuture();
+        game.movePiece("L", LEFT, true);
         PlayerPiece piece_l = game.getBoard().findPiece("L");
 
         assertTrue(piece_l.getPosition().getX() == 2);
@@ -253,7 +250,7 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.createPiece("L", 0);
-        game.movePiece("L", DOWN, false);
+        game.movePiece("L", DOWN, true);
 
         Position posL = game.getBoard().findPiece("L").getPosition();
         assertTrue(posL.getX() == 3);
@@ -261,7 +258,7 @@ public class GameTest {
 
         // Attempt to move piece A should also move piece L down.
         game.createPiece("A", 0);
-        game.movePiece("A", DOWN, false);
+        game.movePiece("A", DOWN, true);
 
         posL = game.getBoard().findPiece("L").getPosition();
         assertTrue(posL.getX() == 4);
@@ -290,17 +287,17 @@ public class GameTest {
         game.setCurrentPlayer(greenPlayer);
         game.createPiece("L", 0);
         PlayerPiece piece_L = board.findPiece("L");
-        game.movePiece("L", UP, false);
+        game.movePiece("L", UP, true);
 
-        game.updateUnactedPieces();
+        game.resetFuture();
 
         game.createPiece("A", 0);
-        game.movePiece("A", UP, false);
+        game.movePiece("A", UP, true);
 
-        game.updateUnactedPieces();
+        game.resetFuture();
 
         // Push piece L into the cemetery.
-        game.movePiece("A", UP, false);
+        game.movePiece("A", UP, true);
 
         // Piece L should be in the cemetery by now.
         assertTrue(game.getCemetery().contains(piece_L));
@@ -317,7 +314,7 @@ public class GameTest {
         assertTrue(greenPlayer.getAllPiecesInBoard().contains(piece_L));
 
         // Piece L should be back in the unacted pieces.
-        assertTrue(game.getUnactedPieces().contains(piece_L));
+        assertTrue(game.getFuture().contains(piece_L));
     }
 
     @Test
@@ -349,42 +346,69 @@ public class GameTest {
     }
 
     @Test
-    public void testReaction_Create_Sword_Nothing(){
+    public void testReaction_Create_Sword_Shield(){
         Board board = new Board();
         Game game = new Game(board);
         Player greenPlayer = new GreenPlayer(game);
 
         game.setCurrentPlayer(greenPlayer);
         game.createPiece("L", 0);
-        PlayerPiece piece_L = board.findPiece("L");
-        game.movePiece("L", UP, false);
+        game.movePiece("L", DOWN, true);
 
-        game.updateUnactedPieces();
+        game.resetFuture();
 
         game.createPiece("A", 0);
-        game.movePiece("A", UP, false);
 
-        game.updateUnactedPieces();
+        PlayerPiece piece_L = board.findPiece("L");
+        assertTrue(piece_L.getPosition().getX() == 4); // L should be pushed by by shield.
+        assertTrue(piece_L.getPosition().getY() == 2);
+    }
 
-        // Push piece L into the cemetery.
-        game.movePiece("A", UP, false);
+    @Test
+    public void testReaction_Create_Sword_Shield_Undo(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player greenPlayer = new GreenPlayer(game);
 
-        // Piece L should be in the cemetery by now.
-        assertTrue(game.getCemetery().contains(piece_L));
+        game.setCurrentPlayer(greenPlayer);
+        game.createPiece("L", 0);
+        game.movePiece("L", DOWN, true);
 
-        // Piece L should not be in the piecesInBoard for player.
-        assertFalse(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+        game.resetFuture();
+
+        game.createPiece("A", 0);
+
+        PlayerPiece piece_L = game.getBoard().findPiece("L");
+        assertTrue(piece_L.getPosition().getX() == 4); // L should be pushed by by shield.
+        assertTrue(piece_L.getPosition().getY() == 2);
 
         game.undo();
 
-        // Piece L should not be in the cemetery after undo.
-        assertFalse(game.getCemetery().contains(piece_L));
+        piece_L = game.getBoard().findPiece("L");
+        assertTrue(piece_L.getPosition().getX() == 3); // L should be back to its old position.
+        assertTrue(piece_L.getPosition().getY() == 2);
+    }
 
-        // Piece L should be back in the piecesInBoard for player.
-        assertTrue(greenPlayer.getAllPiecesInBoard().contains(piece_L));
+    @Test
+    public void testReaction_Create_Sword_Sword(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player greenPlayer = new GreenPlayer(game);
 
-        // Piece L should be back in the unacted pieces.
-        assertTrue(game.getUnactedPieces().contains(piece_L));
+        game.setCurrentPlayer(greenPlayer);
+        game.createPiece("S", 0);
+        game.movePiece("S", DOWN, true);
+
+        game.resetFuture();
+
+        game.createPiece("K", 0);
+
+        // Both piece K and S should not be in the board due to sword vs sword reaction.
+        assertTrue(game.getBoard().findPiece("K") == null);
+        assertTrue(game.getBoard().findPiece("S") == null);
+
+        // Both should not be in the future.
+
 
     }
 

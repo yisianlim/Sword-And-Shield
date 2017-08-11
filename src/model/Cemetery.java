@@ -34,8 +34,8 @@ public class Cemetery {
     }
 
     public String toString(){
-        int ROWS = 6;
-        int COLS = 8;
+        int ROWS = 3;
+        int COLS = 16;
         Piece[][] pieces = new Piece[ROWS][COLS];
         int row = 0;
         int col = 0;
@@ -55,28 +55,37 @@ public class Cemetery {
                 row++;
             }
         }
-        String output = " ############# CEMETERY ##############\n";
-        output +=  " # +---+---+---+---+---+---+---+---+ #\n";
+        String output = indent() + "---------------------------REST IN PEACE-----------------------------\n";
+        output += indent() + "XXXXXXXXXXXXXXXXXXXXXXXXXXXX CEMETERY XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n";
+        output +=  border();
         String line1, line2, line3;
 
         for(row = 0; row < pieces.length; row++){
-            line1 = " # |";
-            line2 = " # |";
-            line3 = " # |";
+            line1 = "           X |";
+            line2 = "           X |";
+            line3 = "           X |";
             for(col = 0; col < pieces[0].length; col++){
                 Piece piece = pieces[row][col];
                 line1 += piece.topLine()    + "|";
                 line2 += piece.midLine()    + "|";
                 line3 += piece.bottomLine() + "|";
             }
-            line1 += " #\n";
-            line2 +=" #\n";
-            line3 += " #\n";
-            output += line1 + line2 + line3 + " # +---+---+---+---+---+---+---+---+ #\n";
+            line1 += " X\n";
+            line2 += " X\n";
+            line3 += " X\n";
+            output += line1 + line2 + line3 + border();
         }
-        output += " #####################################";
+        output += indent() + "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
         return output;
 
+    }
+
+    public String border(){
+        return indent() + "X +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ X\n";
+    }
+
+    public String indent(){
+        return "           ";
     }
 
     public Cemetery clone(){

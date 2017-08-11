@@ -23,7 +23,9 @@ public class CommandManager {
     }
 
     public void undo(){
-        assert(!undos.isEmpty());
+//        for(Command command : undos){
+//            System.out.println(command.getClass().toString());
+//        }
         Command command = undos.pop();
         command.undo();
     }

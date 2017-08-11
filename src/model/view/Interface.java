@@ -47,24 +47,27 @@ public class Interface {
     }
 
     private void actionPhase(boolean undo) {
+        System.out.println("why u do draw");
         game.drawActionPhase();
         game.setGamePhase(ACTION);
 
         // Undo command does not need to update.
         // We simply use the previous state of unactedPieces.
         if(!undo)
-            game.updateUnactedPieces();
+            game.resetFuture();
 
         // Listener that listens to the user input at this stage.
         Listener listener;
 
         // Action phase goes on as long as there are still unacted pieces.
-        while(!game.getUnactedPieces().isEmpty()){
+        while(!game.getFuture().isEmpty()){
             System.out.print("You can move the following pieces: ");
-            for (PlayerPiece playerPiece : game.getUnactedPieces()) {
+            for (PlayerPiece playerPiece : game.getFuture()) {
                 System.out.print(playerPiece.getLetter() + " ");
             }
             System.out.println();
+
+
 
             listener = parseInitialActionPhase(READER);
 
@@ -73,6 +76,7 @@ public class Interface {
                 if(listener instanceof PassListener) return;
 
                 // If it is an undo, we need to check if we need to go back to create phase.
+                System.out.println(game.isUndoAvailable());
                 if(listener instanceof UndoListener && !game.isUndoAvailable()){
                     createPhase();
                 }
@@ -97,7 +101,11 @@ public class Interface {
             listener = parseFinalActionPhase(READER);
             if (listener instanceof PassListener) {
                 return;
-            } else if (listener instanceof UndoListener){
+            } else if (listener instanceof UndoListener && !game.isUndoAvailable()) {
+                //TODO: FIX THIS STRUCTURE HERE.
+                createPhase();
+                actionPhase(true);
+            } else if(listener instanceof UndoListener){
                 actionPhase(true);
             } else {
                 fail("Please try again\n");
@@ -209,16 +217,5 @@ public class Interface {
 
     public static void fail(String message){
         System.out.println(message);
-    }
-
-    /**
-     * Let the console sleep for 2 seconds.
-     */
-    public final static void sleep() {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -53,9 +53,9 @@ public class Game {
     private Cemetery cemetery;
 
     /**
-     * PlayerPiece that have yet to be moved / rotated by the current player.
+     * PlayerPiece that are to be moved / rotated by the current player in future.
      */
-    private Set<PlayerPiece> unactedPieces;
+    private Set<PlayerPiece> future;
 
     /**
      * Flag to check if game is over.
@@ -102,7 +102,7 @@ public class Game {
     public void nextPlayer(){
         moves++;
         setCurrentPlayer(players.get(moves % players.size()));
-        unactedPieces = new HashSet<>();
+        future = new HashSet<>();
         commandManager = new CommandManager();
     }
 
@@ -145,12 +145,16 @@ public class Game {
      *          letter of the PlayerPiece in the board we want to move.
      * @param direction
      *          direction of movement
-     * @param isNeighbor
-     *          flag if it is a neighbor (being pushed by a dominant piece)
+     * @param dominant
+     *          flag if it is the dominant piece
      *
      */
-    public void movePiece(String letter, Direction direction, boolean isNeighbor){
-        commandManager.executeCommand(new MovePieceCommand(this, letter, direction, isNeighbor));
+    public void movePiece(String letter, Direction direction, boolean dominant){
+        commandManager.executeCommand(new MovePieceCommand(this, letter, direction, dominant));
+    }
+
+    public void pass(){
+        commandManager.executeCommand(new PassCommand());
     }
 
     /**
@@ -165,17 +169,21 @@ public class Game {
     }
 
     /**
-     * Remove the instance of Piece in unactedPieces set.
+     * Remove the instance of Piece in future set as the Piece have already been moved / rotated.
      * @param piece
      *          PlayerPiece to be removed.
      */
-    public void removeFromUnactedPieces(PlayerPiece piece){
-        unactedPieces.remove(piece);
-        unactedPieces.remove(null);
+    public void removeFromFuture(PlayerPiece piece){
+        future.remove(piece);
+        future.remove(null);
     }
 
     public void setCurrentPlayer(Player player){
         currentPlayer = player;
+    }
+
+    public void addToCemetery(PlayerPiece piece){
+        cemetery.add(piece);
     }
 
     /**
@@ -184,9 +192,20 @@ public class Game {
     public void drawCreatePhase() {
         prepareForNewRound();
         cemetery.draw();
-        board.draw();
-        currentPlayer.hand.draw();
-        drawTurn();
+
+        Player greenPlayer = players.get(1);
+        Player yellowPlayer = players.get(0);
+
+        int LINES = 42;
+
+        String line;
+        for(int i = 0; i < LINES; i++){
+            line = greenPlayer.hand.toLine(i);
+            line += board.toLine(i);
+            line += yellowPlayer.hand.toLine(i);
+            System.out.println(line);
+        }
+        System.out.println(currentPlayer.getName()+"'s move: ");
     }
 
     /**
@@ -258,20 +277,21 @@ public class Game {
         return cemetery.clone();
     }
 
-    public Set<PlayerPiece> getUnactedPieces(){
+    public Set<PlayerPiece> getFuture(){
         Set<PlayerPiece> copy_set = new HashSet<>();
-        for(PlayerPiece piece : unactedPieces){
-            copy_set.add(piece);
+        for(PlayerPiece piece : future){
+            if(!cemetery.contains(piece))
+                copy_set.add(piece);
         }
         return copy_set;
     }
 
     /**
-     * updateUnactedPieces is invoked when the game moves on to the action phase. Get all the current player's
-     * PlayerPiece that are on the board.
+     * resetFuture is invoked when the game moves on to the action phase. Get all the current player's
+     * PlayerPiece that are on the board as the Piece can be moved / rotated again in future.
      */
-    public void updateUnactedPieces() {
-        unactedPieces = currentPlayer.getAllPiecesInBoard();
+    public void resetFuture() {
+        future = currentPlayer.getAllPiecesInBoard();
     }
 
     /**
@@ -289,7 +309,7 @@ public class Game {
          */
         private Cemetery prev_cemetery;
         private Set<PlayerPiece> prev_player_pieces_in_board;
-        private Set<PlayerPiece> prev_unacted_pieces;
+        private Set<PlayerPiece> prev_future;
         private Board prev_board;
 
         /**
@@ -297,19 +317,19 @@ public class Game {
          */
         private String letter;
         private Direction direction;
-        private boolean isNeighbor;
+        private boolean dominant;
 
-        public MovePieceCommand(Game game, String letter, Direction direction, boolean isNeighbor){
+        public MovePieceCommand(Game game, String letter, Direction direction, boolean dominant){
             this.game = game;
 
             this.prev_cemetery = game.getCemetery();
             this.prev_player_pieces_in_board = game.currentPlayer.getAllPiecesInBoard();
-            this.prev_unacted_pieces = game.getUnactedPieces();
+            this.prev_future = game.getFuture();
             this.prev_board = game.getBoard().clone();
 
             this.letter = letter;
             this.direction = direction;
-            this.isNeighbor = isNeighbor;
+            this.dominant = dominant;
         }
 
         /**
@@ -326,8 +346,10 @@ public class Game {
                 throw new IllegalArgumentException("No such piece is found on the board");
             } else if(!currentPlayer.validPiece(piece)){
                 throw new IllegalArgumentException("This piece does not belong to you");
-            } else if(!unactedPieces.contains(piece)  && !isNeighbor){
+            } else if(!future.contains(piece)  && dominant){
                 throw new IllegalArgumentException("This piece has already been moved/rotated");
+            } else if(cemetery.contains(piece)){
+                throw new IllegalArgumentException("This piece is already in the cemetery");
             }
 
             Position old_position = piece.getPosition();
@@ -337,7 +359,7 @@ public class Game {
             if(board.outOfBoard(new_position)) {
                 cemetery.add(piece);
                 currentPlayer.removeFromPiecesInBoard(piece);
-                removeFromUnactedPieces(piece);
+                removeFromFuture(piece);
 
                 // Update the board.
                 board.setSquare(old_position, new EmptyPiece());
@@ -347,10 +369,10 @@ public class Game {
             // Update the piece.
             piece.setPosition(new_position);
 
-            // Update the game state of unacted piece only if it is not a neighboring piece.
+            // Update the game state of future piece only if it is a dominant piece.
             // Neighbor pieces are still to be moved / rotated.
-            if(!isNeighbor) {
-                removeFromUnactedPieces(piece);
+            if(dominant) {
+                removeFromFuture(piece);
             }
 
             // Check for neighbor.
@@ -358,7 +380,7 @@ public class Game {
             Piece neighbor = board.getSquare(new_position);
             if(neighbor instanceof PlayerPiece){
                 PlayerPiece p = (PlayerPiece) neighbor;
-                MovePieceCommand movePieceCommand = new MovePieceCommand(game, p.getLetter(), direction, true);
+                MovePieceCommand movePieceCommand = new MovePieceCommand(game, p.getLetter(), direction, false);
                 movePieceCommand.execute();
             }
 
@@ -372,7 +394,7 @@ public class Game {
         public void undo() {
             game.cemetery = prev_cemetery;
             currentPlayer.piecesInBoard = prev_player_pieces_in_board;
-            game.unactedPieces = prev_unacted_pieces;
+            game.future = prev_future;
             game.board = prev_board;
         }
     }
@@ -382,7 +404,7 @@ public class Game {
         private Game game;
 
         // Previous states.
-        private Set<PlayerPiece> prev_unacted_pieces;
+        private Set<PlayerPiece> prev_future;
         private Board prev_board;
 
         // Rotate command.
@@ -392,7 +414,7 @@ public class Game {
         public RotatePieceCommand(Game game, String letter, int rotation){
             this.game = game;
 
-            this.prev_unacted_pieces = game.getUnactedPieces();
+            this.prev_future = game.getFuture();
             this.prev_board = game.getBoard().clone();
 
             this.letter = letter;
@@ -410,7 +432,7 @@ public class Game {
                 throw new IllegalArgumentException("This piece does not belong to you");
             } else if(rotation!= 0 && rotation != 90 && rotation!= 180 && rotation != 270){
                 throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
-            } else if(!unactedPieces.contains(piece)){
+            } else if(!future.contains(piece)){
                 throw new IllegalArgumentException("This piece has already been acted");
             }
 
@@ -418,8 +440,8 @@ public class Game {
             piece.rotate(rotation);
 
             // Update the game state.
-            unactedPieces.remove(piece);
-            unactedPieces.remove(null);
+            future.remove(piece);
+            future.remove(null);
 
             // Update the board.
             board.setSquare(piece.getPosition(), piece);
@@ -427,7 +449,7 @@ public class Game {
 
         @Override
         public void undo() {
-            game.unactedPieces = prev_unacted_pieces;
+            game.future = prev_future;
             game.board = prev_board;
         }
     }
@@ -438,7 +460,7 @@ public class Game {
         // Previous states.
         private Hand prev_player_hand;
         private Set<PlayerPiece> prev_player_pieces_in_board;
-        private Set<PlayerPiece> prev_unacted_pieces;
+        private Set<PlayerPiece> prev_future;
         private Board prev_board;
         private Cemetery prev_cemetery;
 
@@ -451,7 +473,9 @@ public class Game {
 
             this.prev_player_hand = currentPlayer.hand.clone();
             this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
-            this.prev_unacted_pieces = getUnactedPieces();
+
+            resetFuture();
+            this.prev_future = getFuture();
             this.prev_board = game.getBoard().clone();
             this.prev_cemetery = cemetery.clone();
 
@@ -480,7 +504,7 @@ public class Game {
             currentPlayer.addToPiecesInBoard(pieceToCreate);
 
             // Update the game state.
-            unactedPieces.add(pieceToCreate);
+            future.add(pieceToCreate);
 
             // Update the board.
             Position newPosition = currentPlayer.getCreationGrid();
@@ -510,48 +534,68 @@ public class Game {
                         reactions.add(result);
                     }
                 }
-
-                // Finally, lets execute the reactions.
-                executeReaction(reactions);
-
             }
+
+            // Finally, lets execute the reactions.
+            executeReaction(reactions);
         }
 
         @Override
         public void undo() {
             game.currentPlayer.hand = prev_player_hand;
             game.currentPlayer.piecesInBoard = prev_player_pieces_in_board;
-            game.unactedPieces = prev_unacted_pieces;
+            game.future = prev_future;
+
             game.board = prev_board;
             game.cemetery = prev_cemetery;
         }
     }
 
-    private void executeReaction(List<ReactionResult> reactions) {
-        for(ReactionResult reactionResult : reactions){
-            if(reactionResult instanceof EliminateResult){
-                List<PlayerPiece> toEliminate = ((EliminateResult) reactionResult).getToEliminate();
-                eliminate(toEliminate);
-            }
+    private class PassCommand implements Command{
 
-            if(reactionResult instanceof PushedResult){
-                PushedResult pushedResult = (PushedResult) reactionResult;
-                PlayerPiece toPush = pushedResult.getPushedBack();
-                Direction direction = pushedResult.getPushedDirection();
+        @Override
+        public void execute() {
 
-                // TODO:Find a way to keep the previous states but don't store command in command manager.
-                new MovePieceCommand(this, toPush.getLetter(), direction, true).execute();
-            }
+        }
+
+        @Override
+        public void undo() {
+
         }
     }
 
-    private void eliminate(List<PlayerPiece> toEliminate) {
+    /**
+     * Execute all of the reactions that happened.
+     * @param reactions
+     */
+    private void executeReaction(List<ReactionResult> reactions) {
+        for(ReactionResult reactionResult : reactions){
+            reactionResult.execute(this);
+        }
+    }
+
+    /**
+     * Eliminate the PlayerPiece in the toEliminate list.
+     * @param toEliminate
+     *          List containing PlayerPiece to eliminate
+     */
+    public void eliminate(List<PlayerPiece> toEliminate) {
         for(PlayerPiece piece : toEliminate){
             cemetery.add(piece);
             currentPlayer.removeFromPiecesInBoard(piece);
-            removeFromUnactedPieces(piece);
             board.setSquare(piece.getPosition(), new EmptyPiece());
         }
+    }
+
+    /**
+     * Push a PlayerPiece to direction.
+     * @param toPush
+     *          PlayerPiece to push.
+     * @param direction
+     *          Direction to push.
+     */
+    public void push(PlayerPiece toPush, Direction direction){
+        new MovePieceCommand(this, toPush.getLetter(), direction, false).execute();
     }
 
 }

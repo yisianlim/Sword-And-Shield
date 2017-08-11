@@ -6,6 +6,7 @@ import model.player.Player.Direction;
 
 import static model.player.Player.Direction.*;
 
+
 public class PlayerPiece extends Piece {
 
     public enum Item {

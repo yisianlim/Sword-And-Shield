@@ -1,5 +1,6 @@
 package model.reaction;
 
+import model.Game;
 import model.piece.PlayerPiece;
 
 import java.util.List;
@@ -18,7 +19,8 @@ public class EliminateResult implements ReactionResult {
         this.toEliminate = toEliminate;
     }
 
-    public List<PlayerPiece> getToEliminate(){
-        return toEliminate;
+    @Override
+    public void execute(Game game) {
+        game.eliminate(toEliminate);
     }
 }

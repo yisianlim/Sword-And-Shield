@@ -1,5 +1,6 @@
 package model.reaction;
 
+import model.Game;
 import model.piece.PlayerPiece;
 import model.player.Player.Direction;
 
@@ -23,11 +24,8 @@ public class PushedResult implements ReactionResult {
         this.direction = direction;
     }
 
-    public PlayerPiece getPushedBack() {
-        return pushedBack;
-    }
-
-    public Direction getPushedDirection() {
-        return direction;
+    @Override
+    public void execute(Game game) {
+        game.push(pushedBack, direction);
     }
 }

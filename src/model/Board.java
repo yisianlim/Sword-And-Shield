@@ -2,6 +2,9 @@ package model;
 
 import model.piece.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents the 10x10 board in the Game. Each square on the board can either be empty, or hold Piece. The board
  * is simply responsible for storing this information.
@@ -11,6 +14,11 @@ public class Board {
      * The Game board is a 2-dimensional array
      */
     private Piece[][] board;
+
+    /**
+     * String representation of the Board in lines.
+     */
+    private List<String> stringRepresentation;
 
     /**
      * Create an empty and initialized game board.
@@ -39,6 +47,8 @@ public class Board {
         // The square must always remain a FacePiece.
         setSquare(new Position(1,1), new FacePiece("1"));
         setSquare(new Position(8,8), new FacePiece("0"));
+
+        setStringRepresentation();
     }
 
     /**
@@ -84,12 +94,11 @@ public class Board {
         board[pos.getX()][pos.getY()] = piece;
     }
 
-    /**
-     * Construct the string representation of the board.
-     * @return
-     */
-    public String toString(){
-        String output = "     0   1   2   3   4   5   6   7   8   9  \n" + drawBorder();
+    private void setStringRepresentation(){
+        this.stringRepresentation = new ArrayList<>();
+        stringRepresentation.add("     0   1   2   3   4   5   6   7   8   9  ");
+        stringRepresentation.add(border());
+
         String line1, line2, line3;
 
         for(int row = 0; row < board.length; row++){
@@ -102,20 +111,44 @@ public class Board {
                 line2 += piece.midLine()    + "|";
                 line3 += piece.bottomLine() + "|";
             }
-            line1 += "\n";
-            line2 +="\n";
-            line3 += "\n";
-            output += line1 + line2 + line3 + drawBorder();
+            stringRepresentation.add(line1);
+            stringRepresentation.add(line2);
+            stringRepresentation.add(line3);
+            stringRepresentation.add(border());
+        }
+    }
+
+    /**
+     * Construct the string representation of the board.
+     * @return
+     */
+    public String toString(){
+        setStringRepresentation();
+        String output = "";
+        for(String string : stringRepresentation){
+            output+= string + "\n";
         }
         return output;
+    }
+
+    /**
+     * Return the String representation of line num of board.
+     * @param num
+     *          Line number to get String from.
+     * @return
+     *          String of the line number specified.
+     */
+    public String toLine(int num){
+        setStringRepresentation();
+        return stringRepresentation.get(num);
     }
 
     /**
      * Construct a border line for the board.
      * @return
      */
-    public String drawBorder(){
-        return "   +---+---+---+---+---+---+---+---+---+---+\n";
+    public String border(){
+        return "   +---+---+---+---+---+---+---+---+---+---+";
     }
 
     public void draw() {
