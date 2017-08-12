@@ -1,7 +1,4 @@
-package model.view;
-
-import static model.Game.Phase.ACTION;
-import static model.Game.Phase.CREATE;
+package view;
 
 import java.util.Scanner;
 import model.Game;
@@ -10,10 +7,9 @@ import model.piece.PlayerPiece;
 
 /**
  * Provides a simple interface for the Sword and Shield Game.
- *
- *
  */
 public class Interface {
+
     public final Game game;
     public final Scanner READER;
 
@@ -24,14 +20,34 @@ public class Interface {
     }
 
     private void splashScreen() {
-        System.out.println("========= Welcome to Sword And Shield ========");
-        System.out.println("=========      By: Yi Sian Lim        ========");
+        System.out.println("======================= Welcome to Sword And Shield ======================");
+        System.out.println("=======================      By: Yi Sian Lim        ======================");
         System.out.println("\n");
 
         // Explain instruction.
+        System.out.println(
+                "Since this is a console based game, the players are denoted as follows:\n"+
+                "Green Player  > 0\n" +
+                "Yellow Player > 1\n\n" +
+                "The warriors the players can summon are placed at:\n" +
+                "Green Player  > LEFT\n" +
+                "Yellow Player > RIGHT\n\n"
+        );
+
+        System.out.println(
+                "At the start of each round, which is the creation phase, the user can type the following commands:\n" +
+                "\"create <letter> <0/90/180/270>\"     -> summon a warrior into the board\n" +
+                "\"pass\"                               -> pass in summoning warrior and move on to action phase\n\n"+
+                "During the action phase, the user can type the following commands:\n" +
+                "\"move <letter> <up/down,left,right>\" -> move the warrior in the board\n" +
+                "\"rotate <letter> <0/90/180/270>\"     -> rotate the warrior in the board\n" +
+                "\"pass\"                               -> end the current player's turn\n" +
+                "\"undo\"                               -> revert the last command\n"
+        );
 
         // Wait for user response.
-        System.out.println("Press any key then ENTER to continue");
+        System.out.println("\t\t\t\tPress any key then ENTER to continue");
+
         KeyListener keyListener = new KeyListener(READER, game);
         if(keyListener.parse()){
             beginGame();
@@ -39,96 +55,84 @@ public class Interface {
     }
 
     private void beginGame(){
-        while(!game.gameOver()) {
-            createPhase();
-            actionPhase(false);
-            game.nextPlayer();
-        }
-    }
-
-    private void actionPhase(boolean undo) {
-        System.out.println("why u do draw");
-        game.drawActionPhase();
-        game.setGamePhase(ACTION);
-
-        // Undo command does not need to update.
-        // We simply use the previous state of unactedPieces.
-        if(!undo)
-            game.resetFuture();
-
-        // Listener that listens to the user input at this stage.
-        Listener listener;
-
-        // Action phase goes on as long as there are still unacted pieces.
-        while(!game.getFuture().isEmpty()){
-            System.out.print("You can move the following pieces: ");
-            for (PlayerPiece playerPiece : game.getFuture()) {
-                System.out.print(playerPiece.getLetter() + " ");
-            }
-            System.out.println();
-
-
-
-            listener = parseInitialActionPhase(READER);
-
-            if(listener != null){
-                // If it is a pass, then we end action phase.
-                if(listener instanceof PassListener) return;
-
-                // If it is an undo, we need to check if we need to go back to create phase.
-                System.out.println(game.isUndoAvailable());
-                if(listener instanceof UndoListener && !game.isUndoAvailable()){
+        while(!game.gameOver()){
+            switch(game.getGamePhase()){
+                case CREATE:
                     createPhase();
-                }
-
-            } else {
-                fail("Please try again\n");
-                READER.nextLine();
-                continue;
-            }
-
-            game.drawActionPhase();
-        }
-
-        finalActionPhase();
-    }
-
-    private void finalActionPhase(){
-        // The final stage of the action phase is when all the pieces have been acted.
-        // The user can only input "pass" to move onto the next user or "undo" to go back.
-        Listener listener = null;
-        while(listener == null) {
-            listener = parseFinalActionPhase(READER);
-            if (listener instanceof PassListener) {
-                return;
-            } else if (listener instanceof UndoListener && !game.isUndoAvailable()) {
-                //TODO: FIX THIS STRUCTURE HERE.
-                createPhase();
-                actionPhase(true);
-            } else if(listener instanceof UndoListener){
-                actionPhase(true);
-            } else {
-                fail("Please try again\n");
-                READER.nextLine();
+                    break;
+                case ACTION:
+                    actionPhase(false);
+                    break;
+                case FINAL:
+                    finalActionPhase();
+                    break;
             }
         }
+        game.draw();
+        System.out.println(game.getWinner() + " has won!");
     }
 
     private void createPhase() {
         game.drawCreatePhase();
-        game.setGamePhase(CREATE);
 
         // While waiting for a valid input.
         // Break from the loop if the input was successfully parsed.
         while(true) {
             Listener listener = parseCreatePhase(READER);
             if(listener != null){
-                break;
+                return;
             } else {
                 fail("Please try again\n");
                 READER.nextLine();
                 continue;
             }
+        }
+    }
+
+    private void actionPhase(boolean undo) {
+        game.drawActionPhase();
+        // Listener that listens to the user input at this stage.
+        Listener listener;
+
+        // Action phase goes on as long as there are still future pieces.
+        while(true){
+            System.out.print("You can move the following pieces: ");
+            for (PlayerPiece playerPiece : game.getFuture()) {
+                System.out.print(playerPiece.getLetter() + " ");
+            }
+            System.out.println();
+
+            listener = parseInitialActionPhase(READER);
+
+            if(listener == null) {
+                fail("Please try again\n");
+                READER.nextLine();
+                continue;
+            }
+
+            if(listener != null){
+                return;
+            }
+
+            game.drawActionPhase();
+        }
+    }
+
+    private void finalActionPhase(){
+        // The final stage of the action phase is when all the pieces have been acted.
+        // The user can only input "pass" to move onto the next user or "undo" to go back.
+        game.drawActionPhase();
+
+        Listener listener = null;
+        while(listener == null) {
+
+            listener = parseFinalActionPhase(READER);
+
+            if(listener == null){
+                fail("Please try again\n");
+                READER.nextLine();
+            }
+
         }
     }
 

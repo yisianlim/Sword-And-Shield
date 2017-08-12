@@ -112,12 +112,13 @@ public class GameTest {
         assertTrue(posL.getX() == 3);
         assertTrue(posL.getY() == 2);
 
-        // Attempt to move piece A should also move piece L down.
+        // Attempt to move piece A should also move piece L down
+        // Piece L will move down once again due to sword shield reaction.
         game.createPiece("A", 0);
         game.movePiece("A", DOWN, true);
 
         posL = game.getBoard().findPiece("L").getPosition();
-        assertTrue(posL.getX() == 4);
+        assertTrue(posL.getX() == 5);
         assertTrue(posL.getY() == 2);
 
     }
@@ -191,6 +192,36 @@ public class GameTest {
         }
     }
 
+    @Test
+    public void test_UndoMove_Invalid(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.createPiece("L", 0);
+        game.undo();
+        try{
+            game.undo();
+            fail("An exception have to be thrown for attempt to undo when there are no commands left");
+        } catch (IllegalArgumentException e){
+
+        }
+    }
+
+    /**
+     * Pass during CREATION phase should move on the ACTION phase.
+     */
+    @Test
+    public void test_Pass_ChangePhase(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.pass();
+        assertTrue(game.getGamePhase().equals(Game.Phase.ACTION));
+
+    }
+
   /**
    * Test if undo move is successful.
    */
@@ -256,12 +287,11 @@ public class GameTest {
         assertTrue(posL.getX() == 3);
         assertTrue(posL.getY() == 2);
 
-        // Attempt to move piece A should also move piece L down.
         game.createPiece("A", 0);
         game.movePiece("A", DOWN, true);
 
         posL = game.getBoard().findPiece("L").getPosition();
-        assertTrue(posL.getX() == 4);
+        assertTrue(posL.getX() == 5);
         assertTrue(posL.getY() == 2);
 
         game.undo();
@@ -406,10 +436,25 @@ public class GameTest {
         // Both piece K and S should not be in the board due to sword vs sword reaction.
         assertTrue(game.getBoard().findPiece("K") == null);
         assertTrue(game.getBoard().findPiece("S") == null);
+    }
 
-        // Both should not be in the future.
+    @Test
+    public void testReaction_Rotate_Sword_Nothing(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player greenPlayer = new GreenPlayer(game);
 
+        game.setCurrentPlayer(greenPlayer);
+        game.createPiece("F", 0);
+        game.movePiece("F", DOWN, true);
 
+        game.resetFuture();
+
+        game.createPiece("U", 0);
+        game.rotatePiece("U", 180);
+
+        // Piece F should not be in the board due to sword vs nothing reaction.
+        assertTrue(game.getBoard().findPiece("F") == null);
     }
 
 }

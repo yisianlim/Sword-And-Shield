@@ -13,7 +13,7 @@ public class CommandManager {
         this.undos = new Stack<>();
     }
 
-    public void executeCommand(Command c){
+    public void executeCommand (Command c) {
         c.execute();
         undos.push(c);
     }
@@ -23,9 +23,6 @@ public class CommandManager {
     }
 
     public void undo(){
-//        for(Command command : undos){
-//            System.out.println(command.getClass().toString());
-//        }
         Command command = undos.pop();
         command.undo();
     }

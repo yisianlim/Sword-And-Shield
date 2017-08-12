@@ -22,7 +22,7 @@ public class Hand {
 
     public Hand(List<PlayerPiece> pieces){
         this.hand = pieces;
-        setStringRepresentation();
+        updateStringRepresentation();
     }
 
     public void remove(PlayerPiece piece){
@@ -50,23 +50,20 @@ public class Hand {
         return null;
     }
 
-    private void setStringRepresentation(){
+    private void updateStringRepresentation(){
         this.stringRepresentation = new ArrayList<>();
-        while(stringRepresentation.size() < 6){
-            stringRepresentation.add("                      ");
-        }
-
+        addBlankLines(6);
         stringRepresentation.add(" ###### WARRIORS #####");
         stringRepresentation.add(" # +---+---+---+---+ #");
 
-        int ROWS = 6;
-        int COLS = 4;
-        Piece[][] pieces = new Piece[ROWS][COLS];
+        int rows = 6;
+        int cols = 4;
+        Piece[][] pieces = new Piece[rows][cols];
         int row = 0;
         int col = 0;
 
-        for(int i = 0; i < ROWS; i++){
-            for(int j = 0; j < COLS; j++){
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
                 pieces[i][j] = new EmptyPiece();
             }
         }
@@ -75,7 +72,7 @@ public class Hand {
 
         for(int k = 0; k < hand.size(); k++){
             pieces[row][col++] = hand.get(k);
-            if(col == COLS){
+            if(col == cols){
                 col = 0;
                 row++;
             }
@@ -94,7 +91,7 @@ public class Hand {
                 line3 += piece.bottomLine() + "|";
             }
             line1 += " #";
-            line2 +=" #";
+            line2 += " #";
             line3 += " #";
             stringRepresentation.add(line1);
             stringRepresentation.add(line2);
@@ -103,8 +100,11 @@ public class Hand {
 
         }
         stringRepresentation.add(" #####################");
+        addBlankLines(42);
+    }
 
-        while(stringRepresentation.size() < 42){
+    public void addBlankLines(int num){
+        while(stringRepresentation.size() < num){
             stringRepresentation.add("                      ");
         }
     }
@@ -130,7 +130,7 @@ public class Hand {
      *          String of the line number specified.
      */
     public String toLine(int num){
-        setStringRepresentation();
+        updateStringRepresentation();
         return stringRepresentation.get(num);
     }
 

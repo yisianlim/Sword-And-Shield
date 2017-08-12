@@ -15,4 +15,12 @@ public class FacePiece extends Piece {
                 {" ", " ", " "}
         };
     }
+
+    public boolean greenPlayer(){
+        return player.equals("1");
+    }
+
+    public boolean yellowPlayer(){
+        return player.equals("0");
+    }
 }

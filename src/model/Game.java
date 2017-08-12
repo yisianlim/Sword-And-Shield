@@ -8,12 +8,12 @@ import model.player.Hand;
 import model.player.Player;
 import model.player.Player.Direction;
 import model.player.YellowPlayer;
-import model.reaction.EliminateResult;
-import model.reaction.PushedResult;
 import model.reaction.Reaction;
 import model.reaction.ReactionResult;
 
 import java.util.*;
+
+import static model.Game.Phase.*;
 
 public class Game {
 
@@ -25,9 +25,12 @@ public class Game {
      *
      * ACTION phase is when the user can move or rotate any of its PlayerPiece that is in the board. The user can also
      * undo its move and go back to CREATE phase or pass to pass the game to the next player.
+     *
+     * FINAL phase is when the user moves all of their pieces on the board. The user can only input pass or undo at
+     * this point.
      */
     public enum Phase{
-        CREATE, ACTION
+        CREATE, ACTION, FINAL,
     }
 
     /**
@@ -37,7 +40,7 @@ public class Game {
 
     /**
      * Counts the total number of moves played during this game.
-     * From this, you can determine whose turn it is to play.
+     * From this, we can determine whose turn it is to play.
      */
     private int moves;
 
@@ -63,6 +66,11 @@ public class Game {
     private boolean gameOver;
 
     /**
+     * The winning player of the game. Remains null until the game is over.
+     */
+    private Player winner;
+
+    /**
      * Represents the phase the game is currently in.
      */
     private Phase gamePhase;
@@ -78,16 +86,16 @@ public class Game {
      * @param b
      */
     public Game(Board b) {
-        this.board = b;
         setupPlayers();
-        gameOver = false;
         setGamePhase(Phase.CREATE);
-        cemetery = new Cemetery();
-        commandManager = new CommandManager();
+        this.board = b;
+        this.gameOver = false;
+        this.cemetery = new Cemetery();
+        this.commandManager = new CommandManager();
     }
 
     /**
-     * Set up the players of the game.
+     * Set up the players of the game. Invoked the constructor of the Player also setup all the PlayerPiece.
      */
     private void setupPlayers() {
         this.players = Arrays.asList(new YellowPlayer(this), new GreenPlayer(this));
@@ -95,7 +103,7 @@ public class Game {
     }
 
     /**
-     * When passing the game to the next player, we need to clear the unacted pieces as well as clear all the commands
+     * When passing the game to the next player, we need to clear the future pieces as well as clear all the commands
      * executed by the previous player (by creating a new CommandManager) so that the next player cannot undo the
      * previous player's move.
      */
@@ -108,8 +116,8 @@ public class Game {
 
     /**
      * Get the internal board representation of this game.
-     *
      * @return
+     *      Board of the current game.
      */
     public Board getBoard() {
         return board;
@@ -153,6 +161,9 @@ public class Game {
         commandManager.executeCommand(new MovePieceCommand(this, letter, direction, dominant));
     }
 
+    /**
+     * Pass creating a PlayerPiece or pass the game to the next player.
+     */
     public void pass(){
         commandManager.executeCommand(new PassCommand());
     }
@@ -161,7 +172,7 @@ public class Game {
      * Undo the previous command of the game. For this to be valid,
      * commandManager will check if there are any commands left before undo.
      */
-    public void undo(){
+    public void undo() {
         if(!commandManager.isUndoAvailable()){
             throw new IllegalArgumentException("There are no more commands to undo");
         }
@@ -182,9 +193,6 @@ public class Game {
         currentPlayer = player;
     }
 
-    public void addToCemetery(PlayerPiece piece){
-        cemetery.add(piece);
-    }
 
     /**
      * Draw the create phase of the game.
@@ -217,6 +225,24 @@ public class Game {
         System.out.println("Or you can input pass to finish your turn or undo previous moves");
     }
 
+    public void draw(){
+        prepareForNewRound();
+        cemetery.draw();
+
+        Player greenPlayer = players.get(1);
+        Player yellowPlayer = players.get(0);
+
+        int LINES = 42;
+
+        String line;
+        for(int i = 0; i < LINES; i++){
+            line = greenPlayer.hand.toLine(i);
+            line += board.toLine(i);
+            line += yellowPlayer.hand.toLine(i);
+            System.out.println(line);
+        }
+    }
+
     /**
      * Prints a gap before it renders the game for the next round.
      */
@@ -224,22 +250,6 @@ public class Game {
         for(int i=0; i < 10; i++){
             System.out.println();
         }
-    }
-
-    /**
-     * Display to the user on whose turn is it.
-     */
-    public void drawTurn(){
-        System.out.println("\n******** " + currentPlayer.getName() + " player's turn ********\n");
-    }
-
-    /**
-     * Checks if there are any commands to undo.
-     * @return
-     *      true if there are still commands left to undo
-     */
-    public boolean isUndoAvailable(){
-        return commandManager.isUndoAvailable();
     }
 
     /**
@@ -311,6 +321,7 @@ public class Game {
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_future;
         private Board prev_board;
+        private Phase prev_phase;
 
         /**
          * The parameters input by the user to carry out the move.
@@ -326,6 +337,7 @@ public class Game {
             this.prev_player_pieces_in_board = game.currentPlayer.getAllPiecesInBoard();
             this.prev_future = game.getFuture();
             this.prev_board = game.getBoard().clone();
+            this.prev_phase = game.getGamePhase();
 
             this.letter = letter;
             this.direction = direction;
@@ -340,26 +352,26 @@ public class Game {
          */
         @Override
         public void execute() {
-            PlayerPiece piece = board.findPiece(letter);
+            PlayerPiece pieceToMove = board.findPiece(letter);
 
-            if(piece == null){
+            if(pieceToMove == null){
                 throw new IllegalArgumentException("No such piece is found on the board");
-            } else if(!currentPlayer.validPiece(piece)){
+            } else if(!currentPlayer.validPiece(pieceToMove)){
                 throw new IllegalArgumentException("This piece does not belong to you");
-            } else if(!future.contains(piece)  && dominant){
+            } else if(!future.contains(pieceToMove)  && dominant){
                 throw new IllegalArgumentException("This piece has already been moved/rotated");
-            } else if(cemetery.contains(piece)){
+            } else if(cemetery.contains(pieceToMove)){
                 throw new IllegalArgumentException("This piece is already in the cemetery");
             }
 
-            Position old_position = piece.getPosition();
+            Position old_position = pieceToMove.getPosition();
             Position new_position = old_position.moveBy(direction);
 
             // If the piece goes out of the board, it should be added to the cemetery.
             if(board.outOfBoard(new_position)) {
-                cemetery.add(piece);
-                currentPlayer.removeFromPiecesInBoard(piece);
-                removeFromFuture(piece);
+                cemetery.add(pieceToMove);
+                currentPlayer.removeFromPiecesInBoard(pieceToMove);
+                removeFromFuture(pieceToMove);
 
                 // Update the board.
                 board.setSquare(old_position, new EmptyPiece());
@@ -367,12 +379,12 @@ public class Game {
             }
 
             // Update the piece.
-            piece.setPosition(new_position);
+            pieceToMove.setPosition(new_position);
 
             // Update the game state of future piece only if it is a dominant piece.
             // Neighbor pieces are still to be moved / rotated.
             if(dominant) {
-                removeFromFuture(piece);
+                removeFromFuture(pieceToMove);
             }
 
             // Check for neighbor.
@@ -385,8 +397,19 @@ public class Game {
             }
 
             // Update the board.
-            board.setSquare(new_position, piece);
+            board.setSquare(new_position, pieceToMove);
             board.setSquare(old_position, new EmptyPiece());
+
+            // Check for reactions at all directions and store it in the list.
+            List<ReactionResult> reactions = checkForReactions(pieceToMove);
+
+            // Finally, lets execute the reactions.
+            executeReaction(reactions);
+
+            // Change game phase if future is empty.
+            if(future.isEmpty()){
+                gamePhase = FINAL;
+            }
         }
 
 
@@ -396,6 +419,7 @@ public class Game {
             currentPlayer.piecesInBoard = prev_player_pieces_in_board;
             game.future = prev_future;
             game.board = prev_board;
+            gamePhase = prev_phase;
         }
     }
 
@@ -406,6 +430,7 @@ public class Game {
         // Previous states.
         private Set<PlayerPiece> prev_future;
         private Board prev_board;
+        private Phase prev_phase;
 
         // Rotate command.
         String letter;
@@ -416,6 +441,7 @@ public class Game {
 
             this.prev_future = game.getFuture();
             this.prev_board = game.getBoard().clone();
+            this.prev_phase = gamePhase;
 
             this.letter = letter;
             this.rotation = rotation;
@@ -424,33 +450,46 @@ public class Game {
 
         @Override
         public void execute() {
-            PlayerPiece piece = board.findPiece(letter);
+            PlayerPiece pieceToRotate = board.findPiece(letter);
 
-            if(piece == null){
+            if(pieceToRotate == null){
                 throw new IllegalArgumentException("No such piece is found on the board");
-            } else if(!currentPlayer.validPiece(piece)){
+            } else if(!currentPlayer.validPiece(pieceToRotate)){
                 throw new IllegalArgumentException("This piece does not belong to you");
             } else if(rotation!= 0 && rotation != 90 && rotation!= 180 && rotation != 270){
                 throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
-            } else if(!future.contains(piece)){
+            } else if(!future.contains(pieceToRotate)){
                 throw new IllegalArgumentException("This piece has already been acted");
             }
 
             // Update the piece's rotation.
-            piece.rotate(rotation);
+            pieceToRotate.rotate(rotation);
 
             // Update the game state.
-            future.remove(piece);
+            future.remove(pieceToRotate);
             future.remove(null);
 
             // Update the board.
-            board.setSquare(piece.getPosition(), piece);
+            board.setSquare(pieceToRotate.getPosition(), pieceToRotate);
+
+            // Check for reactions at all directions and store it in the list.
+            List<ReactionResult> reactions = checkForReactions(pieceToRotate);
+
+            // Finally, lets execute the reactions.
+            executeReaction(reactions);
+
+            // Change game phase if future is empty.
+            if(future.isEmpty()){
+                gamePhase = FINAL;
+            }
+
         }
 
         @Override
         public void undo() {
             game.future = prev_future;
             game.board = prev_board;
+            gamePhase = prev_phase;
         }
     }
 
@@ -511,33 +550,19 @@ public class Game {
             board.setSquare(newPosition, pieceToCreate);
 
             // Check for reactions at all directions and store it in the list.
-            List<ReactionResult> reactions = new ArrayList<>();
-            for(Direction direction: pieceToCreate.DIRECTIONS){
-
-                // Retrieve the position at the corresponding direction.
-                Position positionAtDirection = currentPlayer.getCreationGrid().moveBy(direction);
-
-                // If positionAtDirection is outside of the board, we do not need to check for reactions.
-                if(positionAtDirection.outsideOfBoard()){
-                    continue;
-                }
-
-                // Get the piece at that direction.
-                Piece pieceAtDirection = board.getSquare(positionAtDirection);
-
-                // Determine what reaction has occured and store it in the list.
-                if(pieceAtDirection instanceof PlayerPiece){
-                    Reaction reaction = new Reaction(pieceToCreate, (PlayerPiece) pieceAtDirection, direction);
-                    ReactionResult result = reaction.getReactionResult();
-
-                    if(result != null){
-                        reactions.add(result);
-                    }
-                }
-            }
+            List<ReactionResult> reactions = checkForReactions(pieceToCreate);
 
             // Finally, lets execute the reactions.
             executeReaction(reactions);
+
+            resetFuture();
+
+            // Change the game phase.
+            if(future.isEmpty()){
+                gamePhase = FINAL;
+            }else {
+                gamePhase = ACTION;
+            }
         }
 
         @Override
@@ -545,9 +570,9 @@ public class Game {
             game.currentPlayer.hand = prev_player_hand;
             game.currentPlayer.piecesInBoard = prev_player_pieces_in_board;
             game.future = prev_future;
-
             game.board = prev_board;
             game.cemetery = prev_cemetery;
+            gamePhase = CREATE;
         }
     }
 
@@ -555,18 +580,87 @@ public class Game {
 
         @Override
         public void execute() {
+            switch(gamePhase){
+                case CREATE:
+                    resetFuture();
 
+                    if(future.isEmpty()) {
+                        gamePhase = FINAL;
+                    } else {
+                        gamePhase = ACTION;
+                    }
+
+                    break;
+                case ACTION:
+                    gamePhase = CREATE;
+                    nextPlayer();
+                    break;
+                case FINAL:
+                    gamePhase = CREATE;
+                    nextPlayer();
+                    break;
+            }
         }
 
         @Override
         public void undo() {
-
+            switch(gamePhase) {
+                case CREATE:
+                    throw new IllegalArgumentException("There are no more commands to undo");
+                case ACTION:
+                    gamePhase = CREATE;
+                    break;
+                case FINAL:
+                    gamePhase = CREATE;
+                    break;
+            }
         }
     }
 
     /**
-     * Execute all of the reactions that happened.
+     * Check for reactions around PlayerPiece piece and return the list of reactions that will occur.
+     * @param piece
+     *          PlayerPiece to check reactions against.
+     * @return
+     *          List of ReactionResult.
+     */
+    private List<ReactionResult> checkForReactions(PlayerPiece piece){
+        List<ReactionResult> reactions = new ArrayList<>();
+        for(Direction direction: piece.DIRECTIONS){
+            // Retrieve the position at the corresponding direction.
+            Position positionAtDirection = piece.getPosition().moveBy(direction);
+
+            // If positionAtDirection is outside of the board, we do not need to check for reactions.
+            if(positionAtDirection.outsideOfBoard()){
+                continue;
+            }
+
+            // Get the piece at that direction.
+            Piece pieceAtDirection = board.getSquare(positionAtDirection);
+
+            // Determine what reaction has occured and store it in the list.
+            Reaction reaction;
+            ReactionResult result = null;
+            if(pieceAtDirection instanceof PlayerPiece){
+                reaction = new Reaction(piece, (PlayerPiece) pieceAtDirection, direction);
+                result = reaction.getReactionResult();
+            } else if(pieceAtDirection instanceof FacePiece){
+                reaction = new Reaction(piece, (FacePiece) pieceAtDirection, direction);
+                result = reaction.getWinningStatus();
+            }
+
+            if(result != null){
+                reactions.add(result);
+            }
+        }
+        return reactions;
+    }
+
+    /**
+     * Execute all of the reactions.
      * @param reactions
+     *          Reactions to be executed
+     *
      */
     private void executeReaction(List<ReactionResult> reactions) {
         for(ReactionResult reactionResult : reactions){
@@ -588,7 +682,7 @@ public class Game {
     }
 
     /**
-     * Push a PlayerPiece to direction.
+     * Push a PlayerPiece to the direction.
      * @param toPush
      *          PlayerPiece to push.
      * @param direction
@@ -596,6 +690,23 @@ public class Game {
      */
     public void push(PlayerPiece toPush, Direction direction){
         new MovePieceCommand(this, toPush.getLetter(), direction, false).execute();
+    }
+
+    /**
+     * The game is finally won by the currentPlayer. Set the gameOver flag to true and update the winner.
+     */
+    public void playerHasWon(){
+        gameOver = true;
+        winner = currentPlayer;
+    }
+
+    /**
+     * Return the name of the winning player.
+     * @return
+     *      String containing the name of the winning player.
+     */
+    public String getWinner(){
+        return winner.getName();
     }
 
 }

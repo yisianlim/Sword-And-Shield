@@ -3,7 +3,7 @@ package model.listener;
 import java.util.Scanner;
 import model.Game;
 import model.player.Player;
-import model.view.Interface;
+import view.Interface;
 
 public class MoveListener extends Listener {
 

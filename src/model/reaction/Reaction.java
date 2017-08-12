@@ -1,5 +1,6 @@
 package model.reaction;
 
+import model.piece.FacePiece;
 import model.piece.PlayerPiece;
 import model.piece.PlayerPiece.Item;
 import model.player.Player.Direction;
@@ -17,6 +18,7 @@ public class Reaction {
      */
     private PlayerPiece pieceOne;
     private PlayerPiece pieceTwo;
+    private FacePiece facePiece;
 
     /**
      * Direction to check for. To make it consistent, this direction is based on pieceOne direction.
@@ -26,6 +28,12 @@ public class Reaction {
     public Reaction(PlayerPiece pieceOne, PlayerPiece pieceTwo, Direction direction){
         this.pieceOne = pieceOne;
         this.pieceTwo = pieceTwo;
+        this.direction = direction;
+    }
+
+    public Reaction(PlayerPiece pieceOne, FacePiece facePiece, Direction direction){
+        this.pieceOne = pieceOne;
+        this.facePiece = facePiece;
         this.direction = direction;
     }
 
@@ -60,8 +68,21 @@ public class Reaction {
             return new PushedResult(pieceTwo, direction);
         }
 
-        // Sword against face.
-        //TODO: TO WIN THE GAME.
+        return null;
+    }
+
+    public ReactionResult getWinningStatus(){
+        Item pieceOneItem = pieceOne.getItem(direction);
+
+        // Green player won.
+        if(pieceOneItem.isSword() && pieceOne.greenPlayer() && facePiece.yellowPlayer()){
+            return new WinResult(pieceOne);
+        }
+
+        // Yellow player won.
+        if(pieceOneItem.isSword() && pieceOne.yellowPlayer() && facePiece.greenPlayer()){
+            return new WinResult(pieceOne);
+        }
 
         return null;
     }

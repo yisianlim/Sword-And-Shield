@@ -187,4 +187,12 @@ public class PlayerPiece extends Piece {
         clone.setPosition(m_position);
         return clone;
     }
+
+    public boolean greenPlayer(){
+        return Character.isUpperCase(m_letter.charAt(0));
+    }
+
+    public boolean yellowPlayer(){
+        return Character.isUpperCase(m_letter.charAt(0));
+    }
 }
