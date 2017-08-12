@@ -17,8 +17,8 @@ java -cp . Main
 
 ### Rules
 A piece is denoted with a <letter> and have either a sword or a shield or nothing, at all sides:
-\- or \|        represents SWORD
-\#             represents SHIELD
-\<empty space> represents NOTHING
+- \- or \|        represents SWORD
+- \#             represents SHIELD
+- \<empty space> represents NOTHING
 
 The goal of the game is attack your opponent player's FACE (0 or 1) with SWORD.
