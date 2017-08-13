@@ -50,8 +50,7 @@ public class Reaction {
         // Sword against nothing case.
         if(pieceOneItem.isSword() && pieceTwoItem.isNothing()){
             return new EliminateResult(Arrays.asList(pieceTwo));
-        }
-        if(pieceTwoItem.isSword() && pieceOneItem.isNothing()){
+        } else if(pieceTwoItem.isSword() && pieceOneItem.isNothing()){
             return new EliminateResult(Arrays.asList(pieceOne));
         }
 
@@ -63,14 +62,19 @@ public class Reaction {
         // Sword against shield case.
         if(pieceOneItem.isSword() && pieceTwoItem.isShield()){
             return new PushedResult(pieceOne, direction.opposite());
-        }
-        if(pieceTwoItem.isSword() && pieceOneItem.isShield()){
+        } else if(pieceTwoItem.isSword() && pieceOneItem.isShield()){
             return new PushedResult(pieceTwo, direction);
         }
 
         return null;
     }
 
+    /**
+     * Check if the reaction of the FacePiece and PlayerPiece will finally declare a winner in the game.
+     * Returns a WinResult if there is a winner. Null is the winning status is not happening.
+     * @return
+     *      ReactionResult of the winning status.
+     */
     public ReactionResult getWinningStatus(){
         Item pieceOneItem = pieceOne.getItem(direction);
 
@@ -83,7 +87,6 @@ public class Reaction {
         if(pieceOneItem.isSword() && pieceOne.yellowPlayer() && facePiece.greenPlayer()){
             return new WinResult(pieceOne);
         }
-
         return null;
     }
 }

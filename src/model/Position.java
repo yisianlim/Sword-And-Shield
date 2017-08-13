@@ -38,6 +38,13 @@ public final class Position {
         return y;
     }
 
+    /**
+     * Update the Position corresponding to the direction of movement.
+     * @param direction
+     *          Direction headed.
+     * @return
+     *          Updated Position based on the direction.
+     */
     public Position moveBy(Direction direction){
         switch(direction){
             case UP:
@@ -52,6 +59,10 @@ public final class Position {
         return null;
     }
 
+    /**
+     * @return
+     *      True if the position if located outside the board. False otherwise.
+     */
     public boolean outsideOfBoard(){
         return this.getX() < 0 || this.getY() < 0 || this.getX() >= 10 || this.getY() >= 10;
     }

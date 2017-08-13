@@ -48,7 +48,7 @@ public class Board {
         setSquare(new Position(1,1), new FacePiece("1"));
         setSquare(new Position(8,8), new FacePiece("0"));
 
-        setStringRepresentation();
+        updateStringRepresentation();
     }
 
     /**
@@ -61,6 +61,13 @@ public class Board {
         return board[pos.getX()][pos.getY()];
     }
 
+    /**
+     * Check if the Position is out of the board.
+     * @param pos
+     *          Position to check for.
+     * @return
+     *      True if it is out of the board. False otherwise.
+     */
     public boolean outOfBoard(Position pos){
         return pos.getX() < 0 ||
                 pos.getX() >= 10 ||
@@ -70,6 +77,13 @@ public class Board {
                 getSquare(pos) instanceof BlankPiece;
     }
 
+    /**
+     * Find the following PlayerPiece with the letter in the board.
+     * @param letter
+     *          Letter of the PlayerPiece to look for.
+     * @return
+     *          Corresponding PlayerPiece if found. Null if it is not represent.
+     */
     public PlayerPiece findPiece(String letter){
         for(int x = 0; x < board.length; x++){
             for(int y = 0; y < board[0].length; y++){
@@ -94,7 +108,10 @@ public class Board {
         board[pos.getX()][pos.getY()] = piece;
     }
 
-    private void setStringRepresentation(){
+    /**
+     * Update the String representation of the board line by line.
+     */
+    private void updateStringRepresentation(){
         this.stringRepresentation = new ArrayList<>();
         stringRepresentation.add("     0   1   2   3   4   5   6   7   8   9  ");
         stringRepresentation.add(border());
@@ -123,7 +140,7 @@ public class Board {
      * @return
      */
     public String toString(){
-        setStringRepresentation();
+        updateStringRepresentation();
         String output = "";
         for(String string : stringRepresentation){
             output+= string + "\n";
@@ -139,7 +156,7 @@ public class Board {
      *          String of the line number specified.
      */
     public String toLine(int num){
-        setStringRepresentation();
+        updateStringRepresentation();
         return stringRepresentation.get(num);
     }
 
@@ -151,10 +168,11 @@ public class Board {
         return "   +---+---+---+---+---+---+---+---+---+---+";
     }
 
-    public void draw() {
-        System.out.println(toString());
-    }
-
+    /**
+     * Deep clone the current Board object.
+     * @return
+     *      Cloned Board.
+     */
     public Board clone(){
         Board clone = new Board();
 

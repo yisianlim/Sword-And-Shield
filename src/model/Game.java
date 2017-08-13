@@ -287,6 +287,15 @@ public class Game {
         return cemetery.clone();
     }
 
+    public void clearReactions(){
+        reactions.clear();
+    }
+
+    /**
+     * getFuture returns the set of PlayerPiece in the board that have not been moved / rotated by the current player.
+     * @return
+     *      Set of PlayerPiece to be moved / rotated in future.
+     */
     public Set<PlayerPiece> getFuture(){
         Set<PlayerPiece> copy_set = new HashSet<>();
         for(PlayerPiece piece : future){
@@ -298,10 +307,97 @@ public class Game {
 
     /**
      * resetFuture is invoked when the game moves on to the action phase. Get all the current player's
-     * PlayerPiece that are on the board as the Piece can be moved / rotated again in future.
+     * PlayerPiece that are on the board as the PlayerPiece can be moved / rotated again in future.
      */
     public void resetFuture() {
         future = currentPlayer.getAllPiecesInBoard();
+    }
+
+    /**
+     * CreatePieceCommand class executes the create as well as undo the created.
+     * It stores the information of the state of the game before the PlayerPiece is created.
+     * It also stores the user inputs in order to execute the command.
+     */
+    private class CreatePieceCommand implements Command{
+        private Game game;
+
+        // Previous states.
+        private Hand prev_player_hand;
+        private Set<PlayerPiece> prev_player_pieces_in_board;
+        private Set<PlayerPiece> prev_future;
+        private Board prev_board;
+        private Cemetery prev_cemetery;
+
+        // Create command.
+        private String letter;
+        private int rotation;
+
+        // Reactions that occured after create.
+        private List<ReactionResult> reactions;
+
+        public CreatePieceCommand(Game game, String letter, int rotation){
+            this.game = game;
+
+            this.prev_player_hand = currentPlayer.hand.clone();
+            this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
+
+            resetFuture();
+            this.prev_future = getFuture();
+            this.prev_board = game.getBoard().clone();
+            this.prev_cemetery = cemetery.clone();
+
+            this.letter = letter;
+            this.rotation = rotation;
+        }
+
+        /**
+         * For this to be acceptable, the piece must belong to the currentPlayer and its creation grid
+         * must be empty.
+         * The PlayerPiece is created and then its neighbors are checked for reactions.
+         */
+        @Override
+        public void execute() {
+            PlayerPiece pieceToCreate = currentPlayer.hand.getPiece(letter);
+
+            if(!currentPlayer.validCreation()){
+                throw new IllegalArgumentException("Your creation grid is occupied");
+            } else if(pieceToCreate == null){
+                throw new IllegalArgumentException("You do not have such piece to create");
+            } else if (rotation!=0 && rotation != 90 && rotation!= 180 && rotation !=270){
+                throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
+            }
+
+            // Update the piece's rotation and position.
+            pieceToCreate.rotate(rotation);
+            pieceToCreate.setPosition(currentPlayer.getCreationGrid());
+
+            // Update the player's state.
+            currentPlayer.hand.remove(pieceToCreate);
+            currentPlayer.addToPiecesInBoard(pieceToCreate);
+
+            // Update the game state.
+            future.add(pieceToCreate);
+
+            // Update the board.
+            Position newPosition = currentPlayer.getCreationGrid();
+            board.setSquare(newPosition, pieceToCreate);
+
+            // Check for reactions at all directions and store it in the list.
+            this.reactions = checkForReactions(pieceToCreate);
+        }
+
+        /**
+         * Undo the create command by restoring the game to its previous state.
+         */
+        @Override
+        public void undo() {
+            game.currentPlayer.hand = prev_player_hand;
+            game.currentPlayer.piecesInBoard = prev_player_pieces_in_board;
+            game.future = prev_future;
+            game.board = prev_board;
+            game.cemetery = prev_cemetery;
+            gamePhase = CREATE;
+        }
     }
 
     /**
@@ -349,6 +445,7 @@ public class Game {
          * been moved by the player in the same round.
          * We also check for neighbors in the direction of the move and call the execute the move recursively if
          * neighbors is present, which will take care of all the successive neighbors.
+         * Then, check its new neighbors for reactions before executing them.
          */
         @Override
         public void execute() {
@@ -368,6 +465,7 @@ public class Game {
             Position new_position = old_position.moveBy(direction);
 
             // If the piece goes out of the board, it should be added to the cemetery.
+            // The game state is updated accordingly before finishing its execution.
             if(board.outOfBoard(new_position)) {
                 cemetery.add(pieceToMove);
                 currentPlayer.removeFromPiecesInBoard(pieceToMove);
@@ -382,13 +480,13 @@ public class Game {
             pieceToMove.setPosition(new_position);
 
             // Update the game state of future piece only if it is a dominant piece.
-            // Neighbor pieces are still to be moved / rotated.
+            // Neighbor pieces are still to be moved / rotated in future.
             if(dominant) {
                 removeFromFuture(pieceToMove);
             }
 
             // Check for neighbor.
-            // If there is a neighbor, we will move the neighbor piece to the same direction as well.
+            // If there is a neighbor, we will move the neighbor piece to the same direction recursively.
             Piece neighbor = board.getSquare(new_position);
             if(neighbor instanceof PlayerPiece){
                 PlayerPiece p = (PlayerPiece) neighbor;
@@ -406,13 +504,16 @@ public class Game {
             // Finally, lets execute the reactions.
             executeReaction(reactions);
 
-            // Change game phase if future is empty.
+            // Change game phase if all pieces have been moved.
             if(future.isEmpty()){
                 gamePhase = FINAL;
             }
         }
 
 
+        /**
+         * Undo the move command by restoring the game to its previous state.
+         */
         @Override
         public void undo() {
             game.cemetery = prev_cemetery;
@@ -423,11 +524,18 @@ public class Game {
         }
     }
 
+    /**
+     * RotatePieceCommand class executes the rotate as well as undo the move.
+     * It stores the information of the state of the game before the PlayerPiece is rotated.
+     * It also stores the user inputs in order to execute the command.
+     */
     private class RotatePieceCommand implements Command{
 
         private Game game;
 
         // Previous states.
+        private Cemetery prev_cemetery;
+        private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_future;
         private Board prev_board;
         private Phase prev_phase;
@@ -438,7 +546,8 @@ public class Game {
 
         public RotatePieceCommand(Game game, String letter, int rotation){
             this.game = game;
-
+            this.prev_cemetery = game.getCemetery();
+            this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
             this.prev_future = game.getFuture();
             this.prev_board = game.getBoard().clone();
             this.prev_phase = gamePhase;
@@ -447,7 +556,11 @@ public class Game {
             this.rotation = rotation;
         }
 
-
+        /**
+         * For this to be acceptable, the piece must belong to the currentPlayer, be on the board and must not have
+         * been moved / rotated by the player in the same round.
+         * The PlayerPiece is rotated and then its neighbors are checked for reactions.
+         */
         @Override
         public void execute() {
             PlayerPiece pieceToRotate = board.findPiece(letter);
@@ -478,118 +591,45 @@ public class Game {
             // Finally, lets execute the reactions.
             executeReaction(reactions);
 
-            // Change game phase if future is empty.
+            // Change game phase if all pieces have been moved.
             if(future.isEmpty()){
                 gamePhase = FINAL;
             }
-
         }
 
+        /**
+         * Undo the rotated command by restoring the game to its previous state.
+         */
         @Override
         public void undo() {
+            game.cemetery = prev_cemetery;
+            game.currentPlayer.piecesInBoard = prev_player_pieces_in_board;
             game.future = prev_future;
             game.board = prev_board;
             gamePhase = prev_phase;
         }
     }
 
-    private class CreatePieceCommand implements Command{
-        private Game game;
-
-        // Previous states.
-        private Hand prev_player_hand;
-        private Set<PlayerPiece> prev_player_pieces_in_board;
-        private Set<PlayerPiece> prev_future;
-        private Board prev_board;
-        private Cemetery prev_cemetery;
-
-        // Create command.
-        private String letter;
-        private int rotation;
-
-        public CreatePieceCommand(Game game, String letter, int rotation){
-            this.game = game;
-
-            this.prev_player_hand = currentPlayer.hand.clone();
-            this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
-
-            resetFuture();
-            this.prev_future = getFuture();
-            this.prev_board = game.getBoard().clone();
-            this.prev_cemetery = cemetery.clone();
-
-            this.letter = letter;
-            this.rotation = rotation;
-        }
-
-        @Override
-        public void execute() {
-            PlayerPiece pieceToCreate = currentPlayer.hand.getPiece(letter);
-
-            if(!currentPlayer.validCreation()){
-                throw new IllegalArgumentException("Your creation grid is occupied");
-            } else if(pieceToCreate == null){
-                throw new IllegalArgumentException("You do not have such piece to create");
-            } else if (rotation!=0 && rotation != 90 && rotation!= 180 && rotation !=270){
-                throw new IllegalArgumentException("Rotation needs to be 0, 90, 180, 270 only");
-            }
-
-            // Update the piece's rotation and position.
-            pieceToCreate.rotate(rotation);
-            pieceToCreate.setPosition(currentPlayer.getCreationGrid());
-
-            // Update the player's state.
-            currentPlayer.hand.remove(pieceToCreate);
-            currentPlayer.addToPiecesInBoard(pieceToCreate);
-
-            // Update the game state.
-            future.add(pieceToCreate);
-
-            // Update the board.
-            Position newPosition = currentPlayer.getCreationGrid();
-            board.setSquare(newPosition, pieceToCreate);
-
-            // Check for reactions at all directions and store it in the list.
-            List<ReactionResult> reactions = checkForReactions(pieceToCreate);
-
-            // Finally, lets execute the reactions.
-            executeReaction(reactions);
-
-            resetFuture();
-
-            // Change the game phase.
-            if(future.isEmpty()){
-                gamePhase = FINAL;
-            }else {
-                gamePhase = ACTION;
-            }
-        }
-
-        @Override
-        public void undo() {
-            game.currentPlayer.hand = prev_player_hand;
-            game.currentPlayer.piecesInBoard = prev_player_pieces_in_board;
-            game.future = prev_future;
-            game.board = prev_board;
-            game.cemetery = prev_cemetery;
-            gamePhase = CREATE;
-        }
-    }
-
+    /**
+     * PassCommand class executes the pass as well as undo the pass (only for CREATE phase)
+     * It stores the information of the state of the game before the player passes its CREATE phase.
+     */
     private class PassCommand implements Command{
 
+        /**
+         * Executes the pass command.
+         * If the game is in CREATE phase, we just moved on to ACTION phase if there are pieces to be moved / rotated
+         * Otherwise, we move on to FINAL phase.
+         * If the game is in ACTION / FINAL phase. We pass the game to the next player and reset the phase to
+         * CREATE.
+         */
         @Override
         public void execute() {
             switch(gamePhase){
                 case CREATE:
                     resetFuture();
-
-                    if(future.isEmpty()) {
-                        gamePhase = FINAL;
-                    } else {
-                        gamePhase = ACTION;
-                    }
-
+                    if(future.isEmpty()) gamePhase = FINAL;
+                    else gamePhase = ACTION;
                     break;
                 case ACTION:
                     gamePhase = CREATE;
@@ -602,6 +642,9 @@ public class Game {
             }
         }
 
+        /**
+         * Undo the pass command by going back to CREATE phase.
+         */
         @Override
         public void undo() {
             switch(gamePhase) {
@@ -616,7 +659,7 @@ public class Game {
             }
         }
     }
-
+    
     /**
      * Check for reactions around PlayerPiece piece and return the list of reactions that will occur.
      * @param piece
@@ -677,6 +720,7 @@ public class Game {
         for(PlayerPiece piece : toEliminate){
             cemetery.add(piece);
             currentPlayer.removeFromPiecesInBoard(piece);
+            future.remove(piece);
             board.setSquare(piece.getPosition(), new EmptyPiece());
         }
     }

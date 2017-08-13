@@ -24,6 +24,11 @@ public class PushedResult implements ReactionResult {
         this.direction = direction;
     }
 
+    /**
+     * Push the PlayerPiece due to the reaction.
+     * @param game
+     *          game to push the PlayerPiece in the board.
+     */
     @Override
     public void execute(Game game) {
         game.push(pushedBack, direction);

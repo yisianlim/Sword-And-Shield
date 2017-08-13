@@ -1,9 +1,11 @@
 package view;
 
+import java.util.List;
 import java.util.Scanner;
 import model.Game;
 import model.listener.*;
 import model.piece.PlayerPiece;
+import model.reaction.ReactionResult;
 
 /**
  * Provides a simple interface for the Sword and Shield Game.
@@ -132,7 +134,6 @@ public class Interface {
                 fail("Please try again\n");
                 READER.nextLine();
             }
-
         }
     }
 

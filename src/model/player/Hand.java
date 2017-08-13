@@ -13,6 +13,9 @@ import model.piece.PlayerPiece;
  */
 public class Hand {
 
+    /**
+     * PlayerPiece that the player owns.
+     */
     private List<PlayerPiece> hand;
 
     /**
@@ -25,10 +28,21 @@ public class Hand {
         updateStringRepresentation();
     }
 
+    /**
+     * Remove the piece from hand.
+     * @param piece
+     *          PlayerPiece to remove.
+     */
     public void remove(PlayerPiece piece){
         hand.remove(piece);
     }
 
+    /**
+     * @param piece
+     *          PlayerPiece to check
+     * @return
+     *          Returns true if the Player's hand have the following piece.
+     */
     public boolean contains(PlayerPiece piece){
         return hand.contains(piece);
     }
@@ -50,6 +64,9 @@ public class Hand {
         return null;
     }
 
+    /**
+     * Update the String representation of the Player's hand by each line.
+     */
     private void updateStringRepresentation(){
         this.stringRepresentation = new ArrayList<>();
         addBlankLines(6);
@@ -134,7 +151,11 @@ public class Hand {
         return stringRepresentation.get(num);
     }
 
-
+    /**
+     * Returns a deep cloned version of the current Hand object.
+     * @return
+     *          Cloned Hand.
+     */
     public Hand clone(){
         List<PlayerPiece> clone_list = new ArrayList<>();
         for(PlayerPiece p : hand){
@@ -142,5 +163,4 @@ public class Hand {
         }
         return new Hand(clone_list);
     }
-
 }

@@ -17,7 +17,7 @@ public class UndoListener extends Listener {
 
     /**
      * Invoked when isPass is successful.
-     * Returns true as long as there are commands to undos.
+     * Returns true as long as there are commands to undo.
      * Returns false if there are no more commands to undo.
      * @return
      */

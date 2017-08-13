@@ -14,25 +14,47 @@ import java.util.List;
  */
 public class Cemetery {
 
+    /**
+     * PlayerPiece that have landed in the cemetery.
+     */
     List<PlayerPiece> cemetery;
 
     public Cemetery(){
         cemetery = new ArrayList<>();
     }
 
+    /**
+     * Add piece to cemetery.
+     * @param piece
+     *          Piece to add.
+     */
     public void add(PlayerPiece piece){
         cemetery.add(piece);
     }
 
+    /**
+     * Draw the cemetery.
+     */
     public void draw(){
         System.out.println(toString());
         System.out.println();
     }
 
+    /**
+     * Check if the cemetery contains the following PlayerPiece.
+     * @param piece
+     *          PlayerPiece to check against.
+     * @return
+     *          True if it is in the cemetery. False otherwise.
+     */
     public boolean contains(PlayerPiece piece){
         return cemetery.contains(piece);
     }
 
+    /**
+     * Return the String representation of the cemetery in a 3 * 16 board.
+     * @return
+     */
     public String toString(){
         int ROWS = 3;
         int COLS = 16;
@@ -88,6 +110,11 @@ public class Cemetery {
         return "\t\t\t\t";
     }
 
+    /**
+     * Deep clone the Cemetery object.
+     * @return
+     *      Cloned Cemetery.
+     */
     public Cemetery clone(){
         Cemetery clone = new Cemetery();
         for(PlayerPiece piece : cemetery){

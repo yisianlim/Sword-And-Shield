@@ -19,6 +19,11 @@ public class EliminateResult implements ReactionResult {
         this.toEliminate = toEliminate;
     }
 
+    /**
+     * Eliminate the PlayerPiece in toEliminate.
+     * @param game
+     *          Game to eliminate the pieces.
+     */
     @Override
     public void execute(Game game) {
         game.eliminate(toEliminate);

@@ -209,7 +209,8 @@ public class GameTest {
     }
 
     /**
-     * Pass during CREATION phase should move on the ACTION phase.
+     * Pass during CREATION phase should move on the FINAL phase when there are no
+     * pieces belonging to the player on the board.
      */
     @Test
     public void test_Pass_ChangePhase(){
@@ -218,8 +219,7 @@ public class GameTest {
         Player player = new GreenPlayer(game);
         game.setCurrentPlayer(player);
         game.pass();
-        assertTrue(game.getGamePhase().equals(Game.Phase.ACTION));
-
+        assertTrue(game.getGamePhase().equals(Game.Phase.FINAL));
     }
 
   /**
@@ -456,5 +456,9 @@ public class GameTest {
         // Piece F should not be in the board due to sword vs nothing reaction.
         assertTrue(game.getBoard().findPiece("F") == null);
     }
+
+    // Test if game is over after sword vs face reaction.
+
+    // Test multiple reactions.
 
 }
