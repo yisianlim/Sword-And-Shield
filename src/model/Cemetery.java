@@ -55,15 +55,16 @@ public class Cemetery {
                 row++;
             }
         }
-        String output = indent() + "---------------------------REST IN PEACE-----------------------------\n";
+        String output = "";
+        output += indent() + "---------------------------REST IN PEACE-----------------------------\n";
         output += indent() + "XXXXXXXXXXXXXXXXXXXXXXXXXXXX CEMETERY XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n";
         output +=  border();
-        String line1, line2, line3;
 
+        String line1, line2, line3;
         for(row = 0; row < pieces.length; row++){
-            line1 = "           X |";
-            line2 = "           X |";
-            line3 = "           X |";
+            line1 = indent() + "X |";
+            line2 = indent() + "X |";
+            line3 = indent() + "X |";
             for(col = 0; col < pieces[0].length; col++){
                 Piece piece = pieces[row][col];
                 line1 += piece.topLine()    + "|";
@@ -77,7 +78,6 @@ public class Cemetery {
         }
         output += indent() + "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
         return output;
-
     }
 
     public String border(){
@@ -85,7 +85,7 @@ public class Cemetery {
     }
 
     public String indent(){
-        return "           ";
+        return "\t\t\t\t";
     }
 
     public Cemetery clone(){

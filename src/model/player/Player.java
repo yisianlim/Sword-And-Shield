@@ -8,6 +8,9 @@ import java.util.*;
 
 public abstract class Player {
 
+    /**
+     * Directions that the player can move.
+     */
     public enum Direction{
         UP(1), DOWN(2), LEFT(3), RIGHT(4);
 
@@ -32,13 +35,24 @@ public abstract class Player {
         }
     }
 
+    /**
+     * Green or yellow player.
+     */
     protected String playerName;
 
+    /**
+     * Represents the PlayerPiece that player has on hand.
+     */
     public Hand hand;
 
-    // PlayerPiece that are currently on the board.
+    /**
+     * Player's PlayerPiece that are currently on the board.
+     */
     public Set<PlayerPiece> piecesInBoard;
 
+    /**
+     * Game that the Player is currently dealing with.
+     */
     protected Game game;
 
     public Player(String playerName, Game game){
@@ -54,6 +68,10 @@ public abstract class Player {
      */
     public abstract boolean validCreation();
 
+    /**
+     * @return
+     *      Position of the respective Player's creation grid.
+     */
     public abstract Position getCreationGrid();
 
     /**
@@ -66,17 +84,30 @@ public abstract class Player {
         return hand.contains(piece)|| piecesInBoard.contains(piece);
     }
 
-
+    /**
+     * Returns all Player's PlayerPiece that are currently on the board.
+     * @return
+     */
     public Set<PlayerPiece> getAllPiecesInBoard(){
         Set<PlayerPiece> set = new HashSet<>();
         set.addAll(piecesInBoard);
         return set;
     }
 
+    /**
+     * Update the piecesInBoard if the Player's PlayerPiece goes onto the board.
+     * @param piece
+     *          Piece being added to board.
+     */
     public void addToPiecesInBoard(PlayerPiece piece){
         piecesInBoard.add(piece);
     }
 
+    /**
+     * Update the piecesInBoard if the Player's PlayerPiece leaves the board.
+     * @param piece
+     *          Piece being removed from board.
+     */
     public void removeFromPiecesInBoard(PlayerPiece piece){
         piecesInBoard.remove(piece);
     }

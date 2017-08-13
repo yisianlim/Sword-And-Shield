@@ -1,7 +1,9 @@
 package model.piece;
 
 /**
- * This class represents an FacePiece in the Board to display the playerName.
+ * This class represents an FacePiece in the Board to display the player symbol.
+ * 1 for Green & 0 for Yellow.
+ * Anytime a PlayerPiece moves into a FacePiece, it ends up in the cemetery.
  */
 public class FacePiece extends Piece {
 

@@ -1,8 +1,7 @@
 package model.piece;
 
 /**
- * This class represents an EmptyPiece in the Board. The purpose of create a class for an empty piece for code reuse
- * for the toString() method in Board.
+ * This class represents an EmptyPiece in the Board. It remains empty until a PlayerPiece moves into it.
  */
 public class EmptyPiece extends Piece {
 

@@ -1,7 +1,6 @@
 package model.piece;
 
 import model.Position;
-import model.player.Player;
 import model.player.Player.Direction;
 
 import static model.player.Player.Direction.*;
@@ -9,6 +8,9 @@ import static model.player.Player.Direction.*;
 
 public class PlayerPiece extends Piece {
 
+    /**
+     * Items that are held by the PlayerPiece.
+     */
     public enum Item {
         HORIZONTAL_SWORD(1), VERTICAL_SWORD(2), NO_ITEM(3), SHIELD(4);
 
@@ -71,31 +73,126 @@ public class PlayerPiece extends Piece {
         }
     }
 
-    private Item m_top, m_left, m_bottom, m_right;
-    private String m_letter;
-    private Position m_position;
+    /**
+     * Items that are held by the PlayerPiece at all directions.
+     */
+    private Item top, left, bottom, right;
+
+
+    private String letter;
+    private Position position;
     public static final Direction[] DIRECTIONS = new Direction[]{UP, LEFT, DOWN, RIGHT};
 
     public PlayerPiece(Item top, Item left, Item bottom, Item right, String letter){
-        m_top = top;
-        m_left = left;
-        m_bottom = bottom;
-        m_right = right;
-        m_letter = letter;
+        this.top = top;
+        this.left = left;
+        this.bottom = bottom;
+        this.right = right;
+        this.letter = letter;
 
-        initialise_rep();
+        updateStringRepresentation();
     }
 
-    private void initialise_rep(){
+    /**
+     * Usually invoked after the PlayerPiece is rotated or created to update the String representation of the
+     * piece.
+     */
+    private void updateStringRepresentation(){
         m_rep = new String[][]{
-                {" ", m_top.toString(), " "},
-                {m_left.toString(), m_letter, m_right.toString()},
-                {" ", m_bottom.toString(), " "}
+                {" ", top.toString(), " "},
+                {left.toString(), letter, right.toString()},
+                {" ", bottom.toString(), " "}
         };
     }
 
+    /**
+     * Rotate the PlayerPiece based on the orientation of the rotation. The rotation is anticlockwise.
+     * It updates the fields after rotation.
+     * @param rotation
+     */
+    public void rotate(int rotation) {
+        Item temp_item;
+        switch(rotation){
+
+            case 0:
+                break;
+
+            case 90:
+                temp_item = top;
+                top = right.rotate();
+                right = bottom.rotate();
+                bottom = left.rotate();
+                left = temp_item.rotate();
+                updateStringRepresentation();
+                break;
+
+            case 180:
+                temp_item = top;
+                top = bottom;
+                bottom = temp_item;
+                temp_item = right;
+                right = left;
+                left = temp_item;
+                updateStringRepresentation();
+                break;
+
+            case 270:
+                temp_item = top;
+                top = left.rotate();
+                left = bottom.rotate();
+                bottom = right.rotate();
+                right = temp_item.rotate();
+                updateStringRepresentation();
+                break;
+        }
+    }
+
     public String getLetter(){
-        return m_letter;
+        return letter;
+    }
+
+    public void setPosition(Position position){
+        this.position = position;
+    }
+
+    public Position getPosition(){
+        return position;
+    }
+
+    /**
+     * Return the corresponding item based on the direction.
+     * @param direction
+     * @return
+     */
+    public Item getItem(Direction direction){
+        switch(direction){
+            case UP:
+                return top;
+            case DOWN:
+                return bottom;
+            case LEFT:
+                return left;
+            case RIGHT:
+                return right;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * @return
+     *      true if this PlayerPiece belongs to green player.
+     */
+    public boolean greenPlayer(){
+        return Character.isUpperCase(letter.charAt(0));
+    }
+
+    /**
+     * @return
+     *      false if this PlayerPiece belongs to yellow player.
+     */
+    public boolean yellowPlayer(){
+        return Character.isUpperCase(letter.charAt(0));
     }
 
     @Override
@@ -108,91 +205,17 @@ public class PlayerPiece extends Piece {
         return p.getLetter().equals(getLetter());
     }
 
-    public void rotate(int rotation) {
-        Item temp_item;
-        switch(rotation){
-
-            case 0:
-                break;
-
-            case 90:
-                temp_item = m_top;
-                m_top = m_right.rotate();
-                m_right = m_bottom.rotate();
-                m_bottom = m_left.rotate();
-                m_left = temp_item.rotate();
-                initialise_rep();
-                break;
-
-            case 180:
-                temp_item = m_top;
-                m_top = m_bottom;
-                m_bottom = temp_item;
-                temp_item = m_right;
-                m_right = m_left;
-                m_left = temp_item;
-                initialise_rep();
-                break;
-
-            case 270:
-                temp_item = m_top;
-                m_top = m_left.rotate();
-                m_left = m_bottom.rotate();
-                m_bottom = m_right.rotate();
-                m_right = temp_item.rotate();
-                initialise_rep();
-                break;
-
-            default:
-                throw new IllegalArgumentException("Rotation must be either 0, 90, 180 or 270 only");
-        }
-    }
 
     @Override
     public int hashCode(){
-        return 31 * 17 + m_letter.hashCode();
-    }
-
-    public void setPosition(Position position){
-        m_position = position;
-    }
-
-    public Position getPosition(){
-        return m_position;
-    }
-
-    /**
-     * Return the corresponding item based on the direction.
-     * @param direction
-     * @return
-     */
-    public Item getItem(Direction direction){
-        switch(direction){
-            case UP:
-                return m_top;
-            case DOWN:
-                return m_bottom;
-            case LEFT:
-                return m_left;
-            case RIGHT:
-                return m_right;
-            default:
-                return null;
-        }
+        return 31 * 17 + letter.hashCode();
     }
 
     @Override
     public Piece clone() {
-        PlayerPiece clone = new PlayerPiece(m_top, m_left, m_bottom, m_right, m_letter);
-        clone.setPosition(m_position);
+        PlayerPiece clone = new PlayerPiece(top, left, bottom, right, letter);
+        clone.setPosition(position);
         return clone;
     }
 
-    public boolean greenPlayer(){
-        return Character.isUpperCase(m_letter.charAt(0));
-    }
-
-    public boolean yellowPlayer(){
-        return Character.isUpperCase(m_letter.charAt(0));
-    }
 }

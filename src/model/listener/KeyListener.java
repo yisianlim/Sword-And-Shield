@@ -13,6 +13,12 @@ public class KeyListener extends Listener {
             super(scanner, game);
         }
 
+    /**
+     * Invoked when the game is booted and the splash screen is displayed. Waits for the user to feed a key input
+     * and then returns true.
+     * @return
+     *      true for any key input.
+     */
     @Override
     public boolean parse() {
         // Wait for players to be ready before beginning the game.

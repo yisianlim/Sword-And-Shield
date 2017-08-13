@@ -15,6 +15,12 @@ public class UndoListener extends Listener {
         super(scanner, game);
     }
 
+    /**
+     * Invoked when isPass is successful.
+     * Returns true as long as there are commands to undos.
+     * Returns false if there are no more commands to undo.
+     * @return
+     */
     @Override
     public boolean parse() {
         scanner.next(); // Gobble up the undo command.

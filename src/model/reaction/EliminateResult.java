@@ -6,7 +6,7 @@ import model.piece.PlayerPiece;
 import java.util.List;
 
 /**
- * EliminateResult class stores what piece should be removed from the game and land in the cemetery.
+ * EliminateResult class stores what piece should be removed from the game and land in the cemetery after a reaction.
  */
 public class EliminateResult implements ReactionResult {
 

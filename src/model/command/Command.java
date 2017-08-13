@@ -6,11 +6,11 @@ package model.command;
  * reverse the changes in the game.
  */
 public interface Command {
-    public void execute();
+     void execute();
 
     /**
      * Undo the command. It restores the current game state to the previous game state resulting in the command
      * that was executed to be undone.
      */
-    public void undo();
+    void undo();
 }

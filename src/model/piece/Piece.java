@@ -1,11 +1,13 @@
 package model.piece;
 
 /**
- * This class represents the piece.
+ * This class represents all pieces. All the various types of piece in the game extends this superclass.
  */
 public abstract class Piece {
 
-    // The 3x3 String representation of the Piece.
+    /**
+     * The 3x3 String representation of the Piece
+     */
     protected String[][] m_rep;
 
     public String topLine(){
@@ -24,6 +26,11 @@ public abstract class Piece {
         return  topLine() + "\n" + midLine() + "\n" + bottomLine() + "\n";
     }
 
+    /**
+     * Returns the clone for the Piece. All subclasses except PlayerPiece returns this as they are immutable.
+     * @return
+     *      cloned Piece.
+     */
     public Piece clone(){
         return this;
     }
