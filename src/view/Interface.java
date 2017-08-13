@@ -1,11 +1,9 @@
 package view;
 
-import java.util.List;
 import java.util.Scanner;
 import model.Game;
 import model.listener.*;
 import model.piece.PlayerPiece;
-import model.reaction.ReactionResult;
 
 /**
  * Provides a simple interface for the Sword and Shield Game.
@@ -19,8 +17,17 @@ public class Interface {
         this.game = game;
         this.READER = new Scanner(System.in);
         splashScreen();
+
+        // Wait for user response.
+        KeyListener keyListener = new KeyListener(READER, game);
+        if(keyListener.parse()){
+            beginGame();
+        }
     }
 
+    /**
+     * Introduction and instruction of the game to the user.
+     */
     private void splashScreen() {
         System.out.println("======================= Welcome to Sword And Shield ======================");
         System.out.println("=======================      By: Yi Sian Lim        ======================");
@@ -47,15 +54,12 @@ public class Interface {
                 "\"undo\"                               -> revert the last command\n"
         );
 
-        // Wait for user response.
         System.out.println("\t\t\t\tPress any key then ENTER to continue");
-
-        KeyListener keyListener = new KeyListener(READER, game);
-        if(keyListener.parse()){
-            beginGame();
-        }
     }
 
+    /**
+     * Begin the game. The game goes on until a winner is declared.
+     */
     private void beginGame(){
         while(!game.gameOver()){
             switch(game.getGamePhase()){
@@ -63,17 +67,20 @@ public class Interface {
                     createPhase();
                     break;
                 case ACTION:
-                    actionPhase(false);
+                    actionPhase();
                     break;
                 case FINAL:
                     finalActionPhase();
                     break;
             }
         }
-        game.draw();
-        System.out.println(game.getWinner() + " has won!");
+        declareWinner();
     }
 
+    /**
+     * At the create phase of the game, it only listens for the create and pass command.
+     * Other commands are considered invalid.
+     */
     private void createPhase() {
         game.drawCreatePhase();
 
@@ -91,11 +98,13 @@ public class Interface {
         }
     }
 
-    private void actionPhase(boolean undo) {
+    /**
+     * At the action phase of the game, it listens for the move, rotate, pass or undo command.
+     * Other commands are considered invalid.
+     */
+    private void actionPhase() {
         game.drawActionPhase();
-        // Listener that listens to the user input at this stage.
         Listener listener;
-
         // Action phase goes on as long as there are still future pieces.
         while(true){
             System.out.print("You can move the following pieces: ");
@@ -103,33 +112,28 @@ public class Interface {
                 System.out.print(playerPiece.getLetter() + " ");
             }
             System.out.println();
-
-            listener = parseInitialActionPhase(READER);
-
+            listener = parseActionPhase(READER);
             if(listener == null) {
                 fail("Please try again\n");
                 READER.nextLine();
                 continue;
             }
-
             if(listener != null){
                 return;
             }
-
             game.drawActionPhase();
         }
     }
 
+    /**
+     *  At the final action phase of the game (when all the pieces on the board have been moved / rotated)
+     *  The user can only input "pass" to end its turn or "undo" to revert its previous commands.
+     */
     private void finalActionPhase(){
-        // The final stage of the action phase is when all the pieces have been acted.
-        // The user can only input "pass" to move onto the next user or "undo" to go back.
         game.drawActionPhase();
-
         Listener listener = null;
         while(listener == null) {
-
             listener = parseFinalActionPhase(READER);
-
             if(listener == null){
                 fail("Please try again\n");
                 READER.nextLine();
@@ -137,7 +141,22 @@ public class Interface {
         }
     }
 
-    public Listener parseCreatePhase(Scanner scan){
+    /**
+     * Declare the winning player.
+     */
+    private void declareWinner() {
+        game.draw();
+        System.out.println(game.getWinner() + " has won!");
+    }
+
+    /**
+     * Parse the input during create phase.
+     * @param scan
+     *          Scanner to parse.
+     * @return
+     *      Corresponding listener based on the command. Null if the command was invalid.
+     */
+    private Listener parseCreatePhase(Scanner scan){
         Listener listener = new CreateListener(scan, game);
         if (listener.isCreate()) {
             if (listener.parse()) {
@@ -160,7 +179,14 @@ public class Interface {
         return null;
     }
 
-    private Listener parseInitialActionPhase(Scanner scan){
+    /**
+     * Parse the input during action phase.
+     * @param scan
+     *          Scanner to parse.
+     * @return
+     *      Corresponding listener based on the command. Null if the command was invalid.
+     */
+    private Listener parseActionPhase(Scanner scan){
         Listener listener = new MoveListener(scan, game);
         if(listener.isMove()){
             if(listener.parse()){
@@ -199,7 +225,14 @@ public class Interface {
         return null;
     }
 
-    public Listener parseFinalActionPhase(Scanner scan){
+    /**
+     * Parse the input during final action phase.
+     * @param scan
+     *          Scanner to parse.
+     * @return
+     *      Corresponding listener based on the command. Null if the command was invalid.
+     */
+    private Listener parseFinalActionPhase(Scanner scan){
         Listener listener = new PassListener(scan, game);
         if(listener.isPass()){
             if(listener.parse()){

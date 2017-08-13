@@ -287,9 +287,6 @@ public class Game {
         return cemetery.clone();
     }
 
-    public void clearReactions(){
-        reactions.clear();
-    }
 
     /**
      * getFuture returns the set of PlayerPiece in the board that have not been moved / rotated by the current player.
@@ -331,9 +328,6 @@ public class Game {
         // Create command.
         private String letter;
         private int rotation;
-
-        // Reactions that occured after create.
-        private List<ReactionResult> reactions;
 
         public CreatePieceCommand(Game game, String letter, int rotation){
             this.game = game;
@@ -383,7 +377,18 @@ public class Game {
             board.setSquare(newPosition, pieceToCreate);
 
             // Check for reactions at all directions and store it in the list.
-            this.reactions = checkForReactions(pieceToCreate);
+            List<ReactionResult> reactions = checkForReactions(pieceToCreate);
+
+            // Finally, lets execute the reactions.
+            executeReaction(reactions);
+
+            // Change game phase if all pieces have been moved.
+            if(future.isEmpty()){
+                gamePhase = FINAL;
+            } else {
+                gamePhase = ACTION;
+            }
+
         }
 
         /**

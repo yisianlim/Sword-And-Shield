@@ -12,6 +12,7 @@ import static model.player.Player.Direction.*;
 import static org.junit.Assert.*;
 
 public class GameTest {
+
     /**
      * Creating a Piece in the CREATION_GRID twice should throw an exception.
      */
@@ -30,7 +31,7 @@ public class GameTest {
     }
 
     /**
-     * Creating a Piece that the player do not own should throw an exception.
+     * Creating a PlayerPiece that the player do not own should throw an exception.
      */
     @Test
     public void test_NoSuchPiece(){
@@ -47,7 +48,7 @@ public class GameTest {
 
     /**
      * Creating a Piece and making sure that the Player's state is updated according.
-     * The player should not have that piece on their hand anymore.listener = parseFinalActionPhase(READER);
+     * The player should not have that piece on their hand anymore.
      */
     @Test
     public void test_CreatePiece(){
@@ -58,25 +59,6 @@ public class GameTest {
         assertTrue(player.hand.getPiece("L") != null);
         game.createPiece("L", 0);
         assertTrue(player.hand.getPiece("L") == null);
-    }
-
-    /**
-     * Attempt to move a piece into a FacePiece should throw an exception.
-     */
-    @Test
-    public void test_InvalidMovePiece(){
-        Board board = new Board();
-        Game game = new Game(board);
-        Player player = new GreenPlayer(game);
-        game.setCurrentPlayer(player);
-        game.createPiece("L", 0);
-        game.movePiece("L", UP, true);
-
-        try{
-            game.movePiece("L", LEFT, true);
-        } catch (IllegalArgumentException e){
-
-        }
     }
 
     /**
@@ -192,6 +174,9 @@ public class GameTest {
         }
     }
 
+    /**
+     * Attempt to undo when there are no more moves to undo should thrown an exception.
+     */
     @Test
     public void test_UndoMove_Invalid(){
         Board board = new Board();
@@ -220,6 +205,21 @@ public class GameTest {
         game.setCurrentPlayer(player);
         game.pass();
         assertTrue(game.getGamePhase().equals(Game.Phase.FINAL));
+    }
+
+    /**
+     * Undo Pass of CREATION phase should go back to CREATION phase.
+     */
+    @Test
+    public void test_Pass_ChangePhase_Undo(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player player = new GreenPlayer(game);
+        game.setCurrentPlayer(player);
+        game.pass();
+        game.undo();
+        assertTrue(game.getGamePhase().equals(Game.Phase.CREATE));
+
     }
 
   /**
@@ -347,6 +347,9 @@ public class GameTest {
         assertTrue(game.getFuture().contains(piece_L));
     }
 
+    /**
+     * Test if undo rotation is successful.
+     */
     @Test
     public void test_UndoRotation(){
         String before =
@@ -375,6 +378,9 @@ public class GameTest {
         assertEquals(before, piece_L.toString());
     }
 
+    /**
+     * Test if sword and shield reaction after create is successful.
+     */
     @Test
     public void testReaction_Create_Sword_Shield(){
         Board board = new Board();
@@ -384,9 +390,7 @@ public class GameTest {
         game.setCurrentPlayer(greenPlayer);
         game.createPiece("L", 0);
         game.movePiece("L", DOWN, true);
-
         game.resetFuture();
-
         game.createPiece("A", 0);
 
         PlayerPiece piece_L = board.findPiece("L");
@@ -394,6 +398,9 @@ public class GameTest {
         assertTrue(piece_L.getPosition().getY() == 2);
     }
 
+    /**
+     * Test if undo sword and shield reaction after create is successful.
+     */
     @Test
     public void testReaction_Create_Sword_Shield_Undo(){
         Board board = new Board();
@@ -403,9 +410,7 @@ public class GameTest {
         game.setCurrentPlayer(greenPlayer);
         game.createPiece("L", 0);
         game.movePiece("L", DOWN, true);
-
         game.resetFuture();
-
         game.createPiece("A", 0);
 
         PlayerPiece piece_L = game.getBoard().findPiece("L");
@@ -419,6 +424,9 @@ public class GameTest {
         assertTrue(piece_L.getPosition().getY() == 2);
     }
 
+    /**
+     * Test if sword vs sword reaction is successful.
+     */
     @Test
     public void testReaction_Create_Sword_Sword(){
         Board board = new Board();
@@ -428,9 +436,7 @@ public class GameTest {
         game.setCurrentPlayer(greenPlayer);
         game.createPiece("S", 0);
         game.movePiece("S", DOWN, true);
-
         game.resetFuture();
-
         game.createPiece("K", 0);
 
         // Both piece K and S should not be in the board due to sword vs sword reaction.
@@ -438,6 +444,33 @@ public class GameTest {
         assertTrue(game.getBoard().findPiece("S") == null);
     }
 
+    /**
+     * Test if sword vs sword reaction is successful.
+     */
+    @Test
+    public void testReaction_Create_Sword_Sword_Undo(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player greenPlayer = new GreenPlayer(game);
+
+        game.setCurrentPlayer(greenPlayer);
+        game.createPiece("S", 0);
+        game.movePiece("S", DOWN, true);
+        game.resetFuture();
+        game.createPiece("K", 0);
+
+        // Both piece K and S should not be in the board due to sword vs sword reaction.
+        assertTrue(game.getBoard().findPiece("K") == null);
+        assertTrue(game.getBoard().findPiece("S") == null);
+        game.undo();
+
+        // After undoing create, piece S should be back in the board.
+        assertFalse(game.getBoard().findPiece("S") == null);
+    }
+
+    /**
+     * Test if sword vs nothing reaction is successful.
+     */
     @Test
     public void testReaction_Rotate_Sword_Nothing(){
         Board board = new Board();
@@ -447,9 +480,7 @@ public class GameTest {
         game.setCurrentPlayer(greenPlayer);
         game.createPiece("F", 0);
         game.movePiece("F", DOWN, true);
-
         game.resetFuture();
-
         game.createPiece("U", 0);
         game.rotatePiece("U", 180);
 
@@ -457,8 +488,25 @@ public class GameTest {
         assertTrue(game.getBoard().findPiece("F") == null);
     }
 
-    // Test if game is over after sword vs face reaction.
+    /**
+     * Test if sword vs sword reaction is successful.
+     */
+    @Test
+    public void testReaction_Move_Sword_Sword(){
+        Board board = new Board();
+        Game game = new Game(board);
+        Player greenPlayer = new GreenPlayer(game);
 
-    // Test multiple reactions.
+        game.setCurrentPlayer(greenPlayer);
+        game.createPiece("S", 0);
+        game.movePiece("S", DOWN, true);
+        game.resetFuture();
+        game.createPiece("T", 0);
+        game.rotatePiece("T", 90);
+        game.movePiece("S", UP, true);
 
+        // Piece S and T should not be in the board due to sword vs nothing reaction.
+        assertTrue(game.getBoard().findPiece("S") == null);
+        assertTrue(game.getBoard().findPiece("T") == null);
+    }
 }
