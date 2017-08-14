@@ -194,7 +194,7 @@ public class PlayerPiece extends Piece {
      *      false if this PlayerPiece belongs to yellow player.
      */
     public boolean yellowPlayer(){
-        return Character.isUpperCase(letter.charAt(0));
+        return Character.isLowerCase(letter.charAt(0));
     }
 
     @Override
