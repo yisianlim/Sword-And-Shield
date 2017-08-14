@@ -198,21 +198,7 @@ public class Game {
      * Draw the create phase of the game.
      */
     public void drawCreatePhase() {
-        prepareForNewRound();
-        cemetery.draw();
-
-        Player greenPlayer = players.get(1);
-        Player yellowPlayer = players.get(0);
-
-        int LINES = 42;
-
-        String line;
-        for(int i = 0; i < LINES; i++){
-            line = greenPlayer.hand.toLine(i);
-            line += board.toLine(i);
-            line += yellowPlayer.hand.toLine(i);
-            System.out.println(line);
-        }
+        draw();
         System.out.println(currentPlayer.getName()+"'s move: ");
     }
 
@@ -225,6 +211,9 @@ public class Game {
         System.out.println("Or you can input pass to finish your turn or undo previous moves");
     }
 
+    /**
+     * Draw the board, cemetery and players' hand.
+     */
     public void draw(){
         prepareForNewRound();
         cemetery.draw();
@@ -318,14 +307,18 @@ public class Game {
     private class CreatePieceCommand implements Command{
         private Game game;
 
-        // Previous states.
+        /**
+         * Previous states before create execution.
+         */
         private Hand prev_player_hand;
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_future;
         private Board prev_board;
         private Cemetery prev_cemetery;
 
-        // Create command.
+        /**
+         * Create command input by user.
+         */
         private String letter;
         private int rotation;
 
@@ -415,8 +408,7 @@ public class Game {
         private Game game;
 
         /**
-         * Previous state of the game before move is executed. They are basically the attributes that are going to
-         * be modified after being moved.
+         * Previous states before move execution.
          */
         private Cemetery prev_cemetery;
         private Set<PlayerPiece> prev_player_pieces_in_board;
@@ -425,7 +417,7 @@ public class Game {
         private Phase prev_phase;
 
         /**
-         * The parameters input by the user to carry out the move.
+         * Create command input by user.
          */
         private String letter;
         private Direction direction;
@@ -538,14 +530,18 @@ public class Game {
 
         private Game game;
 
-        // Previous states.
+        /**
+         * Previous states before rotate execution.
+         */
         private Cemetery prev_cemetery;
         private Set<PlayerPiece> prev_player_pieces_in_board;
         private Set<PlayerPiece> prev_future;
         private Board prev_board;
         private Phase prev_phase;
 
-        // Rotate command.
+        /**
+         * Rotate command input by user.
+         */
         String letter;
         int rotation;
 
@@ -674,6 +670,7 @@ public class Game {
      */
     private List<ReactionResult> checkForReactions(PlayerPiece piece){
         List<ReactionResult> reactions = new ArrayList<>();
+        // For each direction surrounding the piece.
         for(Direction direction: piece.DIRECTIONS){
             // Retrieve the position at the corresponding direction.
             Position positionAtDirection = piece.getPosition().moveBy(direction);

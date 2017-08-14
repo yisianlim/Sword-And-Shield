@@ -17,7 +17,7 @@ public class Cemetery {
     /**
      * PlayerPiece that have landed in the cemetery.
      */
-    List<PlayerPiece> cemetery;
+    public List<PlayerPiece> cemetery;
 
     public Cemetery(){
         cemetery = new ArrayList<>();
@@ -107,7 +107,7 @@ public class Cemetery {
     }
 
     public String indent(){
-        return "\t\t\t\t";
+        return "            ";
     }
 
     /**

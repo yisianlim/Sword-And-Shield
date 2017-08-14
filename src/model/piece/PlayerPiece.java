@@ -5,7 +5,10 @@ import model.player.Player.Direction;
 
 import static model.player.Player.Direction.*;
 
-
+/**
+ * PlayerPiece is the main piece of the board. It has items (or no items) at all 4 sides. The PlayerPiece have various
+ * attributes and its item will affect the reactions and various aspects of the Game.
+ */
 public class PlayerPiece extends Piece {
 
     /**
@@ -77,7 +80,6 @@ public class PlayerPiece extends Piece {
      * Items that are held by the PlayerPiece at all directions.
      */
     private Item top, left, bottom, right;
-
 
     private String letter;
     private Position position;
@@ -199,9 +201,7 @@ public class PlayerPiece extends Piece {
     public boolean equals(Object o){
         if(o == null || !(o instanceof PlayerPiece))
             return false;
-
         PlayerPiece p = (PlayerPiece) o;
-
         return p.getLetter().equals(getLetter());
     }
 

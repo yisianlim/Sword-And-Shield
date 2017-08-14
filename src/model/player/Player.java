@@ -112,6 +112,10 @@ public abstract class Player {
         piecesInBoard.remove(piece);
     }
 
+    /**
+     * @return
+     *      Name of the player. (Green or yellow)
+     */
     public String getName(){
         return playerName;
     }
