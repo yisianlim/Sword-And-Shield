@@ -15,7 +15,7 @@ import java.util.*;
 
 import static model.Game.Phase.*;
 
-public class Game {
+public class Game extends Observable {
 
     /**
      * Sword and Shield game is separated into two phases, CREATE and ACTION.
