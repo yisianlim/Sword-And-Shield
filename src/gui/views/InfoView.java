@@ -1,4 +1,6 @@
-package gui;
+package gui.views;
+
+import gui.Controller;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,15 +9,22 @@ public class InfoView extends JPanel {
 
     Controller controller;
     JLabel info;
+    JButton back;
 
     public InfoView(Controller c){
         this.controller = c;
+        setLayout(new BorderLayout());
+        back = new JButton("Back");
         info = new JLabel("Information stuffs will be here");
-        add(info);
+
+        back.addActionListener(controller);
+
+        add(back, BorderLayout.PAGE_START);
+        add(info, BorderLayout.CENTER);
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600,600);
+        return new Dimension(1000, 1000);
     }
 }

@@ -20,16 +20,19 @@ public class Board {
      */
     private List<String> stringRepresentation;
 
+    public static final int ROWS = 10;
+    public static final int COLS = 10;
+
     /**
      * Create an empty and initialized game board.
      */
     public Board(){
-        this.board = new Piece[10][10];
+        this.board = new Piece[ROWS][COLS];
 
         // Initialise EmptyPiece(s) in the board.
         // EmptyPiece can be replaced be PlayerPiece throughout the game.
-        for(int x = 0; x < 10; x++){
-            for (int y = 0; y < 10; y++){
+        for(int x = 0; x < ROWS; x++){
+            for (int y = 0; y < COLS; y++){
                 setSquare(new Position(x,y), new EmptyPiece());
             }
         }
@@ -52,13 +55,17 @@ public class Board {
     }
 
     /**
-     * Get the Piece at a given x and y position, or null if the square is empty.
+     * Get the Piece at a given x and y position.
      * @param pos
      *          Position of square to get
      * @return
      */
     public Piece getSquare(Position pos){
         return board[pos.getX()][pos.getY()];
+    }
+
+    public Piece getSquare(int x, int y){
+        return board[x][y];
     }
 
     /**

@@ -1,10 +1,12 @@
-package gui;
+package gui.views;
+
+import gui.Controller;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by limyisi on 17/08/17.
+ * Displays the main menu to the user.
  */
 public class MainMenu extends JPanel{
 
@@ -17,8 +19,9 @@ public class MainMenu extends JPanel{
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = GridBagConstraints.REMAINDER; // Render components in each rows.
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Make buttons have the same size.
+        gbc.insets = new Insets(5, 0, 5, 0); // Forms a margin between components.
 
         title = new JLabel("Welcome to Sword and Shield");
         begin = new JButton("Begin");
@@ -37,6 +40,6 @@ public class MainMenu extends JPanel{
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600,600);
+        return new Dimension(1000,1000);
     }
 }
