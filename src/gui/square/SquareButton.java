@@ -10,26 +10,26 @@ import javax.swing.*;
  */
 public class SquareButton extends JButton {
 
-    public enum SquareType{
+    public enum Panel {
         CREATION_SHELF_GREEN, CREATION_SHELF_YELLOW, TRAINING, BOARD, CEMETERY,
     };
 
     private Position position;
     private Piece piece;
-    private SquareType squareType;
+    private Panel panelType;
 
-    public SquareButton(Piece piece, Position position, SquareType squareType){
+    public SquareButton(Piece piece, Position position, Panel panelType){
         this.position = position;
         this.piece = piece;
-        this.squareType = squareType;
+        this.panelType = panelType;
     }
 
     public Position getPosition(){
         return position;
     }
 
-    public SquareType getSquareType(){
-        return squareType;
+    public Panel getPanelType(){
+        return panelType;
     }
 
 }

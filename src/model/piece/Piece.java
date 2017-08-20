@@ -43,9 +43,9 @@ public abstract class Piece {
      * @param position
      *          Position of the Piece on the board.
      * @param squareType
-     *          SquareType of the Piece in the view. (Cemetery, board or creation shelf)
+     *          Panel of the Piece in the view. (Cemetery, board or creation shelf)
      * @return
      *          Appropriate SquareButton based on type.
      */
-    public abstract SquareButton createButton(Position position, SquareButton.SquareType squareType);
+    public abstract SquareButton createButton(Position position, SquareButton.Panel squareType);
 }

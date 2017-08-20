@@ -3,7 +3,6 @@ package gui;
 import gui.square.SquareButton;
 import gui.views.PrimaryView;
 import model.Game;
-import model.Position;
 import model.piece.Piece;
 import model.piece.PlayerPiece;
 
@@ -20,6 +19,13 @@ public class Controller implements ActionListener {
     public Controller(Game g, PrimaryView v){
         this.gameModel = g;
         this.view = v;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        mainMenuPerformed(e);
+        infoViewPerformed(e);
+        gameViewPerformed(e);
     }
 
     public void mainMenuPerformed(ActionEvent e){
@@ -52,10 +58,11 @@ public class Controller implements ActionListener {
                 break;
         }
 
+        // If the user clicks on any square in the panels.
         if(squareInBoard(e.getSource())){
             SquareButton squareButton = (SquareButton) e.getSource();
 
-            switch(squareButton.getSquareType()){
+            switch(squareButton.getPanelType()){
                 case CREATION_SHELF_GREEN:
                     // Get the selected piece.
                     Piece piece = gameModel.getCurrentPlayer().hand.getPiece(squareButton);
@@ -83,18 +90,7 @@ public class Controller implements ActionListener {
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        mainMenuPerformed(e);
-        infoViewPerformed(e);
-        gameViewPerformed(e);
-    }
-
     public boolean squareInBoard(Object o){
         return o.getClass().equals(SquareButton.class);
-    }
-
-    public Position getPosition(Object o){
-        return ((SquareButton) o).getPosition();
     }
 }

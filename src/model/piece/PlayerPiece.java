@@ -230,7 +230,7 @@ public class PlayerPiece extends Piece {
     }
 
     @Override
-    public SquareButton createButton(Position position, SquareButton.SquareType squareType) {
+    public SquareButton createButton(Position position, SquareButton.Panel squareType) {
         SquareButton squareButton = new SquareButton(this, position, squareType);
         squareButton.setSize(new Dimension(50,50));
         squareButton.setIcon(new PlayerIcon(this));

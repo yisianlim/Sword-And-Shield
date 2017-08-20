@@ -34,7 +34,7 @@ public class FacePiece extends Piece {
     }
 
     @Override
-    public SquareButton createButton(Position position, SquareButton.SquareType squareType) {
+    public SquareButton createButton(Position position, SquareButton.Panel squareType) {
         SquareButton squareButton = new SquareButton(this, position, squareType);
         Image img = greenPlayer() ? ImageResources.GREEN.img : ImageResources.YELLOW.img;
         img = img.getScaledInstance(60, 60,  java.awt.Image.SCALE_SMOOTH ) ;

@@ -8,15 +8,15 @@ public class ButtonMaker {
 
     private Piece piece;
     private Position position;
-    private SquareButton.SquareType squareType;
+    private SquareButton.Panel squareType;
 
-    public ButtonMaker(Piece piece, Position position, SquareButton.SquareType squareType){
+    public ButtonMaker(Piece piece, Position position, SquareButton.Panel squareType){
         this.piece = piece;
         this.position = position;
         this.squareType = squareType;
     }
 
-    public ButtonMaker(PlayerPiece piece, Position position, SquareButton.SquareType squareType){
+    public ButtonMaker(PlayerPiece piece, Position position, SquareButton.Panel squareType){
         this.piece = piece;
         this.position = position;
         this.squareType = squareType;

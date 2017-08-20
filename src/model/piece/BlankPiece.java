@@ -20,7 +20,7 @@ public class BlankPiece extends Piece {
     }
 
     @Override
-    public SquareButton createButton(Position position, SquareButton.SquareType squareType) {
+    public SquareButton createButton(Position position, SquareButton.Panel squareType) {
         SquareButton squareButton = new SquareButton(this, position, squareType);
         squareButton.setBackground(Color.GRAY);
         squareButton.setOpaque(true);
