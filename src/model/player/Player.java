@@ -120,4 +120,12 @@ public abstract class Player {
         return playerName;
     }
 
+    public boolean isGreen(){
+        return playerName.equals("Green");
+    }
+
+    public boolean isYellow(){
+        return playerName.equals("Yellow");
+    }
+
 }

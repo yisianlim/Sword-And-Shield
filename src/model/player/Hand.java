@@ -1,8 +1,13 @@
 package model.player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import gui.square.SquareButton;
+import model.Position;
+import model.piece.BlankPiece;
 import model.piece.EmptyPiece;
 import model.piece.Piece;
 import model.piece.PlayerPiece;
@@ -17,6 +22,11 @@ public class Hand {
      * PlayerPiece that the player owns.
      */
     private List<PlayerPiece> hand;
+
+    /**
+     * PlayerPiece that the user has selected to create.
+     */
+    private PlayerPiece selected;
 
     /**
      * String representations for each lines for the hand.
@@ -126,6 +136,37 @@ public class Hand {
         }
     }
 
+    /**
+     * Return a 6*4 representation of PlayerPiece in the player's hand.
+     * @return
+     */
+    public Piece[][] getArrayRepresentation(){
+
+        int rows = 4;
+        int cols = 6;
+        Piece[][] pieces = new Piece[rows][cols];
+        int row = 0;
+        int col = 0;
+
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                pieces[i][j] = new BlankPiece();
+            }
+        }
+
+        hand.sort(Comparator.comparing(PlayerPiece::getLetter));
+
+        for(int k = 0; k < hand.size(); k++){
+            pieces[row][col++] = hand.get(k);
+            if(col == cols){
+                col = 0;
+                row++;
+            }
+        }
+
+        return pieces;
+    }
+
 
     /**
      * Return the String representation of the player's hand in a 8 * 3 board.
@@ -162,5 +203,47 @@ public class Hand {
             clone_list.add(p);
         }
         return new Hand(clone_list);
+    }
+
+    /**
+     * The PlayerPiece selected by the user.
+     * @param p
+     */
+    public void setSelected(PlayerPiece p){
+        this.selected = p;
+    }
+
+    /**
+     * Return a list of all the possible orientation of the selected piece by the user.
+     * @return
+     */
+    public List<PlayerPiece> getSelectedInAllOrientations(){
+        List<PlayerPiece> list = new ArrayList<>();
+        PlayerPiece clone_90 = selected.clone();
+        clone_90.rotate(90);
+
+        PlayerPiece clone_180 = selected.clone();
+        clone_180.rotate(180);
+
+        PlayerPiece clone_270 = selected.clone();
+        clone_270.rotate(270);
+
+        list.add(selected.clone());
+        list.add(clone_90);
+        list.add(clone_180);
+        list.add(clone_270);
+
+        return list;
+    }
+
+    public PlayerPiece getSelectedPiece(Position pos){
+        List<PlayerPiece> list = getSelectedInAllOrientations();
+        return list.get(pos.getY());
+    }
+
+    public Piece getPiece(SquareButton squareButton) {
+        Position position = squareButton.getPosition();
+        Piece[][] array = getArrayRepresentation();
+        return array[position.getX()][position.getY()];
     }
 }

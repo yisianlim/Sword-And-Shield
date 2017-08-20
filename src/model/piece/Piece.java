@@ -1,5 +1,8 @@
 package model.piece;
 
+import gui.square.SquareButton;
+import model.Position;
+
 /**
  * This class represents all pieces. All the various types of piece in the game extends this superclass.
  */
@@ -35,4 +38,14 @@ public abstract class Piece {
         return this;
     }
 
+    /**
+     * Generate the SquareButton needed for the view based on the type.
+     * @param position
+     *          Position of the Piece on the board.
+     * @param squareType
+     *          SquareType of the Piece in the view. (Cemetery, board or creation shelf)
+     * @return
+     *          Appropriate SquareButton based on type.
+     */
+    public abstract SquareButton createButton(Position position, SquareButton.SquareType squareType);
 }

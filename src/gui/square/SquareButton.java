@@ -1,39 +1,35 @@
 package gui.square;
 
 import model.Position;
-import model.piece.BlankPiece;
-import model.piece.EmptyPiece;
-import model.piece.FacePiece;
-import model.piece.Piece;
+import model.piece.*;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
- * Each square in h
+ * Each square in the game is drawn as a JButton.
  */
 public class SquareButton extends JButton {
 
+    public enum SquareType{
+        CREATION_SHELF_GREEN, CREATION_SHELF_YELLOW, TRAINING, BOARD, CEMETERY,
+    };
+
     private Position position;
+    private Piece piece;
+    private SquareType squareType;
 
-    public SquareButton(Piece piece, Position position){
+    public SquareButton(Piece piece, Position position, SquareType squareType){
         this.position = position;
-        Color squareColor = Color.GRAY;
-        if(piece instanceof FacePiece){
-            FacePiece fp = (FacePiece) piece;
-            squareColor = fp.greenPlayer() ? Color.green : Color.yellow;
-        } else if (piece instanceof BlankPiece){
-            squareColor = Color.GRAY;
-        } else if (piece instanceof EmptyPiece){
-            squareColor = ((position.getX()%2) == (position.getY()%2)) ? Color.black : Color.WHITE;
-        }
-
-        this.setBackground(squareColor);
-        this.setOpaque(true);
-        this.setBorderPainted(false);
+        this.piece = piece;
+        this.squareType = squareType;
     }
 
     public Position getPosition(){
         return position;
     }
+
+    public SquareType getSquareType(){
+        return squareType;
+    }
+
 }

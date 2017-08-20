@@ -1,7 +1,11 @@
 package model.piece;
 
+import gui.square.SquareButton;
 import model.Position;
 import model.player.Player.Direction;
+
+import javax.swing.*;
+import java.awt.*;
 
 import static model.player.Player.Direction.*;
 
@@ -10,6 +14,8 @@ import static model.player.Player.Direction.*;
  * attributes and its item will affect the reactions and various aspects of the Game.
  */
 public class PlayerPiece extends Piece {
+
+    private int rotation;
 
     /**
      * Items that are held by the PlayerPiece.
@@ -113,6 +119,7 @@ public class PlayerPiece extends Piece {
      * @param rotation
      */
     public void rotate(int rotation) {
+        this.rotation = rotation;
         Item temp_item;
         switch(rotation){
 
@@ -151,6 +158,10 @@ public class PlayerPiece extends Piece {
 
     public String getLetter(){
         return letter;
+    }
+
+    public int getRotation(){
+        return rotation;
     }
 
     public void setPosition(Position position){
@@ -212,10 +223,108 @@ public class PlayerPiece extends Piece {
     }
 
     @Override
-    public Piece clone() {
+    public PlayerPiece clone() {
         PlayerPiece clone = new PlayerPiece(top, left, bottom, right, letter);
         clone.setPosition(position);
         return clone;
+    }
+
+    @Override
+    public SquareButton createButton(Position position, SquareButton.SquareType squareType) {
+        SquareButton squareButton = new SquareButton(this, position, squareType);
+        squareButton.setSize(new Dimension(50,50));
+        squareButton.setIcon(new PlayerIcon(this));
+        squareButton.setOpaque(false);
+        squareButton.setFocusable(false);
+        squareButton.setContentAreaFilled(false);
+        squareButton.setBorderPainted(false);
+        return squareButton;
+    }
+
+    /**
+     * PlayerIcon encapsulates all the drawing method of the PlayerPiece in one
+     * class. The Icon is to be used as the SquareButton icon.
+     */
+    class PlayerIcon implements Icon {
+
+        PlayerPiece playerPiece;
+
+        PlayerIcon(PlayerPiece playerPiece){
+            this.playerPiece = playerPiece;
+        }
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2d = (Graphics2D) g.create();
+
+            // Draw the player's main piece.
+            Color player = playerPiece.greenPlayer() ? Color.GREEN.darker() : Color.YELLOW;
+            g2d.setColor(player);
+            g2d.fillOval(0, 0, getIconWidth(), getIconHeight());
+
+            // Draw the PlayerPiece items.
+            g2d.setColor(Color.RED);
+            drawUp(playerPiece.getItem(Direction.UP), g2d);
+            drawLeft(playerPiece.getItem(Direction.LEFT), g2d);
+            drawDown(playerPiece.getItem(Direction.DOWN), g2d);
+            drawRight(playerPiece.getItem(Direction.RIGHT), g2d);
+            g2d.dispose();
+        }
+
+        private void drawUp(Item item, Graphics2D g2d) {
+            switch(item){
+                case SHIELD:
+                    g2d.fillRect(0,0, 60, 10);
+                    break;
+                case VERTICAL_SWORD:
+                    g2d.fillRect(30, 0, 10, 40);
+                    break;
+            }
+        }
+
+        private void drawLeft(Item item, Graphics2D g2d) {
+            switch(item){
+                case SHIELD:
+                    g2d.fillRect(0,0,10, 60);
+                    break;
+                case HORIZONTAL_SWORD:
+                    g2d.fillRect(0, 30, 40, 10);
+                    break;
+            }
+        }
+
+        private void drawDown(Item item, Graphics2D g2d) {
+            switch(item){
+                case SHIELD:
+                    g2d.fillRect(0, 50, 60, 10);
+                    break;
+
+                case VERTICAL_SWORD:
+                    g2d.fillRect(30,30, 10, 40);
+                    break;
+            }
+        }
+
+        private void drawRight(Item item, Graphics2D g2d) {
+            switch(item){
+                case SHIELD:
+                    g2d.fillRect(50,0,10, 60);
+                    break;
+                case HORIZONTAL_SWORD:
+                    g2d.fillRect(30, 30, 40, 10);
+                    break;
+            }
+        }
+
+        @Override
+        public int getIconWidth() {
+            return 60;
+        }
+
+        @Override
+        public int getIconHeight() {
+            return 60;
+        }
     }
 
 }

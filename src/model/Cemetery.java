@@ -1,12 +1,15 @@
 package model;
 
+import model.piece.BlankPiece;
 import model.piece.EmptyPiece;
 import model.piece.Piece;
 import model.piece.PlayerPiece;
+import model.player.Player;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a the PlayerPiece that are in the cemetery. As the game progresses, the number of PlayerPiece should
@@ -108,6 +111,70 @@ public class Cemetery {
 
     public String indent(){
         return "            ";
+    }
+
+    /**
+     * Return a Piece[][] with just Green PlayerPiece in it.
+     * @return
+     */
+    public Piece[][] getGreenPiecesInCemetery(){
+        int rows = 4;
+        int cols = 6;
+        Piece[][] pieces = new Piece[rows][cols];
+        int row = 0;
+        int col = 0;
+
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                pieces[i][j] = new BlankPiece();
+            }
+        }
+
+        List<PlayerPiece> greenCemetery = cemetery.stream()
+                .filter(piece -> piece.greenPlayer())
+                .collect(Collectors.toList());
+
+        for(int k = 0; k < greenCemetery.size(); k++){
+            pieces[row][col++] = greenCemetery.get(k);
+            if(col == cols){
+                col = 0;
+                row++;
+            }
+        }
+
+        return pieces;
+    }
+
+    /**
+     * Return a Piece[][] with just Yellow PlayerPiece in it.
+     * @return
+     */
+    public Piece[][] getYellowPiecesInCemetery(){
+        int rows = 4;
+        int cols = 6;
+        Piece[][] pieces = new Piece[rows][cols];
+        int row = 0;
+        int col = 0;
+
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                pieces[i][j] = new BlankPiece();
+            }
+        }
+
+        List<PlayerPiece> yellowCemetery = cemetery.stream()
+                .filter(piece -> piece.yellowPlayer())
+                .collect(Collectors.toList());
+
+        for(int k = 0; k < yellowCemetery.size(); k++){
+            pieces[row][col++] = yellowCemetery.get(k);
+            if(col == cols){
+                col = 0;
+                row++;
+            }
+        }
+
+        return pieces;
     }
 
     /**

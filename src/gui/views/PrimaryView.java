@@ -5,11 +5,13 @@ import model.Game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * This is the primary view which contains other views in its CardLayout such as the MainMenu, InfoView and GameView.
  */
-public class PrimaryView extends JComponent {
+public class PrimaryView extends JComponent implements Observer {
 
     private static final long serialVersionUID = 1L;
     private Game gameModel;
@@ -18,23 +20,27 @@ public class PrimaryView extends JComponent {
     private JPanel mainMenu, infoView, gameView;
 
     private JPanel primaryView;
-    private CardLayout gamePhase;
+    private CardLayout currentState;
+
+    public static final Dimension PRIMARY_DIMENSION = new Dimension(1600,750);
 
     public PrimaryView(Game g) {
         gameModel = g;
+        gameModel.addObserver(this);
+        setFocusable(true);
+
         controller = new Controller(gameModel, this);
 
         mainMenu = new MainMenu(controller);
         infoView = new InfoView(controller);
         gameView = new GameView(controller, gameModel);
 
-        this.setFocusable(true);
         JFrame frame = new JFrame("Sword and Shield Game");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        gamePhase = new CardLayout();
+        currentState = new CardLayout();
         primaryView = new JPanel();
-        primaryView.setLayout(gamePhase);
+        primaryView.setLayout(currentState);
 
         primaryView.add(mainMenu, "Main Menu");
         primaryView.add(infoView, "Information");
@@ -46,19 +52,26 @@ public class PrimaryView extends JComponent {
     }
 
     public void showMainMenu(){
-        gamePhase.show(primaryView, "Main Menu");
+        currentState.show(primaryView, "Main Menu");
     }
 
     public void showInformation(){
-        gamePhase.show(primaryView, "Information");
+        currentState.show(primaryView, "Information");
     }
 
     public void showGame(){
-        gamePhase.show(primaryView, "Game");
+        currentState.show(primaryView, "Game");
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(1000,1000);
+        return PRIMARY_DIMENSION;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        gameView.revalidate();
+        revalidate();
+        repaint();
     }
 }

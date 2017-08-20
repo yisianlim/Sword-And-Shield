@@ -40,6 +40,6 @@ public class MainMenu extends JPanel{
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(1000,1000);
+        return PrimaryView.PRIMARY_DIMENSION;
     }
 }

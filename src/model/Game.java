@@ -30,7 +30,7 @@ public class Game extends Observable {
      * this point.
      */
     public enum Phase{
-        CREATE, ACTION, FINAL,
+        DISPLAY, CREATE, ACTION, FINAL,
     }
 
     /**
@@ -81,17 +81,23 @@ public class Game extends Observable {
     private CommandManager commandManager;
 
     /**
+     * This is mainly for the view, to let the user know about the status of the game.
+     */
+    private String status;
+
+    /**
      * Construct a new game from a given starting board.
      *
      * @param b
      */
     public Game(Board b) {
         setupPlayers();
-        setGamePhase(Phase.CREATE);
+        this.gamePhase = Phase.DISPLAY;
         this.board = b;
         this.gameOver = false;
         this.cemetery = new Cemetery();
         this.commandManager = new CommandManager();
+        this.status = getCurrentPlayer().getName() + "'s turn";
     }
 
     /**
@@ -300,6 +306,24 @@ public class Game extends Observable {
     }
 
     /**
+     * Return the current player of the game.
+     * @return
+     */
+    public Player getCurrentPlayer(){
+        return currentPlayer;
+    }
+
+    public void setStatus(String message){
+        this.status = message;
+        setChanged();
+        notifyObservers();
+    }
+
+    public String getStatus(){
+        return this.status;
+    }
+
+    /**
      * CreatePieceCommand class executes the create as well as undo the created.
      * It stores the information of the state of the game before the PlayerPiece is created.
      * It also stores the user inputs in order to execute the command.
@@ -394,7 +418,7 @@ public class Game extends Observable {
             game.future = prev_future;
             game.board = prev_board;
             game.cemetery = prev_cemetery;
-            gamePhase = CREATE;
+            gamePhase = DISPLAY;
         }
     }
 
@@ -753,6 +777,14 @@ public class Game extends Observable {
      */
     public String getWinner(){
         return winner.getName();
+    }
+
+    public Player getGreenPlayer(){
+        return players.get(1);
+    }
+
+    public Player getYellowPlayer(){
+        return players.get(0);
     }
 
 }

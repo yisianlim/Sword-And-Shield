@@ -3,11 +3,14 @@ package gui;
 import gui.square.SquareButton;
 import gui.views.PrimaryView;
 import model.Game;
-import gui.views.GameView.*;
 import model.Position;
+import model.piece.Piece;
+import model.piece.PlayerPiece;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import static model.Game.Phase.*;
 
 public class Controller implements ActionListener {
 
@@ -42,10 +45,41 @@ public class Controller implements ActionListener {
     }
 
     public void gameViewPerformed(ActionEvent e){
-        // Retrieve the Position of the SquareButton that the user clicked on the Board.
+        switch(e.getActionCommand()){
+            case "Undo":
+                gameModel.undo();
+                gameModel.setStatus("Undo");
+                break;
+        }
+
         if(squareInBoard(e.getSource())){
-            Position position = getPosition(e.getSource());
-            System.out.println("X: " + position.getX() + " Y: " + position.getY());
+            SquareButton squareButton = (SquareButton) e.getSource();
+
+            switch(squareButton.getSquareType()){
+                case CREATION_SHELF_GREEN:
+                    // Get the selected piece.
+                    Piece piece = gameModel.getCurrentPlayer().hand.getPiece(squareButton);
+
+                    // Proceed to creation phase only is the player clicks on its own panel,
+                    // have an empty creation grid and clicks on a PlayerPiece.
+                    if(gameModel.getCurrentPlayer().isGreen()
+                            && gameModel.getCurrentPlayer().validCreation()
+                            && piece instanceof PlayerPiece) {
+                        PlayerPiece selected = (PlayerPiece) piece;
+                        gameModel.getCurrentPlayer().hand.setSelected(selected);
+                        gameModel.setGamePhase(CREATE);
+                        gameModel.setStatus("Choose the following orientation you wish to create");
+                    }
+                    break;
+
+                case TRAINING:
+                    // Get the selected piece.
+                    PlayerPiece playerPiece = gameModel
+                            .getCurrentPlayer()
+                            .hand.getSelectedPiece(squareButton.getPosition());
+                    gameModel.createPiece(playerPiece.getLetter(), playerPiece.getRotation());
+                    gameModel.setStatus("Created");
+            }
         }
     }
 
