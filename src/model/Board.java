@@ -1,12 +1,13 @@
 package model;
 
+import gui.drawers.SquareButton;
 import model.piece.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the 10x10 board in the Game. Each square on the board can either be empty, or hold Piece. The board
+ * Represents the 10x10 board in the Game. Each drawers on the board can either be empty, or hold Piece. The board
  * is simply responsible for storing this information.
  */
 public class Board {
@@ -19,6 +20,11 @@ public class Board {
      * String representation of the Board in lines.
      */
     private List<String> stringRepresentation;
+
+    /**
+     * The drawers in the board that have been selected by the user.
+     */
+    private Position selectedSquare;
 
     public static final int ROWS = 10;
     public static final int COLS = 10;
@@ -38,7 +44,7 @@ public class Board {
         }
 
         // Initialise the BlankPiece on specific Position on the board.
-        // The square must always remain a BlankPiece.
+        // The drawers must always remain a BlankPiece.
         setSquare(new Position(0,0), new BlankPiece());
         setSquare(new Position(0,1), new BlankPiece());
         setSquare(new Position(1,0), new BlankPiece());
@@ -47,7 +53,7 @@ public class Board {
         setSquare(new Position(9,8), new BlankPiece());
 
         // Initialise the Player's FacePiece on the board.
-        // The square must always remain a FacePiece.
+        // The drawers must always remain a FacePiece.
         setSquare(new Position(1,1), new FacePiece("1"));
         setSquare(new Position(8,8), new FacePiece("0"));
 
@@ -57,7 +63,7 @@ public class Board {
     /**
      * Get the Piece at a given x and y position.
      * @param pos
-     *          Position of square to get
+     *          Position of drawers to get
      * @return
      */
     public Piece getSquare(Position pos){
@@ -105,15 +111,31 @@ public class Board {
     }
 
     /**
-     * Set the Piece at a given x and y position or null (to set the square as empty).
+     * Set the Piece at a given x and y position or null (to set the drawers as empty).
      * @param pos
-     *          Position of square to set
+     *          Position of drawers to set
      * @param piece
      *          Piece to place at that position.
      */
     public void setSquare(Position pos, Piece piece){
         board[pos.getX()][pos.getY()] = piece;
     }
+
+    public Piece getPiece(SquareButton squareButton){
+        Position position = squareButton.getPosition();
+        return board[position.getX()][position.getY()];
+    }
+
+    public void setSelectedSquare(Position selectedSquare){
+        this.selectedSquare = selectedSquare;
+    }
+
+    public boolean selectedSquare(Position position){
+        return selectedSquare != null &&
+                position.getX() == selectedSquare.getX() &&
+                position.getY() == selectedSquare.getY();
+    }
+
 
     /**
      * Update the String representation of the board line by line.
@@ -190,4 +212,5 @@ public class Board {
         }
         return clone;
     }
+
 }

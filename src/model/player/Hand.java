@@ -1,11 +1,10 @@
 package model.player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import gui.square.SquareButton;
+import gui.drawers.SquareButton;
 import model.Position;
 import model.piece.BlankPiece;
 import model.piece.EmptyPiece;

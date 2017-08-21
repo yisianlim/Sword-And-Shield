@@ -1,19 +1,23 @@
 package gui.views;
 
-import gui.Controller;
-import gui.square.ButtonMaker;
-import gui.square.SquareButton;
+import gui.controllers.BoardController;
+import gui.controllers.Controller;
+import gui.controllers.GreenPanelController;
+import gui.controllers.YellowPanelController;
+import gui.drawers.ButtonDrawer;
+import gui.drawers.SquareButton;
 import model.Board;
 import model.Game;
 import model.Position;
 import model.piece.Piece;
 import model.piece.PlayerPiece;
+import resources.SoundResources;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-import static model.Game.Phase.CREATE;
+import static model.Game.Phase.*;
 
 /**
  * GameView renders the state of the game to the user.
@@ -24,6 +28,9 @@ public class GameView extends JPanel {
      * Controller of the GUI.
      */
     Controller controller;
+    GreenPanelController greenPanelController;
+    YellowPanelController yellowPanelController;
+    BoardController boardController;
 
     /**
      * Model of the GUI.
@@ -39,6 +46,9 @@ public class GameView extends JPanel {
 
     public GameView(Controller c, Game g) {
         this.controller = c;
+        this.greenPanelController = new GreenPanelController(g);
+        this.yellowPanelController = new YellowPanelController(g);
+        this.boardController = new BoardController(g);
         this.gameModel = g;
 
         setupToolbar();
@@ -123,12 +133,17 @@ public class GameView extends JPanel {
         for(int row = 0; row < gameBoard.ROWS; row++){
             for(int col = 0; col < gameBoard.COLS; col++){
                 Position currentPosition = new Position(row, col);
-                SquareButton squareButton = new ButtonMaker(
+                SquareButton squareButton = new ButtonDrawer(
                         gameBoard.getSquare(currentPosition),
                         currentPosition,
                         SquareButton.Panel.BOARD)
                         .makeButton();
-                squareButton.addActionListener(controller);
+
+                if(gameBoard.selectedSquare(squareButton.getPosition())){
+                    squareButton.highlight();
+                }
+
+                squareButton.addActionListener(boardController);
                 board.add(squareButton);
             }
         }
@@ -141,7 +156,7 @@ public class GameView extends JPanel {
      *      - CREATE: Display all the orientations of the selected PlayerPiece to the user.
      *      - Other phases: Display all the PlayerPiece in the creation shelf.
      * @return
-     *      Required top JPanel for top component of greenPane.
+     *      Required top JPanel for top component of greenPlayerPane.
      */
     public JPanel greenPanel(){
         Game.Phase phase = gameModel.getGamePhase();
@@ -159,10 +174,10 @@ public class GameView extends JPanel {
             // Add the SquareButton into JPanel greenPanelCreateMode.
             for(int i = 0; i < 4; i++){
                 PlayerPiece current = allOrientations.get(i);
-                SquareButton squareButton = new ButtonMaker(current,
+                SquareButton squareButton = new ButtonDrawer(current,
                         new Position(0, i),
                         SquareButton.Panel.TRAINING).makeButton();
-                squareButton.addActionListener(controller);
+                squareButton.addActionListener(greenPanelController);
                 greenPanelCreateMode.add(squareButton);
             }
             return greenPanelCreateMode;
@@ -180,12 +195,12 @@ public class GameView extends JPanel {
             for (int row = 0; row < hand.length; row++) {
                 for (int col = 0; col < hand[0].length; col++) {
                     Position currentPosition = new Position(row, col);
-                    SquareButton squareButton = new ButtonMaker(
+                    SquareButton squareButton = new ButtonDrawer(
                             hand[row][col],
                             currentPosition,
-                            SquareButton.Panel.CREATION_SHELF_GREEN)
+                            SquareButton.Panel.CREATION_SHELF)
                             .makeButton();
-                    squareButton.addActionListener(controller);
+                    squareButton.addActionListener(greenPanelController);
                     greenPanelDisplayMode.add(squareButton);
                 }
             }
@@ -193,36 +208,54 @@ public class GameView extends JPanel {
         }
     }
 
+    /**
+     * Return a JPanel that should be rendered as the top component of the yellowPlayerPane.
+     * There are two types of panel to be rendered out based on the phase of the game.
+     *      - CREATE: Display all the orientations of the selected PlayerPiece to the user.
+     *      - Other phases: Display all the PlayerPiece in the creation shelf.
+     * @return
+     *      Required top JPanel for top component of yellowPlayerPane.
+     */
     private JPanel yellowPanel() {
         Game.Phase phase = gameModel.getGamePhase();
         if(phase.equals(CREATE) && gameModel.getCurrentPlayer().isYellow()){
+            // Display all the orientations of the selected PlayerPiece.
             JPanel yellowPanelCreateMode = new JPanel();
             yellowPanelCreateMode.setLayout(new GridLayout(1,4));
             yellowPanelCreateMode.setPreferredSize(new Dimension(450, 300));
 
-            // Render out the 4 orientations of the selected piece.
+            // Get all the selected PlayerPiece with the various orientation.
             List<PlayerPiece> allOrientations = gameModel.getCurrentPlayer().hand.getSelectedInAllOrientations();
+
+            // Create a custom, responsive SquareButton for each PlayerPiece for the panel.
+            // Add the SquareButton into JPanel yellowPanelCreateMode.
             for(int i = 0; i < 4; i++){
                 PlayerPiece current = allOrientations.get(i);
-                SquareButton squareButton = new ButtonMaker(current,
+                SquareButton squareButton = new ButtonDrawer(current,
                         new Position(0, i),
                         SquareButton.Panel.TRAINING).makeButton();
-                squareButton.addActionListener(controller);
+                squareButton.addActionListener(yellowPanelController);
                 yellowPanelCreateMode.add(squareButton);
             }
             return yellowPanelCreateMode;
         } else {
+            // Display all the PlayerPiece available in the creation shelf.
             JPanel yellowPanelDisplayMode = new JPanel();
             yellowPanelDisplayMode.setPreferredSize(new Dimension(450, 300));
             yellowPanelDisplayMode.setLayout(new GridLayout(4, 6, 10, 10));
+
+            // Get all the Piece that the yellow player currently have on hand.
             Piece[][] hand = gameModel.getYellowPlayer().hand.getArrayRepresentation();
+
+            // Create a custom SquareButton for each piece in hand for the panel.
+            // Add the SquareButton into JPanel yellowPanelDisplayMode.
             for (int row = 0; row < hand.length; row++) {
                 for (int col = 0; col < hand[0].length; col++) {
                     Position currentPosition = new Position(row, col);
-                    SquareButton squareButton = new ButtonMaker(hand[row][col],
+                    SquareButton squareButton = new ButtonDrawer(hand[row][col],
                             currentPosition,
-                            SquareButton.Panel.CREATION_SHELF_YELLOW).makeButton();
-                    squareButton.addActionListener(controller);
+                            SquareButton.Panel.CREATION_SHELF).makeButton();
+                    squareButton.addActionListener(yellowPanelController);
                     yellowPanelDisplayMode.add(squareButton);
                 }
             }
@@ -238,7 +271,7 @@ public class GameView extends JPanel {
         for(int row = 0; row < cemetery.length; row++){
             for(int col = 0; col < cemetery[0].length; col++){
                 Position currentPosition = new Position(row, col);
-                SquareButton squareButton = new ButtonMaker(cemetery[row][col],
+                SquareButton squareButton = new ButtonDrawer(cemetery[row][col],
                         currentPosition,
                         SquareButton.Panel.CEMETERY).makeButton();
                 greenCemetery.add(squareButton);
@@ -254,7 +287,7 @@ public class GameView extends JPanel {
         for(int row = 0; row < cemetery.length; row++){
             for(int col = 0; col < cemetery[0].length; col++){
                 Position currentPosition = new Position(row, col);
-                SquareButton squareButton = new ButtonMaker(cemetery[row][col],
+                SquareButton squareButton = new ButtonDrawer(cemetery[row][col],
                         currentPosition,
                         SquareButton.Panel.CEMETERY).makeButton();
                 yellowCemetery.add(squareButton);
@@ -267,7 +300,13 @@ public class GameView extends JPanel {
         return PrimaryView.PRIMARY_DIMENSION;
     }
 
+    /**
+     * Update the components in GameView after a change in the state of gameModel have been modified.
+     */
     private void update(){
+        if(gameModel.getWarnings() > 0)
+            beep(SoundResources.Sound.WARNING);
+
         greenPlayerPane.setTopComponent(greenPanel());
         yellowPlayerPane.setTopComponent(yellowPanel());
         topPane.setBottomComponent(status());
@@ -278,5 +317,9 @@ public class GameView extends JPanel {
     public void revalidate() {
         if(gameModel == null) return;
         update();
+    }
+
+    public void beep(SoundResources.Sound sound){
+        new SoundResources(sound);
     }
 }

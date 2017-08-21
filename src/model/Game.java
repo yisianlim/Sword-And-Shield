@@ -36,7 +36,7 @@ public class Game extends Observable {
     /**
      * Current state of the board.
      */
-    private Board board;
+    public Board board;
 
     /**
      * Counts the total number of moves played during this game.
@@ -86,6 +86,12 @@ public class Game extends Observable {
     private String status;
 
     /**
+     * Warning count to be shown to the user. This is used to keep track how many times
+     * the user have tried to create when its creation grid is occupied.
+     */
+    private int warning;
+
+    /**
      * Construct a new game from a given starting board.
      *
      * @param b
@@ -115,9 +121,11 @@ public class Game extends Observable {
      */
     public void nextPlayer(){
         moves++;
+        warning = 0;
         setCurrentPlayer(players.get(moves % players.size()));
         future = new HashSet<>();
         commandManager = new CommandManager();
+        setStatus(currentPlayer.getName() + "'s turn");
     }
 
     /**
@@ -317,6 +325,24 @@ public class Game extends Observable {
         this.status = message;
         setChanged();
         notifyObservers();
+    }
+
+    public void warningMessage(String message){
+        setStatus("Error: " + message);
+    }
+
+    public void warningBeep(String message){
+        warning++;
+        setStatus("Error: " + message);
+    }
+
+
+    /**
+     * Return how many times have the user been warned of their invalid inputs.
+     * @return
+     */
+    public int getWarnings(){
+        return warning;
     }
 
     public String getStatus(){
@@ -651,17 +677,23 @@ public class Game extends Observable {
         @Override
         public void execute() {
             switch(gamePhase){
-                case CREATE:
+                case DISPLAY:
                     resetFuture();
+
+                    //TODO: For debhugging purposes first.
+                    for(PlayerPiece p : future){
+                        System.out.println(p.getLetter());
+                    }
+
                     if(future.isEmpty()) gamePhase = FINAL;
                     else gamePhase = ACTION;
                     break;
                 case ACTION:
-                    gamePhase = CREATE;
+                    gamePhase = DISPLAY;
                     nextPlayer();
                     break;
                 case FINAL:
-                    gamePhase = CREATE;
+                    gamePhase = DISPLAY;
                     nextPlayer();
                     break;
             }
@@ -707,7 +739,7 @@ public class Game extends Observable {
             // Get the piece at that direction.
             Piece pieceAtDirection = board.getSquare(positionAtDirection);
 
-            // Determine what reaction has occured and store it in the list.
+            // Determine what reaction has occurred and store it in the list.
             Reaction reaction;
             ReactionResult result = null;
             if(pieceAtDirection instanceof PlayerPiece){

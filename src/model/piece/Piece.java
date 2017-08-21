@@ -1,12 +1,13 @@
 package model.piece;
 
-import gui.square.SquareButton;
+import gui.drawers.SquareButton;
 import model.Position;
 
 /**
  * This class represents all pieces. All the various types of piece in the game extends this superclass.
  */
 public abstract class Piece {
+
 
     /**
      * The 3x3 String representation of the Piece

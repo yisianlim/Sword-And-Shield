@@ -1,6 +1,6 @@
 package model.piece;
 
-import gui.square.SquareButton;
+import gui.drawers.SquareButton;
 import model.Position;
 import model.player.Player.Direction;
 
