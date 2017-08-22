@@ -235,6 +235,12 @@ public class Hand {
         return list;
     }
 
+    /**
+     * Return the PlayerPiece with the orientation selected by the user.
+     * @param pos
+     *          Position of the PlayerPiece in the panel.
+     * @return
+     */
     public PlayerPiece getSelectedPiece(Position pos){
         List<PlayerPiece> list = getSelectedInAllOrientations();
         return list.get(pos.getY());

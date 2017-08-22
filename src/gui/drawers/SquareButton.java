@@ -2,26 +2,28 @@ package gui.drawers;
 
 import model.Position;
 import model.piece.*;
+import model.player.Player;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * SquareButton keeps all the information needed when it is laid out on GameView to the user.
- * Each drawers in the game is drawn as a JButton.
+ * Each Piece in the game is drawn as a SquareButton.
  */
 public class SquareButton extends JButton {
 
     /**
      * Signifies which panel the SquareButton is in which is used to determine where the
      * SquareButton is about to be rendered into.
-     *      - CREATION_SHELF: player's creation shelf.
+     *      - CREATION_SHELF: player's creation shelf, which displays all the PlayerPiece the user currently have.
      *      - TRAINING: selected piece laid out in all orientations.
-     *      - BOARD: game board.
+     *      - BOARD_DISPLAY: SquareButton is to be simply displayed.
+     *      - BOARD_SELECTION: SquareButton is selected by the user to be moved.
      *      - CEMETERY: game cemetery.
      */
     public enum Panel {
-        CREATION_SHELF, TRAINING, BOARD, CEMETERY,
+        CREATION_SHELF, TRAINING, BOARD_DISPLAY, BOARD_SELECTED, CEMETERY,
     }
 
     /**
@@ -61,6 +63,20 @@ public class SquareButton extends JButton {
         }
     }
 
+    public boolean isYellow(){
+        if(piece instanceof PlayerPiece){
+            return ((PlayerPiece) piece).yellowPlayer();
+        }
+        return false;
+    }
+
+    public boolean isGreen(){
+        if(piece instanceof PlayerPiece){
+            return ((PlayerPiece) piece).greenPlayer();
+        }
+        return false;
+    }
+
     public void highlight() {
         this.highlighted = true;
     }
@@ -71,6 +87,10 @@ public class SquareButton extends JButton {
 
     public Panel getPanelType(){
         return panelType;
+    }
+
+    public void setPanelType(Panel panel){
+        this.panelType = panel;
     }
 
 }

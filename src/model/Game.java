@@ -321,10 +321,23 @@ public class Game extends Observable {
         return currentPlayer;
     }
 
+    public Player getGreenPlayer(){
+        return players.get(1);
+    }
+
+    public Player getYellowPlayer(){
+        return players.get(0);
+    }
+
+
     public void setStatus(String message){
         this.status = message;
         setChanged();
         notifyObservers();
+    }
+
+    public void clearSelectedSquareInBoard(){
+        board.clearSelectedSquare();
     }
 
     public void warningMessage(String message){
@@ -811,12 +824,5 @@ public class Game extends Observable {
         return winner.getName();
     }
 
-    public Player getGreenPlayer(){
-        return players.get(1);
-    }
-
-    public Player getYellowPlayer(){
-        return players.get(0);
-    }
 
 }

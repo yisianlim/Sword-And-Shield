@@ -130,6 +130,10 @@ public class Board {
         this.selectedSquare = selectedSquare;
     }
 
+    public void clearSelectedSquare() {
+        this.selectedSquare = null;
+    }
+
     public boolean selectedSquare(Position position){
         return selectedSquare != null &&
                 position.getX() == selectedSquare.getX() &&
@@ -212,5 +216,4 @@ public class Board {
         }
         return clone;
     }
-
 }

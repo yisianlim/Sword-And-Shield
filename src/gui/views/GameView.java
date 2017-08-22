@@ -2,9 +2,9 @@ package gui.views;
 
 import gui.controllers.BoardController;
 import gui.controllers.Controller;
-import gui.controllers.GreenPanelController;
-import gui.controllers.YellowPanelController;
+import gui.controllers.PlayerPanelController;
 import gui.drawers.ButtonDrawer;
+import gui.drawers.PlayerPanelDrawer;
 import gui.drawers.SquareButton;
 import model.Board;
 import model.Game;
@@ -27,27 +27,25 @@ public class GameView extends JPanel {
     /**
      * Controller of the GUI.
      */
-    Controller controller;
-    GreenPanelController greenPanelController;
-    YellowPanelController yellowPanelController;
-    BoardController boardController;
+    public Controller controller;
+    public PlayerPanelController playerPanelController;
+    public BoardController boardController;
 
     /**
      * Model of the GUI.
      */
-    Game gameModel;
+    private Game gameModel;
 
     /**
-     * JComponents for the GameView.
+     * UI elements
      */
-    JToolBar toolBar;
-    JPanel greenCemetery, yellowCemetery;
-    JSplitPane entirePane, bottomPane, greenPlayerPane, boardPane, yellowPlayerPane, topPane;
+    private JToolBar toolBar;
+    private JPanel greenCemetery, yellowCemetery;
+    private JSplitPane entirePane, bottomPane, greenPlayerPane, boardPane, yellowPlayerPane, topPane;
 
     public GameView(Controller c, Game g) {
         this.controller = c;
-        this.greenPanelController = new GreenPanelController(g);
-        this.yellowPanelController = new YellowPanelController(g);
+        this.playerPanelController = new PlayerPanelController(g);
         this.boardController = new BoardController(g);
         this.gameModel = g;
 
@@ -136,11 +134,13 @@ public class GameView extends JPanel {
                 SquareButton squareButton = new ButtonDrawer(
                         gameBoard.getSquare(currentPosition),
                         currentPosition,
-                        SquareButton.Panel.BOARD)
+                        SquareButton.Panel.BOARD_DISPLAY)
                         .makeButton();
 
                 if(gameBoard.selectedSquare(squareButton.getPosition())){
+                    squareButton.setPanelType(SquareButton.Panel.BOARD_SELECTED);
                     squareButton.highlight();
+                    squareButton.addMouseListener(boardController);
                 }
 
                 squareButton.addActionListener(boardController);
@@ -151,116 +151,23 @@ public class GameView extends JPanel {
     }
 
     /**
-     * Return a JPanel that should be rendered as the top component of the greenPlayerPane.
-     * There are two types of panel to be rendered out based on the phase of the game.
-     *      - CREATE: Display all the orientations of the selected PlayerPiece to the user.
-     *      - Other phases: Display all the PlayerPiece in the creation shelf.
+     * greenPanel returns the JPanel for GreenPlayer at the left.
      * @return
      *      Required top JPanel for top component of greenPlayerPane.
      */
     public JPanel greenPanel(){
-        Game.Phase phase = gameModel.getGamePhase();
-
-        if(phase.equals(CREATE) && gameModel.getCurrentPlayer().isGreen()){
-            // Display all the orientations of the selected PlayerPiece.
-            JPanel greenPanelCreateMode = new JPanel();
-            greenPanelCreateMode.setLayout(new GridLayout(1,4));
-            greenPanelCreateMode.setPreferredSize(new Dimension(450, 300));
-
-            // Get all the selected PlayerPiece with the various orientation.
-            List<PlayerPiece> allOrientations = gameModel.getCurrentPlayer().hand.getSelectedInAllOrientations();
-
-            // Create a custom, responsive SquareButton for each PlayerPiece for the panel.
-            // Add the SquareButton into JPanel greenPanelCreateMode.
-            for(int i = 0; i < 4; i++){
-                PlayerPiece current = allOrientations.get(i);
-                SquareButton squareButton = new ButtonDrawer(current,
-                        new Position(0, i),
-                        SquareButton.Panel.TRAINING).makeButton();
-                squareButton.addActionListener(greenPanelController);
-                greenPanelCreateMode.add(squareButton);
-            }
-            return greenPanelCreateMode;
-        } else {
-            // Display all the PlayerPiece available in the creation shelf.
-            JPanel greenPanelDisplayMode = new JPanel();
-            greenPanelDisplayMode.setPreferredSize(new Dimension(450, 300));
-            greenPanelDisplayMode.setLayout(new GridLayout(4, 6, 10, 10));
-
-            // Get all the Piece that the green player currently have on hand.
-            Piece[][] hand = gameModel.getGreenPlayer().hand.getArrayRepresentation();
-
-            // Create a custom SquareButton for each piece in hand for the panel.
-            // Add the SquareButton into JPanel greenPanelDisplayMode.
-            for (int row = 0; row < hand.length; row++) {
-                for (int col = 0; col < hand[0].length; col++) {
-                    Position currentPosition = new Position(row, col);
-                    SquareButton squareButton = new ButtonDrawer(
-                            hand[row][col],
-                            currentPosition,
-                            SquareButton.Panel.CREATION_SHELF)
-                            .makeButton();
-                    squareButton.addActionListener(greenPanelController);
-                    greenPanelDisplayMode.add(squareButton);
-                }
-            }
-            return greenPanelDisplayMode;
-        }
+        PlayerPanelDrawer green = new PlayerPanelDrawer(gameModel.getGreenPlayer(), gameModel, this);
+        return green.createPanel();
     }
 
     /**
-     * Return a JPanel that should be rendered as the top component of the yellowPlayerPane.
-     * There are two types of panel to be rendered out based on the phase of the game.
-     *      - CREATE: Display all the orientations of the selected PlayerPiece to the user.
-     *      - Other phases: Display all the PlayerPiece in the creation shelf.
+     * yellowPanel returns the JPanel for YellowPlayer at the right.
      * @return
      *      Required top JPanel for top component of yellowPlayerPane.
      */
     private JPanel yellowPanel() {
-        Game.Phase phase = gameModel.getGamePhase();
-        if(phase.equals(CREATE) && gameModel.getCurrentPlayer().isYellow()){
-            // Display all the orientations of the selected PlayerPiece.
-            JPanel yellowPanelCreateMode = new JPanel();
-            yellowPanelCreateMode.setLayout(new GridLayout(1,4));
-            yellowPanelCreateMode.setPreferredSize(new Dimension(450, 300));
-
-            // Get all the selected PlayerPiece with the various orientation.
-            List<PlayerPiece> allOrientations = gameModel.getCurrentPlayer().hand.getSelectedInAllOrientations();
-
-            // Create a custom, responsive SquareButton for each PlayerPiece for the panel.
-            // Add the SquareButton into JPanel yellowPanelCreateMode.
-            for(int i = 0; i < 4; i++){
-                PlayerPiece current = allOrientations.get(i);
-                SquareButton squareButton = new ButtonDrawer(current,
-                        new Position(0, i),
-                        SquareButton.Panel.TRAINING).makeButton();
-                squareButton.addActionListener(yellowPanelController);
-                yellowPanelCreateMode.add(squareButton);
-            }
-            return yellowPanelCreateMode;
-        } else {
-            // Display all the PlayerPiece available in the creation shelf.
-            JPanel yellowPanelDisplayMode = new JPanel();
-            yellowPanelDisplayMode.setPreferredSize(new Dimension(450, 300));
-            yellowPanelDisplayMode.setLayout(new GridLayout(4, 6, 10, 10));
-
-            // Get all the Piece that the yellow player currently have on hand.
-            Piece[][] hand = gameModel.getYellowPlayer().hand.getArrayRepresentation();
-
-            // Create a custom SquareButton for each piece in hand for the panel.
-            // Add the SquareButton into JPanel yellowPanelDisplayMode.
-            for (int row = 0; row < hand.length; row++) {
-                for (int col = 0; col < hand[0].length; col++) {
-                    Position currentPosition = new Position(row, col);
-                    SquareButton squareButton = new ButtonDrawer(hand[row][col],
-                            currentPosition,
-                            SquareButton.Panel.CREATION_SHELF).makeButton();
-                    squareButton.addActionListener(yellowPanelController);
-                    yellowPanelDisplayMode.add(squareButton);
-                }
-            }
-            return yellowPanelDisplayMode;
-        }
+        PlayerPanelDrawer yellow = new PlayerPanelDrawer(gameModel.getYellowPlayer(), gameModel, this);
+        return yellow.createPanel();
     }
 
     private void drawGreenCemetery() {
