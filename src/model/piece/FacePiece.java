@@ -39,8 +39,8 @@ public class FacePiece extends Piece {
         SquareButton squareButton = new SquareButton(this, position, squareType);
         Image img = greenPlayer() ? ImageResources.GREEN.img : ImageResources.YELLOW.img;
         img = img.getScaledInstance(
-                PrimaryView.getPreferredIconSize().width,
-                PrimaryView.getPreferredIconSize().height,
+                PrimaryView.getPreferredIconSize().width > 0 ? PrimaryView.getPreferredIconSize().width : 1,
+                PrimaryView.getPreferredIconSize().height > 0 ? PrimaryView.getPreferredIconSize().height : 1,
                 java.awt.Image.SCALE_SMOOTH) ;
         squareButton.setIcon(new ImageIcon(img));
         squareButton.setOpaque(false);

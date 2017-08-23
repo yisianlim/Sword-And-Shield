@@ -33,6 +33,7 @@ public class PrimaryView extends JComponent implements Observer {
     public static final double PANEL_HEIGHT_RATIO = 0.4;
     public static final double BOARD_WIDTH_RATIO = 0.375;
     public static final double BOARD_HEIGHT_RATIO = 0.8;
+    public static final Dimension MINIMUM_DIMENSION = new Dimension(700,400);
 
     public PrimaryView(Game g) {
         gameModel = g;
@@ -57,7 +58,7 @@ public class PrimaryView extends JComponent implements Observer {
             public void componentResized(ComponentEvent e) {
                 int width = e.getComponent().getWidth();
                 int height = e.getComponent().getHeight();
-                primaryDimension = new Dimension(width, height);
+                primaryDimension = new Dimension(width, height);;
                 gameView.revalidate();
             }
         });
@@ -68,6 +69,7 @@ public class PrimaryView extends JComponent implements Observer {
 
         frame.add(primaryView);
         setFocusable(true);
+        frame.setMinimumSize(MINIMUM_DIMENSION);
         frame.pack();
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);

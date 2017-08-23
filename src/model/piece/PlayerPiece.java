@@ -250,7 +250,12 @@ public class PlayerPiece extends Piece {
 
         PlayerPiece playerPiece;
 
+        private final int WIDTH_THICKNESS;
+        private final int HEIGHT_THICKNESS;
+
         PlayerIcon(PlayerPiece playerPiece){
+            WIDTH_THICKNESS = getIconWidth() / 6;
+            HEIGHT_THICKNESS = getIconHeight() / 6;
             this.playerPiece = playerPiece;
         }
 
@@ -275,10 +280,10 @@ public class PlayerPiece extends Piece {
         private void drawUp(Item item, Graphics2D g2d) {
             switch(item){
                 case SHIELD:
-                    g2d.fillRect(0,0, 60, 10);
+                    g2d.fillRect(0,0, getIconWidth(), HEIGHT_THICKNESS);
                     break;
                 case VERTICAL_SWORD:
-                    g2d.fillRect(30, 0, 10, 40);
+                    g2d.fillRect(getIconWidth()/2, 0, WIDTH_THICKNESS, getIconHeight()/2 + HEIGHT_THICKNESS);
                     break;
             }
         }
@@ -286,10 +291,13 @@ public class PlayerPiece extends Piece {
         private void drawLeft(Item item, Graphics2D g2d) {
             switch(item){
                 case SHIELD:
-                    g2d.fillRect(0,0,10, 60);
+                    g2d.fillRect(0,0,WIDTH_THICKNESS, getIconHeight());
                     break;
                 case HORIZONTAL_SWORD:
-                    g2d.fillRect(0, 30, 40, 10);
+                    g2d.fillRect(0,
+                            getIconHeight()/2,
+                            getIconWidth()/2 + WIDTH_THICKNESS,
+                            HEIGHT_THICKNESS);
                     break;
             }
         }
@@ -297,11 +305,19 @@ public class PlayerPiece extends Piece {
         private void drawDown(Item item, Graphics2D g2d) {
             switch(item){
                 case SHIELD:
-                    g2d.fillRect(0, 50, 60, 10);
+                    g2d.fillRect(
+                            0,
+                            getIconHeight() - HEIGHT_THICKNESS,
+                            getIconWidth(),
+                            HEIGHT_THICKNESS);
                     break;
 
                 case VERTICAL_SWORD:
-                    g2d.fillRect(30,30, 10, 40);
+                    g2d.fillRect(
+                            getIconWidth()/2,
+                            getIconHeight()/2,
+                            WIDTH_THICKNESS,
+                            getIconHeight()/2 + HEIGHT_THICKNESS);
                     break;
             }
         }
@@ -309,22 +325,28 @@ public class PlayerPiece extends Piece {
         private void drawRight(Item item, Graphics2D g2d) {
             switch(item){
                 case SHIELD:
-                    g2d.fillRect(50,0,10, 60);
+                    g2d.fillRect(getIconWidth() - WIDTH_THICKNESS,
+                            0,
+                            WIDTH_THICKNESS,
+                            getIconHeight());
                     break;
                 case HORIZONTAL_SWORD:
-                    g2d.fillRect(30, 30, 40, 10);
+                    g2d.fillRect(getIconWidth()/2,
+                            getIconHeight()/2,
+                            getIconWidth()/2 + WIDTH_THICKNESS,
+                            HEIGHT_THICKNESS);
                     break;
             }
         }
 
         @Override
         public int getIconWidth() {
-            return (int) (0.0375 * PrimaryView.getPrimaryViewWidth());
+            return PrimaryView.getPreferredIconSize().width;
         }
 
         @Override
         public int getIconHeight() {
-            return (int) (0.08 * PrimaryView.getPrimaryViewHeight());
+            return PrimaryView.getPreferredIconSize().height;
         }
     }
 
