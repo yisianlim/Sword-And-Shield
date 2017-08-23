@@ -37,6 +37,13 @@ public class PlayerPanelController implements ActionListener {
         switch (squareButton.getPanelType()) {
             case CREATION_SHELF:
 
+                // User cannot select piece that does not belong to them.
+                if ((gameModel.getCurrentPlayer().isYellow() && squareButton.isGreen()) ||
+                        gameModel.getCurrentPlayer().isGreen() && squareButton.isYellow()) {
+                    gameModel.warningMessage("These pieces does not belong to you!");
+                    return;
+                }
+
                 // User cannot select piece if the game has passed the creation phase.
                 if (gameModel.getGamePhase().equals(FINAL)
                         || gameModel.getGamePhase().equals(ACTION)) {
@@ -47,13 +54,6 @@ public class PlayerPanelController implements ActionListener {
                 // User cannot select piece is the creation grid is occupied.
                 if (!gameModel.getCurrentPlayer().validCreation()) {
                     gameModel.warningBeep("Creation grid is occupied!");
-                    return;
-                }
-
-                // User cannot select piece that does not belong to them.
-                if ((gameModel.getCurrentPlayer().isYellow() && squareButton.isGreen()) ||
-                        gameModel.getCurrentPlayer().isGreen() && squareButton.isYellow()) {
-                    gameModel.warningMessage("These pieces does not belong to you!");
                     return;
                 }
 
@@ -85,11 +85,6 @@ public class PlayerPanelController implements ActionListener {
                 // Create the selected piece
                 gameModel.createPiece(playerPiece.getLetter(), playerPiece.getRotation());
                 gameModel.setStatus("Created");
-
-                //TODO: Debugging
-                System.out.println(gameModel.getGamePhase().toString());
-                System.out.println(gameModel.getCurrentPlayer().getName());
-
                 break;
         }
     }

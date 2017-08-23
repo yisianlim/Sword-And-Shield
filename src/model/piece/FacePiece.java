@@ -38,9 +38,10 @@ public class FacePiece extends Piece {
     public SquareButton createButton(Position position, SquareButton.Panel squareType) {
         SquareButton squareButton = new SquareButton(this, position, squareType);
         Image img = greenPlayer() ? ImageResources.GREEN.img : ImageResources.YELLOW.img;
-        int width = (int) (0.0375 * PrimaryView.getPrimaryViewWidth());
-        int height = (int) (0.08 * PrimaryView.getPrimaryViewHeight());
-        img = img.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH) ;
+        img = img.getScaledInstance(
+                PrimaryView.getPreferredIconSize().width,
+                PrimaryView.getPreferredIconSize().height,
+                java.awt.Image.SCALE_SMOOTH) ;
         squareButton.setIcon(new ImageIcon(img));
         squareButton.setOpaque(false);
         squareButton.setBorderPainted(false);

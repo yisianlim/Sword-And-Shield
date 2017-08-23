@@ -50,8 +50,8 @@ public class PlayerPanelDrawer extends JPanel {
     public PlayerPanelDrawer createPanel(){
         Game.Phase phase = gameModel.getGamePhase();
 
-        int panelWidth = (int) (0.281 * PrimaryView.getPrimaryViewWidth());
-        int panelHeight = (int) (0.4 * PrimaryView.getPrimaryViewHeight());
+        int panelWidth = (int) (PrimaryView.PANEL_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
+        int panelHeight = (int) (PrimaryView.PANEL_HEIGHT_RATIO * PrimaryView.getPrimaryViewHeight());
         setPreferredSize(new Dimension(panelWidth, panelHeight));
 
         if(phase.equals(CREATE) && samePlayer()){

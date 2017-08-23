@@ -3,10 +3,7 @@ package gui.views;
 import gui.controllers.BoardController;
 import gui.controllers.Controller;
 import gui.controllers.PlayerPanelController;
-import gui.drawers.ButtonDrawer;
-import gui.drawers.CemeteryDrawer;
-import gui.drawers.PlayerPanelDrawer;
-import gui.drawers.SquareButton;
+import gui.drawers.*;
 import model.Board;
 import model.Game;
 import model.Position;
@@ -46,7 +43,6 @@ public class GameView extends JPanel {
         this.gameModel = g;
 
         setupToolbar();
-
         createPanels();
 
         topPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -54,16 +50,16 @@ public class GameView extends JPanel {
         topPane.setBottomComponent(status());
 
         leftPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        leftPane.setTopComponent(createGreenPanel());
-        leftPane.setBottomComponent(createGreenCemetery());
+        leftPane.setTopComponent(greenPanel);
+        leftPane.setBottomComponent(greenCemetery);
 
         middlePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         middlePane.setTopComponent(topPane);
         middlePane.setBottomComponent(board);
 
         rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        rightPane.setTopComponent(createYellowPanel());
-        rightPane.setBottomComponent(createYellowCemetery());
+        rightPane.setTopComponent(yellowPanel);
+        rightPane.setBottomComponent(yellowCemetery);
 
         add(leftPane, BorderLayout.WEST);
         add(middlePane, BorderLayout.CENTER);
@@ -112,37 +108,8 @@ public class GameView extends JPanel {
      *      modified JPanel of createBoard.
      */
     public JPanel createBoard(){
-        JPanel board = new JPanel();
-
-        int boardWidth = (int) (0.375 * PrimaryView.getPrimaryViewWidth());
-        int boardHeight = (int) (0.8 * PrimaryView.getPrimaryViewHeight());
-        board.setPreferredSize(new Dimension(boardWidth,boardHeight));
-
-        board.setLayout(new GridLayout(10,10));
-        Board gameBoard = gameModel.getBoard();
-
-        // Create a custom, responsive SquareButton for each Piece in gameBoard.
-        // Add the SquareButton into JPanel createBoard.
-        for(int row = 0; row < gameBoard.ROWS; row++){
-            for(int col = 0; col < gameBoard.COLS; col++){
-                Position currentPosition = new Position(row, col);
-                SquareButton squareButton = new ButtonDrawer(
-                        gameBoard.getSquare(currentPosition),
-                        currentPosition,
-                        SquareButton.Panel.BOARD_DISPLAY)
-                        .makeButton();
-
-                if(gameBoard.selectedSquare(squareButton.getPosition())){
-                    squareButton.setPanelType(SquareButton.Panel.BOARD_SELECTED);
-                    squareButton.highlight();
-                    squareButton.addMouseListener(boardController);
-                }
-
-                squareButton.addActionListener(boardController);
-                board.add(squareButton);
-            }
-        }
-        return board;
+        BoardDrawer board = new BoardDrawer(gameModel, this);
+        return board.createBoard();
     }
 
     /**
@@ -177,7 +144,7 @@ public class GameView extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return PrimaryView.PRIMARY_DIMENSION;
+        return PrimaryView.primaryDimension;
     }
 
     private void createPanels(){
@@ -186,24 +153,6 @@ public class GameView extends JPanel {
         this.yellowPanel = createYellowPanel();
         this.yellowCemetery = createYellowCemetery();
         this.greenCemetery = createGreenCemetery();
-    }
-
-    public void updateSize(){
-        int boardWidth = (int) (0.375 * PrimaryView.getPrimaryViewWidth());
-        int boardHeight = (int) (0.8 * PrimaryView.getPrimaryViewHeight());
-        board.setPreferredSize(new Dimension(boardWidth,boardHeight));
-
-        int panelWidth = (int) (0.281 * PrimaryView.getPrimaryViewWidth());
-        int panelHeight = (int) (0.4 * PrimaryView.getPrimaryViewHeight());
-        greenPanel.setPreferredSize(new Dimension(panelWidth, panelHeight));
-        yellowPanel.setPreferredSize(new Dimension(panelWidth, panelHeight));
-
-        int cemeteryWidth = (int) (0.282 * PrimaryView.getPrimaryViewWidth());
-        int cemeteryHeight = (int) (0.4 * PrimaryView.getPrimaryViewHeight());
-        greenCemetery.setPreferredSize(new Dimension(cemeteryWidth, cemeteryHeight));
-        yellowCemetery.setPreferredSize(new Dimension(cemeteryWidth, cemeteryHeight));
-
-        update();
     }
 
     /**

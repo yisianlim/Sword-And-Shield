@@ -1,5 +1,6 @@
 package gui.drawers;
 
+import gui.views.PrimaryView;
 import model.Position;
 import model.piece.*;
 import model.player.Player;
@@ -46,22 +47,34 @@ public class SquareButton extends JButton {
      */
     private boolean highlighted;
 
+    private boolean moved;
+
     public SquareButton(Piece piece, Position position, Panel panelType){
         this.position = position;
         this.piece = piece;
         this.panelType = panelType;
         this.highlighted = false;
+        this.moved = false;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        int width = PrimaryView.getPreferredIconSize().width;
+        int height = PrimaryView.getPreferredIconSize().height;
+
         if(highlighted){
             g.setColor(new Color(163,12,232,100));
-            g.fillRect(0,0, 60,60);
+            g.fillRect(0,0, width, height);
+        }
+
+        if(moved){
+            g.setColor(new Color(255,0,0,100));
+            g.fillRect(0,0, width, height);
         }
     }
+
 
     public boolean isYellow(){
         if(piece instanceof PlayerPiece){
@@ -75,6 +88,10 @@ public class SquareButton extends JButton {
             return ((PlayerPiece) piece).greenPlayer();
         }
         return false;
+    }
+
+    public void flagUnavailable() {
+        this.moved = true;
     }
 
     public void highlight() {

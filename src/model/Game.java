@@ -111,7 +111,12 @@ public class Game extends Observable {
      */
     private void setupPlayers() {
         this.players = Arrays.asList(new YellowPlayer(this), new GreenPlayer(this));
-        nextPlayer();
+        moves++;
+        warning = 0;
+        setCurrentPlayer(players.get(moves % players.size()));
+        future = new HashSet<>();
+        commandManager = new CommandManager();
+        setStatus(currentPlayer.getName() + "'s turn");
     }
 
     /**
@@ -124,6 +129,7 @@ public class Game extends Observable {
         warning = 0;
         setCurrentPlayer(players.get(moves % players.size()));
         future = new HashSet<>();
+        resetFuture();
         commandManager = new CommandManager();
         setStatus(currentPlayer.getName() + "'s turn");
     }
@@ -207,54 +213,6 @@ public class Game extends Observable {
         currentPlayer = player;
     }
 
-
-    /**
-     * Draw the create phase of the game.
-     */
-    public void drawCreatePhase() {
-        draw();
-        System.out.println(currentPlayer.getName()+"'s move: ");
-    }
-
-    /**
-     * Draw the action phase of the game. We simply let the user know that they can move their pieces on the createBoard.
-     */
-    public void drawActionPhase(){
-        drawCreatePhase();
-        System.out.println("You can now choose to move or rotate any of YOUR pieces on the createBoard");
-        System.out.println("Or you can input pass to finish your turn or undo previous moves");
-    }
-
-    /**
-     * Draw the createBoard, cemetery and players' hand.
-     */
-    public void draw(){
-        prepareForNewRound();
-        cemetery.draw();
-
-        Player greenPlayer = players.get(1);
-        Player yellowPlayer = players.get(0);
-
-        int LINES = 42;
-
-        String line;
-        for(int i = 0; i < LINES; i++){
-            line = greenPlayer.hand.toLine(i);
-            line += board.toLine(i);
-            line += yellowPlayer.hand.toLine(i);
-            System.out.println(line);
-        }
-    }
-
-    /**
-     * Prints a gap before it renders the game for the next round.
-     */
-    private void prepareForNewRound() {
-        for(int i=0; i < 10; i++){
-            System.out.println();
-        }
-    }
-
     /**
      * Checks if the game is over.
      * @return
@@ -311,6 +269,24 @@ public class Game extends Observable {
      */
     public void resetFuture() {
         future = currentPlayer.getAllPiecesInBoard();
+    }
+
+    /**
+     * Return true if the PlayerPiece in the specified position on the board have been moved or not.
+     * Return false otherwise.
+     * @param position
+     *          Position of the Piece on the board.
+     * @return
+     *          true if the Piece have been moved.
+     */
+    public boolean movedPiece(Position position){
+        Piece piece = board.getSquare(position);
+
+        if(piece instanceof PlayerPiece){
+            return !future.contains(piece);
+        }
+
+        return false;
     }
 
     /**
@@ -387,15 +363,12 @@ public class Game extends Observable {
 
         public CreatePieceCommand(Game game, String letter, int rotation){
             this.game = game;
-
             this.prev_player_hand = currentPlayer.hand.clone();
             this.prev_player_pieces_in_board = currentPlayer.getAllPiecesInBoard();
-
             resetFuture();
             this.prev_future = getFuture();
             this.prev_board = game.getBoard().clone();
             this.prev_cemetery = cemetery.clone();
-
             this.letter = letter;
             this.rotation = rotation;
         }
@@ -692,12 +665,6 @@ public class Game extends Observable {
             switch(gamePhase){
                 case DISPLAY:
                     resetFuture();
-
-                    //TODO: For debhugging purposes first.
-                    for(PlayerPiece p : future){
-                        System.out.println(p.getLetter());
-                    }
-
                     if(future.isEmpty()) gamePhase = FINAL;
                     else gamePhase = ACTION;
                     break;

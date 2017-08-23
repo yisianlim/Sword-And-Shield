@@ -25,6 +25,6 @@ public class InfoView extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return PrimaryView.PRIMARY_DIMENSION;
+        return PrimaryView.primaryDimension;
     }
 }

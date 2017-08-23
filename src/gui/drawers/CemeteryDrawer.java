@@ -21,10 +21,9 @@ public class CemeteryDrawer extends JPanel {
     }
 
     public JPanel createCemetery(){
-        int cemeteryWidth = (int) (0.282 * PrimaryView.getPrimaryViewWidth());
-        int cemeteryHeight = (int) (0.4 * PrimaryView.getPrimaryViewHeight());
+        int cemeteryWidth = (int) (PrimaryView.PANEL_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
+        int cemeteryHeight = (int) (PrimaryView.PANEL_HEIGHT_RATIO * PrimaryView.getPrimaryViewHeight());
         setPreferredSize(new Dimension(cemeteryWidth, cemeteryHeight));
-
         setLayout(new GridLayout(4, 6, 10,10));
         Piece[][] cemetery = gameModel.getCemetery().getPlayerPiecesInCemetery(player);
         for(int row = 0; row < cemetery.length; row++){

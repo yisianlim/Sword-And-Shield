@@ -55,16 +55,11 @@ public class Controller implements ActionListener {
                     gameModel.warningMessage(error.getMessage());
                     return;
                 }
-
                 break;
 
             case "Pass":
                 gameModel.setStatus("Pass");
                 gameModel.pass();
-
-                //TODO: Debugging
-                System.out.println(gameModel.getGamePhase().toString());
-                System.out.println(gameModel.getCurrentPlayer().getName());
         }
     }
 

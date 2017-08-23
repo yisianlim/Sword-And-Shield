@@ -74,6 +74,7 @@ public class Board {
         return board[x][y];
     }
 
+
     /**
      * Check if the Position is out of the createBoard.
      * @param pos

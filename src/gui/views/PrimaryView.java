@@ -25,12 +25,19 @@ public class PrimaryView extends JComponent implements Observer {
     private JPanel primaryView;
     private CardLayout currentState;
 
-    public static Dimension PRIMARY_DIMENSION = new Dimension(1600,750);
+    public static Dimension primaryDimension = new Dimension(1600,750);
+
+    public static final double ICON_WIDTH_RATIO = 0.0375;
+    public static final double ICON_HEIGHT_RATIO = 0.08;
+    public static final double PANEL_WIDTH_RATIO = 0.281;
+    public static final double PANEL_HEIGHT_RATIO = 0.4;
+    public static final double BOARD_WIDTH_RATIO = 0.375;
+    public static final double BOARD_HEIGHT_RATIO = 0.8;
 
     public PrimaryView(Game g) {
         gameModel = g;
         gameModel.addObserver(this);
-        setFocusable(true);
+
 
         controller = new Controller(gameModel, this);
 
@@ -50,8 +57,8 @@ public class PrimaryView extends JComponent implements Observer {
             public void componentResized(ComponentEvent e) {
                 int width = e.getComponent().getWidth();
                 int height = e.getComponent().getHeight();
-                PRIMARY_DIMENSION = new Dimension(width, height);
-                gameView.updateSize();
+                primaryDimension = new Dimension(width, height);
+                gameView.revalidate();
             }
         });
 
@@ -60,8 +67,10 @@ public class PrimaryView extends JComponent implements Observer {
         primaryView.add(gameView, "Game");
 
         frame.add(primaryView);
+        setFocusable(true);
         frame.pack();
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
     }
 
     public void showMainMenu(){
@@ -78,15 +87,21 @@ public class PrimaryView extends JComponent implements Observer {
 
     @Override
     public Dimension getPreferredSize() {
-        return PRIMARY_DIMENSION;
+        return primaryDimension;
     }
 
     public static int getPrimaryViewWidth(){
-        return PRIMARY_DIMENSION.width;
+        return primaryDimension.width;
     }
 
     public static int getPrimaryViewHeight(){
-        return PRIMARY_DIMENSION.height;
+        return primaryDimension.height;
+    }
+
+    public static Dimension getPreferredIconSize(){
+        int width = (int) (ICON_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
+        int height = (int) (ICON_HEIGHT_RATIO * PrimaryView.getPrimaryViewHeight());
+        return new Dimension(width, height);
     }
 
     @Override
