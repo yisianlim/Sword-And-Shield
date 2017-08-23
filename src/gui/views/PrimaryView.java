@@ -51,7 +51,7 @@ public class PrimaryView extends JComponent implements Observer {
                 int width = e.getComponent().getWidth();
                 int height = e.getComponent().getHeight();
                 PRIMARY_DIMENSION = new Dimension(width, height);
-                gameView.resize();
+                gameView.updateSize();
             }
         });
 

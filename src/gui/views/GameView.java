@@ -188,7 +188,7 @@ public class GameView extends JPanel {
         this.greenCemetery = createGreenCemetery();
     }
 
-    public void resize(){
+    public void updateSize(){
         int boardWidth = (int) (0.375 * PrimaryView.getPrimaryViewWidth());
         int boardHeight = (int) (0.8 * PrimaryView.getPrimaryViewHeight());
         board.setPreferredSize(new Dimension(boardWidth,boardHeight));
