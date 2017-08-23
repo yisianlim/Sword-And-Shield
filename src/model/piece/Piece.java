@@ -42,9 +42,9 @@ public abstract class Piece {
     /**
      * Generate the SquareButton needed for the view based on the type.
      * @param position
-     *          Position of the Piece on the board.
+     *          Position of the Piece on the createBoard.
      * @param squareType
-     *          Panel of the Piece in the view. (Cemetery, board or creation shelf)
+     *          Panel of the Piece in the view. (Cemetery, createBoard or creation shelf)
      * @return
      *          Appropriate SquareButton based on type.
      */

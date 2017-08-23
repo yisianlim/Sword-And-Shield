@@ -5,6 +5,8 @@ import model.Game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -17,12 +19,13 @@ public class PrimaryView extends JComponent implements Observer {
     private Game gameModel;
     private Controller controller;
 
-    private JPanel mainMenu, infoView, gameView;
+    private JPanel mainMenu, infoView;
+    private GameView gameView;
 
     private JPanel primaryView;
     private CardLayout currentState;
 
-    public static final Dimension PRIMARY_DIMENSION = new Dimension(1600,750);
+    public static Dimension PRIMARY_DIMENSION = new Dimension(1600,750);
 
     public PrimaryView(Game g) {
         gameModel = g;
@@ -41,6 +44,16 @@ public class PrimaryView extends JComponent implements Observer {
         currentState = new CardLayout();
         primaryView = new JPanel();
         primaryView.setLayout(currentState);
+
+        primaryView.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int width = e.getComponent().getWidth();
+                int height = e.getComponent().getHeight();
+                PRIMARY_DIMENSION = new Dimension(width, height);
+                gameView.resize();
+            }
+        });
 
         primaryView.add(mainMenu, "Main Menu");
         primaryView.add(infoView, "Information");
@@ -66,6 +79,14 @@ public class PrimaryView extends JComponent implements Observer {
     @Override
     public Dimension getPreferredSize() {
         return PRIMARY_DIMENSION;
+    }
+
+    public static int getPrimaryViewWidth(){
+        return PRIMARY_DIMENSION.width;
+    }
+
+    public static int getPrimaryViewHeight(){
+        return PRIMARY_DIMENSION.height;
     }
 
     @Override

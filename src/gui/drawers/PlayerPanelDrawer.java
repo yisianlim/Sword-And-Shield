@@ -1,6 +1,7 @@
 package gui.drawers;
 
 import gui.views.GameView;
+import gui.views.PrimaryView;
 import model.Game;
 import model.Position;
 import model.piece.Piece;
@@ -49,10 +50,13 @@ public class PlayerPanelDrawer extends JPanel {
     public PlayerPanelDrawer createPanel(){
         Game.Phase phase = gameModel.getGamePhase();
 
+        int panelWidth = (int) (0.281 * PrimaryView.getPrimaryViewWidth());
+        int panelHeight = (int) (0.4 * PrimaryView.getPrimaryViewHeight());
+        setPreferredSize(new Dimension(panelWidth, panelHeight));
+
         if(phase.equals(CREATE) && samePlayer()){
             // Display all the orientations of the selected PlayerPiece.
             setLayout(new GridLayout(1,4));
-            setPreferredSize(new Dimension(450, 300));
 
             // Get all the selected PlayerPiece with the various orientation.
             List<PlayerPiece> allOrientations = gameModel.getCurrentPlayer().hand.getSelectedInAllOrientations();
@@ -70,7 +74,6 @@ public class PlayerPanelDrawer extends JPanel {
 
         } else {
             // Display all the PlayerPiece available in player's hand.
-            setPreferredSize(new Dimension(450, 300));
             setLayout(new GridLayout(4, 6, 10, 10));
 
             // Get all the Piece that the player currently have on hand.

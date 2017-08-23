@@ -162,7 +162,7 @@ public class BoardTest {
         Board clone = original.clone();
         clone.setSquare(new Position(5,5), new PlayerPiece(VERTICAL_SWORD, HORIZONTAL_SWORD, NO_ITEM, SHIELD, "X"));
 
-        // Changes to the clone board should not change the original board.
+        // Changes to the clone createBoard should not change the original createBoard.
         assertEquals(original_output, original.toString());
         assertEquals(clone_output, clone.toString());
     }

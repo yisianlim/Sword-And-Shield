@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the 10x10 board in the Game. Each drawers on the board can either be empty, or hold Piece. The board
+ * Represents the 10x10 createBoard in the Game. Each drawers on the createBoard can either be empty, or hold Piece. The createBoard
  * is simply responsible for storing this information.
  */
 public class Board {
     /**
-     * The Game board is a 2-dimensional array
+     * The Game createBoard is a 2-dimensional array
      */
     private Piece[][] board;
 
@@ -22,7 +22,7 @@ public class Board {
     private List<String> stringRepresentation;
 
     /**
-     * The drawers in the board that have been selected by the user.
+     * The drawers in the createBoard that have been selected by the user.
      */
     private Position selectedSquare;
 
@@ -30,12 +30,12 @@ public class Board {
     public static final int COLS = 10;
 
     /**
-     * Create an empty and initialized game board.
+     * Create an empty and initialized game createBoard.
      */
     public Board(){
         this.board = new Piece[ROWS][COLS];
 
-        // Initialise EmptyPiece(s) in the board.
+        // Initialise EmptyPiece(s) in the createBoard.
         // EmptyPiece can be replaced be PlayerPiece throughout the game.
         for(int x = 0; x < ROWS; x++){
             for (int y = 0; y < COLS; y++){
@@ -43,7 +43,7 @@ public class Board {
             }
         }
 
-        // Initialise the BlankPiece on specific Position on the board.
+        // Initialise the BlankPiece on specific Position on the createBoard.
         // The drawers must always remain a BlankPiece.
         setSquare(new Position(0,0), new BlankPiece());
         setSquare(new Position(0,1), new BlankPiece());
@@ -52,7 +52,7 @@ public class Board {
         setSquare(new Position(8,9), new BlankPiece());
         setSquare(new Position(9,8), new BlankPiece());
 
-        // Initialise the Player's FacePiece on the board.
+        // Initialise the Player's FacePiece on the createBoard.
         // The drawers must always remain a FacePiece.
         setSquare(new Position(1,1), new FacePiece("1"));
         setSquare(new Position(8,8), new FacePiece("0"));
@@ -75,11 +75,11 @@ public class Board {
     }
 
     /**
-     * Check if the Position is out of the board.
+     * Check if the Position is out of the createBoard.
      * @param pos
      *          Position to check for.
      * @return
-     *      True if it is out of the board. False otherwise.
+     *      True if it is out of the createBoard. False otherwise.
      */
     public boolean outOfBoard(Position pos){
         return pos.getX() < 0 ||
@@ -91,7 +91,7 @@ public class Board {
     }
 
     /**
-     * Find the following PlayerPiece with the letter in the board.
+     * Find the following PlayerPiece with the letter in the createBoard.
      * @param letter
      *          Letter of the PlayerPiece to look for.
      * @return
@@ -142,7 +142,7 @@ public class Board {
 
 
     /**
-     * Update the String representation of the board line by line.
+     * Update the String representation of the createBoard line by line.
      */
     private void updateStringRepresentation(){
         this.stringRepresentation = new ArrayList<>();
@@ -169,7 +169,7 @@ public class Board {
     }
 
     /**
-     * Construct the string representation of the board.
+     * Construct the string representation of the createBoard.
      * @return
      */
     public String toString(){
@@ -182,7 +182,7 @@ public class Board {
     }
 
     /**
-     * Return the String representation of line num of board.
+     * Return the String representation of line num of createBoard.
      * @param num
      *          Line number to get String from.
      * @return
@@ -194,7 +194,7 @@ public class Board {
     }
 
     /**
-     * Construct a border line for the board.
+     * Construct a border line for the createBoard.
      * @return
      */
     public String border(){

@@ -6,14 +6,11 @@ import model.piece.Piece;
 import model.piece.PlayerPiece;
 import model.player.Player;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 
 import static model.Game.Phase.ACTION;
 
-public class BoardController implements ActionListener, MouseListener {
+public class BoardController implements ActionListener, MouseListener, KeyListener {
 
     private Game gameModel;
 
@@ -61,7 +58,6 @@ public class BoardController implements ActionListener, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        System.out.println("pressed");
         PlayerPiece toMove = (PlayerPiece) gameModel.getBoard().getPiece((SquareButton) e.getSource());
         Player.Direction headedDirection = getDirection(e);
 
@@ -114,5 +110,20 @@ public class BoardController implements ActionListener, MouseListener {
         }
 
         return null;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 }

@@ -1,6 +1,7 @@
 package model.piece;
 
 import gui.drawers.SquareButton;
+import gui.views.PrimaryView;
 import model.Position;
 import resources.ImageResources;
 
@@ -37,7 +38,9 @@ public class FacePiece extends Piece {
     public SquareButton createButton(Position position, SquareButton.Panel squareType) {
         SquareButton squareButton = new SquareButton(this, position, squareType);
         Image img = greenPlayer() ? ImageResources.GREEN.img : ImageResources.YELLOW.img;
-        img = img.getScaledInstance(60, 60,  java.awt.Image.SCALE_SMOOTH ) ;
+        int width = (int) (0.0375 * PrimaryView.getPrimaryViewWidth());
+        int height = (int) (0.08 * PrimaryView.getPrimaryViewHeight());
+        img = img.getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH) ;
         squareButton.setIcon(new ImageIcon(img));
         squareButton.setOpaque(false);
         squareButton.setBorderPainted(false);

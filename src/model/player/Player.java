@@ -46,7 +46,7 @@ public abstract class Player {
     public Hand hand;
 
     /**
-     * Player's PlayerPiece that are currently on the board.
+     * Player's PlayerPiece that are currently on the createBoard.
      */
     public Set<PlayerPiece> piecesInBoard;
 
@@ -85,7 +85,7 @@ public abstract class Player {
     }
 
     /**
-     * Returns all Player's PlayerPiece that are currently on the board.
+     * Returns all Player's PlayerPiece that are currently on the createBoard.
      * @return
      */
     public Set<PlayerPiece> getAllPiecesInBoard(){
@@ -95,18 +95,18 @@ public abstract class Player {
     }
 
     /**
-     * Update the piecesInBoard if the Player's PlayerPiece goes onto the board.
+     * Update the piecesInBoard if the Player's PlayerPiece goes onto the createBoard.
      * @param piece
-     *          Piece being added to board.
+     *          Piece being added to createBoard.
      */
     public void addToPiecesInBoard(PlayerPiece piece){
         piecesInBoard.add(piece);
     }
 
     /**
-     * Update the piecesInBoard if the Player's PlayerPiece leaves the board.
+     * Update the piecesInBoard if the Player's PlayerPiece leaves the createBoard.
      * @param piece
-     *          Piece being removed from board.
+     *          Piece being removed from createBoard.
      */
     public void removeFromPiecesInBoard(PlayerPiece piece){
         piecesInBoard.remove(piece);

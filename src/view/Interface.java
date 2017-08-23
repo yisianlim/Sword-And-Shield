@@ -45,11 +45,11 @@ public class Interface {
 
         System.out.println(
                 "At the start of each round, which is the creation phase, the user can type the following commands:\n" +
-                "\"create <letter> <0/90/180/270>\"     -> summon a warrior into the board\n" +
+                "\"create <letter> <0/90/180/270>\"     -> summon a warrior into the createBoard\n" +
                 "\"pass\"                               -> pass in summoning warrior and move on to action phase\n\n"+
                 "During the action phase, the user can type the following commands:\n" +
-                "\"move <letter> <up/down,left,right>\" -> move the warrior in the board\n" +
-                "\"rotate <letter> <0/90/180/270>\"     -> rotate the warrior in the board\n" +
+                "\"move <letter> <up/down,left,right>\" -> move the warrior in the createBoard\n" +
+                "\"rotate <letter> <0/90/180/270>\"     -> rotate the warrior in the createBoard\n" +
                 "\"pass\"                               -> end the current player's turn\n" +
                 "\"undo\"                               -> revert the last command\n"
         );
@@ -126,7 +126,7 @@ public class Interface {
     }
 
     /**
-     *  At the final action phase of the game (when all the pieces on the board have been moved / rotated)
+     *  At the final action phase of the game (when all the pieces on the createBoard have been moved / rotated)
      *  The user can only input "pass" to end its turn or "undo" to revert its previous commands.
      */
     private void finalActionPhase(){

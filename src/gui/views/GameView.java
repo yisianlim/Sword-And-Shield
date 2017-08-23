@@ -4,20 +4,16 @@ import gui.controllers.BoardController;
 import gui.controllers.Controller;
 import gui.controllers.PlayerPanelController;
 import gui.drawers.ButtonDrawer;
+import gui.drawers.CemeteryDrawer;
 import gui.drawers.PlayerPanelDrawer;
 import gui.drawers.SquareButton;
 import model.Board;
 import model.Game;
 import model.Position;
-import model.piece.Piece;
-import model.piece.PlayerPiece;
 import resources.SoundResources;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-
-import static model.Game.Phase.*;
 
 /**
  * GameView renders the state of the game to the user.
@@ -39,9 +35,9 @@ public class GameView extends JPanel {
     /**
      * UI elements
      */
-    private JToolBar toolBar;
-    private JPanel greenCemetery, yellowCemetery;
-    private JSplitPane entirePane, bottomPane, greenPlayerPane, boardPane, yellowPlayerPane, topPane;
+    private JToolBar toolbar;
+    private JPanel board, greenPanel, yellowPanel, greenCemetery, yellowCemetery;
+    private JSplitPane leftPane, rightPane, middlePane, topPane;
 
     public GameView(Controller c, Game g) {
         this.controller = c;
@@ -50,33 +46,28 @@ public class GameView extends JPanel {
         this.gameModel = g;
 
         setupToolbar();
-        drawGreenCemetery();
-        drawYellowCemetery();
 
-        entirePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        add(entirePane, BorderLayout.CENTER);
-
-        bottomPane = new JSplitPane();
-        entirePane.setRightComponent(bottomPane);
-
-        greenPlayerPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        greenPlayerPane.setTopComponent(greenPanel());
-        greenPlayerPane.setBottomComponent(greenCemetery);
-        bottomPane.setLeftComponent(greenPlayerPane);
-
-        boardPane = new JSplitPane();
-        boardPane.setLeftComponent(board());
-        bottomPane.setRightComponent(boardPane);
-
-        yellowPlayerPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        yellowPlayerPane.setTopComponent(yellowPanel());
-        yellowPlayerPane.setBottomComponent(yellowCemetery);
-        boardPane.setRightComponent(yellowPlayerPane);
+        createPanels();
 
         topPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        topPane.setTopComponent(toolBar);
+        topPane.setTopComponent(toolbar);
         topPane.setBottomComponent(status());
-        entirePane.setLeftComponent(topPane);
+
+        leftPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        leftPane.setTopComponent(createGreenPanel());
+        leftPane.setBottomComponent(createGreenCemetery());
+
+        middlePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        middlePane.setTopComponent(topPane);
+        middlePane.setBottomComponent(board);
+
+        rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        rightPane.setTopComponent(createYellowPanel());
+        rightPane.setBottomComponent(createYellowCemetery());
+
+        add(leftPane, BorderLayout.WEST);
+        add(middlePane, BorderLayout.CENTER);
+        add(rightPane, BorderLayout.EAST);
     }
 
     /**
@@ -93,7 +84,7 @@ public class GameView extends JPanel {
      * Setup the JToolbar before adding it to GameView to be rendered out to the user.
      */
     public void setupToolbar(){
-        toolBar = new JToolBar();
+        toolbar = new JToolBar();
 
         // Setup buttons.
         JButton pass = new JButton("Pass");
@@ -108,26 +99,30 @@ public class GameView extends JPanel {
         back.addActionListener(controller);
 
         // Add the buttons into the toolbar.
-        toolBar.add(back);
-        toolBar.add(pass);
-        toolBar.add(undo);
-        toolBar.add(surrender);
+        toolbar.add(back);
+        toolbar.add(pass);
+        toolbar.add(undo);
+        toolbar.add(surrender);
     }
 
     /**
-     * Modify the JPanel containing the board based on the state of the Board in gameModel.
-     * Return the modified JPanel of board to be rendered.
+     * Modify the JPanel containing the createBoard based on the state of the Board in gameModel.
+     * Return the modified JPanel of createBoard to be rendered.
      * @return
-     *      modified JPanel of board.
+     *      modified JPanel of createBoard.
      */
-    public JPanel board(){
+    public JPanel createBoard(){
         JPanel board = new JPanel();
-        board.setPreferredSize(new Dimension(600,600));
+
+        int boardWidth = (int) (0.375 * PrimaryView.getPrimaryViewWidth());
+        int boardHeight = (int) (0.8 * PrimaryView.getPrimaryViewHeight());
+        board.setPreferredSize(new Dimension(boardWidth,boardHeight));
+
         board.setLayout(new GridLayout(10,10));
         Board gameBoard = gameModel.getBoard();
 
         // Create a custom, responsive SquareButton for each Piece in gameBoard.
-        // Add the SquareButton into JPanel board.
+        // Add the SquareButton into JPanel createBoard.
         for(int row = 0; row < gameBoard.ROWS; row++){
             for(int col = 0; col < gameBoard.COLS; col++){
                 Position currentPosition = new Position(row, col);
@@ -151,60 +146,64 @@ public class GameView extends JPanel {
     }
 
     /**
-     * greenPanel returns the JPanel for GreenPlayer at the left.
+     * createGreenPanel returns the JPanel for GreenPlayer at the left.
      * @return
      *      Required top JPanel for top component of greenPlayerPane.
      */
-    public JPanel greenPanel(){
+    public JPanel createGreenPanel(){
         PlayerPanelDrawer green = new PlayerPanelDrawer(gameModel.getGreenPlayer(), gameModel, this);
         return green.createPanel();
     }
 
     /**
-     * yellowPanel returns the JPanel for YellowPlayer at the right.
+     * createYellowPanel returns the JPanel for YellowPlayer at the right.
      * @return
      *      Required top JPanel for top component of yellowPlayerPane.
      */
-    private JPanel yellowPanel() {
+    private JPanel createYellowPanel() {
         PlayerPanelDrawer yellow = new PlayerPanelDrawer(gameModel.getYellowPlayer(), gameModel, this);
         return yellow.createPanel();
     }
 
-    private void drawGreenCemetery() {
-        greenCemetery = new JPanel();
-        greenCemetery.setPreferredSize(new Dimension(450, 300));
-        greenCemetery.setLayout(new GridLayout(4, 6, 10,10));
-        Piece[][] cemetery = gameModel.getCemetery().getGreenPiecesInCemetery();
-        for(int row = 0; row < cemetery.length; row++){
-            for(int col = 0; col < cemetery[0].length; col++){
-                Position currentPosition = new Position(row, col);
-                SquareButton squareButton = new ButtonDrawer(cemetery[row][col],
-                        currentPosition,
-                        SquareButton.Panel.CEMETERY).makeButton();
-                greenCemetery.add(squareButton);
-            }
-        }
+    private JPanel createGreenCemetery() {
+        CemeteryDrawer green = new CemeteryDrawer(gameModel.getGreenPlayer(), gameModel);
+        return green.createCemetery();
     }
 
-    private void drawYellowCemetery() {
-        yellowCemetery = new JPanel();
-        yellowCemetery.setPreferredSize(new Dimension(450, 300));
-        yellowCemetery.setLayout(new GridLayout(4, 6, 10,10));
-        Piece[][] cemetery = gameModel.getCemetery().getYellowPiecesInCemetery();
-        for(int row = 0; row < cemetery.length; row++){
-            for(int col = 0; col < cemetery[0].length; col++){
-                Position currentPosition = new Position(row, col);
-                SquareButton squareButton = new ButtonDrawer(cemetery[row][col],
-                        currentPosition,
-                        SquareButton.Panel.CEMETERY).makeButton();
-                yellowCemetery.add(squareButton);
-            }
-        }
+    private JPanel createYellowCemetery() {
+        CemeteryDrawer yellow = new CemeteryDrawer(gameModel.getYellowPlayer(), gameModel);
+        return yellow.createCemetery();
     }
 
     @Override
     public Dimension getPreferredSize() {
         return PrimaryView.PRIMARY_DIMENSION;
+    }
+
+    private void createPanels(){
+        this.board = createBoard();
+        this.greenPanel = createGreenPanel();
+        this.yellowPanel = createYellowPanel();
+        this.yellowCemetery = createYellowCemetery();
+        this.greenCemetery = createGreenCemetery();
+    }
+
+    public void resize(){
+        int boardWidth = (int) (0.375 * PrimaryView.getPrimaryViewWidth());
+        int boardHeight = (int) (0.8 * PrimaryView.getPrimaryViewHeight());
+        board.setPreferredSize(new Dimension(boardWidth,boardHeight));
+
+        int panelWidth = (int) (0.281 * PrimaryView.getPrimaryViewWidth());
+        int panelHeight = (int) (0.4 * PrimaryView.getPrimaryViewHeight());
+        greenPanel.setPreferredSize(new Dimension(panelWidth, panelHeight));
+        yellowPanel.setPreferredSize(new Dimension(panelWidth, panelHeight));
+
+        int cemeteryWidth = (int) (0.282 * PrimaryView.getPrimaryViewWidth());
+        int cemeteryHeight = (int) (0.4 * PrimaryView.getPrimaryViewHeight());
+        greenCemetery.setPreferredSize(new Dimension(cemeteryWidth, cemeteryHeight));
+        yellowCemetery.setPreferredSize(new Dimension(cemeteryWidth, cemeteryHeight));
+
+        update();
     }
 
     /**
@@ -214,15 +213,23 @@ public class GameView extends JPanel {
         if(gameModel.getWarnings() > 0)
             beep(SoundResources.Sound.WARNING);
 
-        greenPlayerPane.setTopComponent(greenPanel());
-        yellowPlayerPane.setTopComponent(yellowPanel());
         topPane.setBottomComponent(status());
-        boardPane.setLeftComponent(board());
+
+        leftPane.setTopComponent(greenPanel);
+        leftPane.setBottomComponent(greenCemetery);
+
+        middlePane.setTopComponent(topPane);
+        middlePane.setBottomComponent(board);
+
+        rightPane.setTopComponent(yellowPanel);
+        rightPane.setBottomComponent(yellowCemetery);
+
     }
 
     @Override
     public void revalidate() {
         if(gameModel == null) return;
+        createPanels();
         update();
     }
 

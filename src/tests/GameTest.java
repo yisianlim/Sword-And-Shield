@@ -106,7 +106,7 @@ public class GameTest {
     }
 
     /**
-     * Attempt to move a neighbor piece out of the board should result in the piece being the cemetery.
+     * Attempt to move a neighbor piece out of the createBoard should result in the piece being the cemetery.
      */
     @Test
     public void test_PushToCemetery(){
@@ -195,7 +195,7 @@ public class GameTest {
 
     /**
      * Pass during CREATION phase should move on the FINAL phase when there are no
-     * pieces belonging to the player on the board.
+     * pieces belonging to the player on the createBoard.
      */
     @Test
     public void test_Pass_ChangePhase(){
@@ -439,7 +439,7 @@ public class GameTest {
         game.resetFuture();
         game.createPiece("K", 0);
 
-        // Both piece K and S should not be in the board due to sword vs sword reaction.
+        // Both piece K and S should not be in the createBoard due to sword vs sword reaction.
         assertTrue(game.getBoard().findPiece("K") == null);
         assertTrue(game.getBoard().findPiece("S") == null);
     }
@@ -459,12 +459,12 @@ public class GameTest {
         game.resetFuture();
         game.createPiece("K", 0);
 
-        // Both piece K and S should not be in the board due to sword vs sword reaction.
+        // Both piece K and S should not be in the createBoard due to sword vs sword reaction.
         assertTrue(game.getBoard().findPiece("K") == null);
         assertTrue(game.getBoard().findPiece("S") == null);
         game.undo();
 
-        // After undoing create, piece S should be back in the board.
+        // After undoing create, piece S should be back in the createBoard.
         assertFalse(game.getBoard().findPiece("S") == null);
     }
 
@@ -484,7 +484,7 @@ public class GameTest {
         game.createPiece("U", 0);
         game.rotatePiece("U", 180);
 
-        // Piece F should not be in the board due to sword vs nothing reaction.
+        // Piece F should not be in the createBoard due to sword vs nothing reaction.
         assertTrue(game.getBoard().findPiece("F") == null);
     }
 
@@ -505,7 +505,7 @@ public class GameTest {
         game.rotatePiece("T", 90);
         game.movePiece("S", UP, true);
 
-        // Piece S and T should not be in the board due to sword vs nothing reaction.
+        // Piece S and T should not be in the createBoard due to sword vs nothing reaction.
         assertTrue(game.getBoard().findPiece("S") == null);
         assertTrue(game.getBoard().findPiece("T") == null);
     }

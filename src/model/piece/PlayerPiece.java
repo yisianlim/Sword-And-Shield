@@ -1,6 +1,7 @@
 package model.piece;
 
 import gui.drawers.SquareButton;
+import gui.views.PrimaryView;
 import model.Position;
 import model.player.Player.Direction;
 
@@ -10,7 +11,7 @@ import java.awt.*;
 import static model.player.Player.Direction.*;
 
 /**
- * PlayerPiece is the main piece of the board. It has items (or no items) at all 4 sides. The PlayerPiece have various
+ * PlayerPiece is the main piece of the createBoard. It has items (or no items) at all 4 sides. The PlayerPiece have various
  * attributes and its item will affect the reactions and various aspects of the Game.
  */
 public class PlayerPiece extends Piece {
@@ -318,12 +319,12 @@ public class PlayerPiece extends Piece {
 
         @Override
         public int getIconWidth() {
-            return 60;
+            return (int) (0.0375 * PrimaryView.getPrimaryViewWidth());
         }
 
         @Override
         public int getIconHeight() {
-            return 60;
+            return (int) (0.08 * PrimaryView.getPrimaryViewHeight());
         }
     }
 

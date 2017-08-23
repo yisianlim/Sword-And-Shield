@@ -113,6 +113,13 @@ public class Cemetery {
         return "            ";
     }
 
+    public Piece[][] getPlayerPiecesInCemetery(Player player){
+        if(player.isGreen())
+            return getGreenPiecesInCemetery();
+        else
+            return getYellowPiecesInCemetery();
+    }
+
     /**
      * Return a Piece[][] with just Green PlayerPiece in it.
      * @return

@@ -23,10 +23,10 @@ public class Game extends Observable {
      * CREATE phase is when the user can choose a PlayerPiece from its creation shelf to create. At this point,
      * the user can only choose to create or pass.
      *
-     * ACTION phase is when the user can move or rotate any of its PlayerPiece that is in the board. The user can also
+     * ACTION phase is when the user can move or rotate any of its PlayerPiece that is in the createBoard. The user can also
      * undo its move and go back to CREATE phase or pass to pass the game to the next player.
      *
-     * FINAL phase is when the user moves all of their pieces on the board. The user can only input pass or undo at
+     * FINAL phase is when the user moves all of their pieces on the createBoard. The user can only input pass or undo at
      * this point.
      */
     public enum Phase{
@@ -34,7 +34,7 @@ public class Game extends Observable {
     }
 
     /**
-     * Current state of the board.
+     * Current state of the createBoard.
      */
     public Board board;
 
@@ -92,7 +92,7 @@ public class Game extends Observable {
     private int warning;
 
     /**
-     * Construct a new game from a given starting board.
+     * Construct a new game from a given starting createBoard.
      *
      * @param b
      */
@@ -129,7 +129,7 @@ public class Game extends Observable {
     }
 
     /**
-     * Get the internal board representation of this game.
+     * Get the internal createBoard representation of this game.
      * @return
      *      Board of the current game.
      */
@@ -138,7 +138,7 @@ public class Game extends Observable {
     }
 
     /**
-     * Create a piece with a given letter on hand on the board. For this to be accepted,
+     * Create a piece with a given letter on hand on the createBoard. For this to be accepted,
      * the piece must be appropriate for the playerName who's turn it currently is.
      * @param letter
      *            Name of the PlayerPiece to place; cannot be null.
@@ -150,10 +150,10 @@ public class Game extends Observable {
     }
 
     /**
-     * Rotate a piece with a given letter on the board. For this to be acceptable, the piece must
-     * belong to the currentPlayer as well as be in the board.
+     * Rotate a piece with a given letter on the createBoard. For this to be acceptable, the piece must
+     * belong to the currentPlayer as well as be in the createBoard.
      * @param letter
-     *          letter of the PlayerPiece in the board we want to move.
+     *          letter of the PlayerPiece in the createBoard we want to move.
      * @param rotation
      *          angle of rotation.
      */
@@ -162,9 +162,9 @@ public class Game extends Observable {
     }
 
     /**
-     * Move a piece with a given letter on the board.
+     * Move a piece with a given letter on the createBoard.
      * @param letter
-     *          letter of the PlayerPiece in the board we want to move.
+     *          letter of the PlayerPiece in the createBoard we want to move.
      * @param direction
      *          direction of movement
      * @param dominant
@@ -217,16 +217,16 @@ public class Game extends Observable {
     }
 
     /**
-     * Draw the action phase of the game. We simply let the user know that they can move their pieces on the board.
+     * Draw the action phase of the game. We simply let the user know that they can move their pieces on the createBoard.
      */
     public void drawActionPhase(){
         drawCreatePhase();
-        System.out.println("You can now choose to move or rotate any of YOUR pieces on the board");
+        System.out.println("You can now choose to move or rotate any of YOUR pieces on the createBoard");
         System.out.println("Or you can input pass to finish your turn or undo previous moves");
     }
 
     /**
-     * Draw the board, cemetery and players' hand.
+     * Draw the createBoard, cemetery and players' hand.
      */
     public void draw(){
         prepareForNewRound();
@@ -292,7 +292,7 @@ public class Game extends Observable {
 
 
     /**
-     * getFuture returns the set of PlayerPiece in the board that have not been moved / rotated by the current player.
+     * getFuture returns the set of PlayerPiece in the createBoard that have not been moved / rotated by the current player.
      * @return
      *      Set of PlayerPiece to be moved / rotated in future.
      */
@@ -307,7 +307,7 @@ public class Game extends Observable {
 
     /**
      * resetFuture is invoked when the game moves on to the action phase. Get all the current player's
-     * PlayerPiece that are on the board as the PlayerPiece can be moved / rotated again in future.
+     * PlayerPiece that are on the createBoard as the PlayerPiece can be moved / rotated again in future.
      */
     public void resetFuture() {
         future = currentPlayer.getAllPiecesInBoard();
@@ -428,7 +428,7 @@ public class Game extends Observable {
             // Update the game state.
             future.add(pieceToCreate);
 
-            // Update the board.
+            // Update the createBoard.
             Position newPosition = currentPlayer.getCreationGrid();
             board.setSquare(newPosition, pieceToCreate);
 
@@ -501,7 +501,7 @@ public class Game extends Observable {
         }
 
         /**
-         * For this to be acceptable, the piece must belong to the currentPlayer, be on the board and must not have
+         * For this to be acceptable, the piece must belong to the currentPlayer, be on the createBoard and must not have
          * been moved by the player in the same round.
          * We also check for neighbors in the direction of the move and call the execute the move recursively if
          * neighbors is present, which will take care of all the successive neighbors.
@@ -512,7 +512,7 @@ public class Game extends Observable {
             PlayerPiece pieceToMove = board.findPiece(letter);
 
             if(pieceToMove == null){
-                throw new IllegalArgumentException("No such piece is found on the board");
+                throw new IllegalArgumentException("No such piece is found on the createBoard");
             } else if(!currentPlayer.validPiece(pieceToMove)){
                 throw new IllegalArgumentException("This piece does not belong to you");
             } else if(!future.contains(pieceToMove)  && dominant){
@@ -524,14 +524,14 @@ public class Game extends Observable {
             Position old_position = pieceToMove.getPosition();
             Position new_position = old_position.moveBy(direction);
 
-            // If the piece goes out of the board, it should be added to the cemetery.
+            // If the piece goes out of the createBoard, it should be added to the cemetery.
             // The game state is updated accordingly before finishing its execution.
             if(board.outOfBoard(new_position)) {
                 cemetery.add(pieceToMove);
                 currentPlayer.removeFromPiecesInBoard(pieceToMove);
                 removeFromFuture(pieceToMove);
 
-                // Update the board.
+                // Update the createBoard.
                 board.setSquare(old_position, new EmptyPiece());
                 return;
             }
@@ -554,7 +554,7 @@ public class Game extends Observable {
                 movePieceCommand.execute();
             }
 
-            // Update the board.
+            // Update the createBoard.
             board.setSquare(new_position, pieceToMove);
             board.setSquare(old_position, new EmptyPiece());
 
@@ -621,7 +621,7 @@ public class Game extends Observable {
         }
 
         /**
-         * For this to be acceptable, the piece must belong to the currentPlayer, be on the board and must not have
+         * For this to be acceptable, the piece must belong to the currentPlayer, be on the createBoard and must not have
          * been moved / rotated by the player in the same round.
          * The PlayerPiece is rotated and then its neighbors are checked for reactions.
          */
@@ -630,7 +630,7 @@ public class Game extends Observable {
             PlayerPiece pieceToRotate = board.findPiece(letter);
 
             if(pieceToRotate == null){
-                throw new IllegalArgumentException("No such piece is found on the board");
+                throw new IllegalArgumentException("No such piece is found on the createBoard");
             } else if(!currentPlayer.validPiece(pieceToRotate)){
                 throw new IllegalArgumentException("This piece does not belong to you");
             } else if(rotation!= 0 && rotation != 90 && rotation!= 180 && rotation != 270){
@@ -646,7 +646,7 @@ public class Game extends Observable {
             future.remove(pieceToRotate);
             future.remove(null);
 
-            // Update the board.
+            // Update the createBoard.
             board.setSquare(pieceToRotate.getPosition(), pieceToRotate);
 
             // Check for reactions at all directions and store it in the list.
@@ -744,7 +744,7 @@ public class Game extends Observable {
             // Retrieve the position at the corresponding direction.
             Position positionAtDirection = piece.getPosition().moveBy(direction);
 
-            // If positionAtDirection is outside of the board, we do not need to check for reactions.
+            // If positionAtDirection is outside of the createBoard, we do not need to check for reactions.
             if(positionAtDirection.outsideOfBoard()){
                 continue;
             }
