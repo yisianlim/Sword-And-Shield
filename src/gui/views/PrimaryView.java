@@ -15,6 +15,17 @@ import java.util.Observer;
  */
 public class PrimaryView extends JComponent implements Observer {
 
+    /**
+     * Dimension ratios and constant for each panels.
+     */
+    public static final double ICON_WIDTH_RATIO = 0.0375;
+    public static final double ICON_HEIGHT_RATIO = 0.08;
+    public static final double PANEL_WIDTH_RATIO = 0.281;
+    public static final double PANEL_HEIGHT_RATIO = 0.4;
+    public static final double BOARD_WIDTH_RATIO = 0.375;
+    public static final double BOARD_HEIGHT_RATIO = 0.8;
+    public static final Dimension MINIMUM_DIMENSION = new Dimension(700,400);
+
     private static final long serialVersionUID = 1L;
     private Game gameModel;
     private Controller controller;
@@ -26,14 +37,6 @@ public class PrimaryView extends JComponent implements Observer {
     private CardLayout currentState;
 
     public static Dimension primaryDimension = new Dimension(1600,750);
-
-    public static final double ICON_WIDTH_RATIO = 0.0375;
-    public static final double ICON_HEIGHT_RATIO = 0.08;
-    public static final double PANEL_WIDTH_RATIO = 0.281;
-    public static final double PANEL_HEIGHT_RATIO = 0.4;
-    public static final double BOARD_WIDTH_RATIO = 0.375;
-    public static final double BOARD_HEIGHT_RATIO = 0.8;
-    public static final Dimension MINIMUM_DIMENSION = new Dimension(700,400);
 
     public PrimaryView(Game g) {
         gameModel = g;

@@ -7,6 +7,7 @@ import model.player.Player;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  * SquareButton keeps all the information needed when it is laid out on GameView to the user.
@@ -74,7 +75,6 @@ public class SquareButton extends JButton {
             g.fillRect(0,0, width, height);
         }
     }
-
 
     public boolean isYellow(){
         if(piece instanceof PlayerPiece){

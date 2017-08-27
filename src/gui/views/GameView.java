@@ -64,6 +64,8 @@ public class GameView extends JPanel {
         add(leftPane, BorderLayout.WEST);
         add(middlePane, BorderLayout.CENTER);
         add(rightPane, BorderLayout.EAST);
+
+        setFocusable(true);
     }
 
     /**

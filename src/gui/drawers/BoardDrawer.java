@@ -1,5 +1,6 @@
 package gui.drawers;
 
+import com.sun.glass.events.KeyEvent;
 import gui.views.GameView;
 import gui.views.PrimaryView;
 import model.Board;
@@ -8,6 +9,8 @@ import model.Position;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * Created by limyisi on 23/08/17.
@@ -45,8 +48,9 @@ public class BoardDrawer extends JPanel {
                 // If the PlayerPiece is selected, then we highlight the piece.
                 if(gameBoard.selectedSquare(squareButton.getPosition())){
                     squareButton.setPanelType(SquareButton.Panel.BOARD_SELECTED);
-                    squareButton.highlight();
                     squareButton.addMouseListener(gameView.boardController);
+                    gameView.boardController.bindWASDKey(squareButton);
+                    squareButton.highlight();
                 }
 
                 // If the PlayerPiece has been moved, then we set unavailable for action.
@@ -55,10 +59,10 @@ public class BoardDrawer extends JPanel {
                 }
 
                 squareButton.addActionListener(gameView.boardController);
+
                 add(squareButton);
             }
         }
         return this;
     }
-
 }

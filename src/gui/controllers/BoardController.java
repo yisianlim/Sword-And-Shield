@@ -6,11 +6,13 @@ import model.piece.Piece;
 import model.piece.PlayerPiece;
 import model.player.Player;
 
+import javax.swing.*;
 import java.awt.event.*;
+import java.security.Key;
 
 import static model.Game.Phase.ACTION;
 
-public class BoardController implements ActionListener, MouseListener, KeyListener {
+public class BoardController implements ActionListener, MouseListener {
 
     private Game gameModel;
 
@@ -18,7 +20,6 @@ public class BoardController implements ActionListener, MouseListener, KeyListen
 
     public BoardController(Game g) {
         this.gameModel = g;
-
     }
 
     @Override
@@ -52,11 +53,6 @@ public class BoardController implements ActionListener, MouseListener, KeyListen
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
-
-    @Override
     public void mousePressed(MouseEvent e) {
         PlayerPiece toMove = (PlayerPiece) gameModel.getBoard().getPiece((SquareButton) e.getSource());
         Player.Direction headedDirection = getDirection(e);
@@ -70,22 +66,6 @@ public class BoardController implements ActionListener, MouseListener, KeyListen
         gameModel.clearSelectedSquareInBoard();
         gameModel.setStatus("Moved");
     }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
 
     private Player.Direction getDirection(MouseEvent e){
         int width = ((SquareButton) e.getSource()).getWidth();
@@ -112,18 +92,62 @@ public class BoardController implements ActionListener, MouseListener, KeyListen
         return null;
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
+    public void bindWASDKey(SquareButton squareButton) {
+        PlayerPiece toMove = (PlayerPiece) gameModel.getBoard().getPiece(squareButton);
+
+        squareButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("W"), "UpAction");
+        squareButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("A"), "LeftAction");
+        squareButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("S"), "DownAction");
+        squareButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("D"), "RightAction");
+
+        squareButton.getActionMap().put("UpAction", new FunctionalAction(ae -> {
+            gameModel.movePiece(toMove.getLetter(), Player.Direction.UP, true);
+            gameModel.clearSelectedSquareInBoard();
+            gameModel.setStatus("Moved");
+        }));
+
+        squareButton.getActionMap().put("LeftAction", new FunctionalAction(ae -> {
+            gameModel.movePiece(toMove.getLetter(), Player.Direction.LEFT, true);
+            gameModel.clearSelectedSquareInBoard();
+            gameModel.setStatus("Moved");
+        }));
+
+        squareButton.getActionMap().put("DownAction", new FunctionalAction(ae -> {
+            gameModel.movePiece(toMove.getLetter(), Player.Direction.DOWN, true);
+            gameModel.clearSelectedSquareInBoard();
+            gameModel.setStatus("Moved");
+        }));
+
+        squareButton.getActionMap().put("RightAction", new FunctionalAction(ae -> {
+            gameModel.movePiece(toMove.getLetter(), Player.Direction.RIGHT, true);
+            gameModel.clearSelectedSquareInBoard();
+            gameModel.setStatus("Moved");
+        }));
 
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void mouseClicked(MouseEvent e) {
 
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void mouseReleased(MouseEvent e) {
 
     }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
 }

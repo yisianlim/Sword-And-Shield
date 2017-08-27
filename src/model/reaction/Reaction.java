@@ -78,18 +78,13 @@ public class Reaction {
     public ReactionResult getWinningStatus(){
         Item pieceOneItem = pieceOne.getItem(direction);
 
-        System.out.println(pieceOne.greenPlayer());
-        System.out.println(facePiece.greenPlayer());
-
         // Green player won.
         if(pieceOneItem.isSword() && pieceOne.greenPlayer() && facePiece.yellowPlayer()){
-            System.out.println("HOW DID U WIN1");
             return new WinResult(pieceOne);
         }
 
         // Yellow player won.
         if(pieceOneItem.isSword() && pieceOne.yellowPlayer() && facePiece.greenPlayer()){
-            System.out.println("HOW DID U WIN2");
             return new WinResult(pieceOne);
         }
 

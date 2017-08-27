@@ -36,14 +36,6 @@ public class Cemetery {
     }
 
     /**
-     * Draw the cemetery.
-     */
-    public void draw(){
-        System.out.println(toString());
-        System.out.println();
-    }
-
-    /**
      * Check if the cemetery contains the following PlayerPiece.
      * @param piece
      *          PlayerPiece to check against.
