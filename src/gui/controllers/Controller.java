@@ -1,19 +1,25 @@
 package gui.controllers;
 
+import gui.drawers.Dialogs;
 import gui.views.PrimaryView;
 import model.Game;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Controller handles all the actions that should be after any button click in all views
+ * (except for SquareButton which needs to be handled separately as it is more complex).
+ */
 public class Controller implements ActionListener {
 
+    /**
+     * Model of the GUI.
+     */
     private Game gameModel;
-    private PrimaryView view;
 
-    public Controller(Game g, PrimaryView v){
+    public Controller(Game g){
         this.gameModel = g;
-        this.view = v;
     }
 
     @Override
@@ -26,13 +32,16 @@ public class Controller implements ActionListener {
     public void mainMenuPerformed(ActionEvent e){
         switch(e.getActionCommand()){
             case "Quit":
+                // Exit the game.
                 System.exit(0);
                 break;
             case "Info":
-                view.showInformation();
+                // Display the information about the game.
+                PrimaryView.showInformation();
                 break;
             case "Begin":
-                view.showGame();
+                // Display the game.
+                PrimaryView.showGame();
                 break;
         }
     }
@@ -40,7 +49,8 @@ public class Controller implements ActionListener {
     public void infoViewPerformed(ActionEvent e){
         switch(e.getActionCommand()){
             case "Back":
-                view.showMainMenu();
+                // Go back to the main menu.
+                PrimaryView.showMainMenu();
                 break;
         }
     }
@@ -48,18 +58,28 @@ public class Controller implements ActionListener {
     public void gameViewPerformed(ActionEvent e){
         switch(e.getActionCommand()){
             case "Undo":
+                // Undo the state of the game.
+                // In the event where the game can no longer undo, we display an error dialog to user.
                 try {
                     gameModel.undo();
-                    gameModel.setStatus("Undo");
                 } catch(IllegalArgumentException error){
-                    gameModel.warningMessage(error.getMessage());
+                    Dialogs.undoErrorDialog(error.getMessage());
                     return;
                 }
                 break;
 
             case "Pass":
-                gameModel.setStatus("Pass");
+                // Pass the game.
                 gameModel.pass();
+                break;
+
+            case "Surrender":
+                // Update the game to set the winner
+                // Notify the players of the winner with a dialog.
+                gameModel.playerHasSurrender();
+
+                //
+                Dialogs.gameOverDialog("Congratulations! " + gameModel.getWinner() + " player has won!");
         }
     }
 

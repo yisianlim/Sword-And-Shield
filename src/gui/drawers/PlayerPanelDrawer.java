@@ -15,7 +15,7 @@ import java.util.List;
 import static model.Game.Phase.CREATE;
 
 /**
- * PlayerPanelDrawer contains the logic of creating the JPanel for the player.
+ * PlayerPanelDrawer contains the logic of creating the JPanel for each player.
  */
 public class PlayerPanelDrawer extends JPanel {
 
@@ -29,15 +29,9 @@ public class PlayerPanelDrawer extends JPanel {
      */
     private Game gameModel;
 
-    /**
-     * View we are going to draw the panel on.
-     */
-    private GameView gameView;
-
-    public PlayerPanelDrawer(Player player, Game game, GameView gameView) {
+    public PlayerPanelDrawer(Player player, Game game) {
         this.player = player;
         this.gameModel = game;
-        this.gameView = gameView;
     }
 
     /**
@@ -65,10 +59,10 @@ public class PlayerPanelDrawer extends JPanel {
             // Add the SquareButton into JPanel greenPanelCreateMode.
             for(int i = 0; i < 4; i++){
                 PlayerPiece current = allOrientations.get(i);
-                SquareButton squareButton = new ButtonDrawer(current,
+                SquareButton squareButton = new SquareButtonDrawer(current,
                         new Position(0, i),
                         SquareButton.Panel.TRAINING).makeButton();
-                squareButton.addActionListener(gameView.playerPanelController);
+                squareButton.addActionListener(GameView.playerPanelController);
                 add(squareButton);
             }
 
@@ -84,12 +78,12 @@ public class PlayerPanelDrawer extends JPanel {
             for (int row = 0; row < hand.length; row++) {
                 for (int col = 0; col < hand[0].length; col++) {
                     Position currentPosition = new Position(row, col);
-                    SquareButton squareButton = new ButtonDrawer(
+                    SquareButton squareButton = new SquareButtonDrawer(
                             hand[row][col],
                             currentPosition,
                             SquareButton.Panel.CREATION_SHELF)
                             .makeButton();
-                    squareButton.addActionListener(gameView.playerPanelController);
+                    squareButton.addActionListener(GameView.playerPanelController);
                     add(squareButton);
                 }
             }

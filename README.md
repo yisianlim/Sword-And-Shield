@@ -8,11 +8,11 @@ cd src/
 ```
 To compile, enter the following command
 ```
-javac Main.java model/*.java view/*.java
+javac main.Main.java model/*.java view/*.java
 ```
 To run the game, 
 ```
-java -cp . Main
+java -cp . main.Main
 ```
 
 ### Rules

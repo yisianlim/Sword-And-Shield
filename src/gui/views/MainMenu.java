@@ -10,9 +10,16 @@ import java.awt.*;
  */
 public class MainMenu extends JPanel{
 
-    JLabel title;
-    JButton begin, info, quit;
-    Controller controller;
+    /**
+     * Controller of MainMenu view.
+     */
+    private Controller controller;
+
+    /**
+     * UI elements.
+     */
+    private JLabel title;
+    private JButton begin, info, quit;
 
     public MainMenu(Controller c){
         this.controller = c;

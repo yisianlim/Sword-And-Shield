@@ -1,6 +1,7 @@
 package gui.views;
 
 import gui.controllers.Controller;
+import model.Board;
 import model.Game;
 
 import javax.swing.*;
@@ -27,23 +28,36 @@ public class PrimaryView extends JComponent implements Observer {
     public static final Dimension MINIMUM_DIMENSION = new Dimension(700,400);
 
     private static final long serialVersionUID = 1L;
-    private Game gameModel;
-    private Controller controller;
 
-    private JPanel mainMenu, infoView;
-    private GameView gameView;
+    /**
+     * Model of the GUI.
+     */
+    private static Game gameModel;
 
-    private JPanel primaryView;
-    private CardLayout currentState;
+    /**
+     * Controller of PrimaryView.
+     */
+    private static Controller controller;
 
+    /**
+     * UI elements.
+     */
+    private MainMenu mainMenu;
+    private InfoView infoView;
+    private static GameView gameView;
+    private static JPanel primaryView;
+    private static CardLayout viewCards;
+
+    /**
+     * Dimension of this view. Subject to change as the user resizes the panel.
+     */
     public static Dimension primaryDimension = new Dimension(1600,750);
 
     public PrimaryView(Game g) {
         gameModel = g;
         gameModel.addObserver(this);
 
-
-        controller = new Controller(gameModel, this);
+        controller = new Controller(gameModel);
 
         mainMenu = new MainMenu(controller);
         infoView = new InfoView(controller);
@@ -52,9 +66,9 @@ public class PrimaryView extends JComponent implements Observer {
         JFrame frame = new JFrame("Sword and Shield Game");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        currentState = new CardLayout();
+        viewCards = new CardLayout();
         primaryView = new JPanel();
-        primaryView.setLayout(currentState);
+        primaryView.setLayout(viewCards);
 
         primaryView.addComponentListener(new ComponentAdapter() {
             @Override
@@ -78,35 +92,73 @@ public class PrimaryView extends JComponent implements Observer {
         frame.setLocationRelativeTo(null);
     }
 
-    public void showMainMenu(){
-        currentState.show(primaryView, "Main Menu");
+    /**
+     * Restart the game by creating a new Game for gameModel and updating the Game constraint
+     * in the CardLayout.
+     */
+    public static void restartGame(){
+        // Reset the gameModel to a new game.
+        Board board = new Board();
+        gameModel = new Game(board);
+
+        // Update the gameView inside primaryView CardLayouts.
+        gameView = new GameView(controller, gameModel);
+        primaryView.add(gameView, "Game");
+
+        // Display the main menu.
+        viewCards.show(primaryView, "Main Menu");
     }
 
-    public void showInformation(){
-        currentState.show(primaryView, "Information");
+    /**
+     * Display the main menu.
+     */
+    public static void showMainMenu(){
+        viewCards.show(primaryView, "Main Menu");
     }
 
-    public void showGame(){
-        currentState.show(primaryView, "Game");
+    /**
+     * Display the information.
+     */
+    public static void showInformation(){
+        viewCards.show(primaryView, "Information");
+    }
+
+    /**
+     * Display the game.
+     */
+    public static void showGame(){
+        viewCards.show(primaryView, "Game");
+    }
+
+    /**
+     * @return
+     *      width of current panel.
+     */
+    public static int getPrimaryViewWidth(){
+        return primaryDimension.width;
+    }
+
+    /**
+     * @return
+     *      height of current panel.
+     */
+    public static int getPrimaryViewHeight(){
+        return primaryDimension.height;
+    }
+
+    /**
+     * @return
+     *      preferred Dimension for the Icon for PlayerPiece and FacePiece.
+     */
+    public static Dimension getPreferredIconSize(){
+        int width = (int) (ICON_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
+        int height = (int) (ICON_HEIGHT_RATIO * PrimaryView.getPrimaryViewHeight());
+        return new Dimension(width, height);
     }
 
     @Override
     public Dimension getPreferredSize() {
         return primaryDimension;
-    }
-
-    public static int getPrimaryViewWidth(){
-        return primaryDimension.width;
-    }
-
-    public static int getPrimaryViewHeight(){
-        return primaryDimension.height;
-    }
-
-    public static Dimension getPreferredIconSize(){
-        int width = (int) (ICON_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
-        int height = (int) (ICON_HEIGHT_RATIO * PrimaryView.getPrimaryViewHeight());
-        return new Dimension(width, height);
     }
 
     @Override

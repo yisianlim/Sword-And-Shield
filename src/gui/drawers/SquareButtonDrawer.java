@@ -5,21 +5,32 @@ import model.piece.Piece;
 import model.piece.PlayerPiece;
 
 /**
- * ButtonDrawer encapsulates the information needed to create a SquareButton.
+ * SquareButtonDrawer encapsulates the information needed to create a SquareButton.
  */
-public class ButtonDrawer {
+public class SquareButtonDrawer {
 
+    /**
+     * Piece to draw the SquareButton for.
+     */
     private Piece piece;
+
+    /**
+     * Position of the SquareButton in the panel.
+     */
     private Position position;
+
+    /**
+     * Panel type that the SquareButton is for.
+     */
     private SquareButton.Panel panelType;
 
-    public ButtonDrawer(Piece piece, Position position, SquareButton.Panel panelType){
+    public SquareButtonDrawer(Piece piece, Position position, SquareButton.Panel panelType){
         this.piece = piece;
         this.position = position;
         this.panelType = panelType;
     }
 
-    public ButtonDrawer(PlayerPiece piece, Position position, SquareButton.Panel panelType){
+    public SquareButtonDrawer(PlayerPiece piece, Position position, SquareButton.Panel panelType){
         this.piece = piece;
         this.position = position;
         this.panelType = panelType;

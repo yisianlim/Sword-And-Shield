@@ -316,10 +316,6 @@ public class Game extends Observable {
         board.clearSelectedSquare();
     }
 
-    public void warningMessage(String message){
-        setStatus("Error: " + message);
-    }
-
     public void warningBeep(String message){
         warning++;
         setStatus("Error: " + message);
@@ -431,6 +427,7 @@ public class Game extends Observable {
             game.board = prev_board;
             game.cemetery = prev_cemetery;
             gamePhase = DISPLAY;
+            setStatus("Undo create");
         }
     }
 
@@ -554,6 +551,7 @@ public class Game extends Observable {
             game.future = prev_future;
             game.board = prev_board;
             gamePhase = prev_phase;
+            setStatus("Undo move");
         }
     }
 
@@ -665,16 +663,21 @@ public class Game extends Observable {
             switch(gamePhase){
                 case DISPLAY:
                     resetFuture();
+                    System.out.println("setting warning to 0");
+                    warning = 0;
                     if(future.isEmpty()) gamePhase = FINAL;
                     else gamePhase = ACTION;
+                    setStatus("Pass create phase");
                     break;
                 case ACTION:
                     gamePhase = DISPLAY;
                     nextPlayer();
+                    setStatus(currentPlayer.getName() + "'s turn");
                     break;
                 case FINAL:
                     gamePhase = DISPLAY;
                     nextPlayer();
+                    setStatus(currentPlayer.getName() + "'s turn");
                     break;
             }
         }
@@ -688,10 +691,12 @@ public class Game extends Observable {
                 case CREATE:
                     throw new IllegalArgumentException("There are no more commands to undo");
                 case ACTION:
-                    gamePhase = CREATE;
+                    gamePhase = DISPLAY;
+                    setStatus("Undo pass");
                     break;
                 case FINAL:
-                    gamePhase = CREATE;
+                    gamePhase = DISPLAY;
+                    setStatus("Undo pass");
                     break;
             }
         }
@@ -780,6 +785,11 @@ public class Game extends Observable {
     public void playerHasWon(){
         gameOver = true;
         winner = currentPlayer;
+    }
+
+    public void playerHasSurrender(){
+        gameOver = true;
+        winner = currentPlayer instanceof GreenPlayer ? getYellowPlayer() : getGreenPlayer();
     }
 
     /**

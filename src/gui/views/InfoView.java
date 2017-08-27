@@ -7,9 +7,16 @@ import java.awt.*;
 
 public class InfoView extends JPanel {
 
-    Controller controller;
-    JLabel info;
-    JButton back;
+    /**
+     * Controller for InfoView.
+     */
+    private Controller controller;
+
+    /**
+     * UI elements.
+     */
+    private JLabel info;
+    private JButton back;
 
     public InfoView(Controller c){
         this.controller = c;

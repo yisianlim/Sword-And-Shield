@@ -1,5 +1,6 @@
 package gui.controllers;
 
+import gui.drawers.Dialogs;
 import gui.drawers.SquareButton;
 import model.Game;
 import model.piece.Piece;
@@ -13,10 +14,10 @@ import static model.Game.Phase.CREATE;
 import static model.Game.Phase.FINAL;
 
 /**
- * PlayerPanelController handles the user actions in the panels for both green and yellow players. It displays the
- * appropriate error messages in the event the user does an invalid action. It also updates the game based on the user's
- * action.
- * There are for the SquareButton in the PlayerPanel:
+ * PlayerPanelController handles the user actions in the panels for both green and yellow players.
+ * It displays the appropriate error messages in the event the user does an invalid action.
+ * It also updates the game based on the user's action.
+ * There are different panel types for the SquareButton in the PlayerPanel:
  * - CREATION_SHELF: the stage where all the PlayerPiece in player's hand is laid out.
  * - TRAINING: the stage where all orientations of the selected PlayerPiece is displayed.
  */
@@ -35,19 +36,20 @@ public class PlayerPanelController implements ActionListener {
 
         // Determine which panel the SquareButton was clicked.
         switch (squareButton.getPanelType()) {
+            // Check valid creation based on the PlayerPiece that have been selected to create.
             case CREATION_SHELF:
 
                 // User cannot select piece that does not belong to them.
                 if ((gameModel.getCurrentPlayer().isYellow() && squareButton.isGreen()) ||
                         gameModel.getCurrentPlayer().isGreen() && squareButton.isYellow()) {
-                    gameModel.warningMessage("These pieces does not belong to you!");
+                    Dialogs.creationErrorDialog("These pieces does not belong to you!");
                     return;
                 }
 
                 // User cannot select piece if the game has passed the creation phase.
                 if (gameModel.getGamePhase().equals(FINAL)
                         || gameModel.getGamePhase().equals(ACTION)) {
-                    gameModel.warningMessage("You have passed the creation phase.");
+                    Dialogs.creationErrorDialog("You have passed the creation phase.");
                     return;
                 }
 
@@ -62,7 +64,7 @@ public class PlayerPanelController implements ActionListener {
 
                 // User cannot create a non-Player Piece.
                 if (!(selectedPiece instanceof PlayerPiece)) {
-                    gameModel.warningMessage("This is not a valid piece to create");
+                    Dialogs.creationErrorDialog("This is not a valid piece to create");
                 }
 
                 // Proceed to the next phase of creation phase in which the user can choose

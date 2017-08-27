@@ -4,9 +4,7 @@ import gui.controllers.BoardController;
 import gui.controllers.Controller;
 import gui.controllers.PlayerPanelController;
 import gui.drawers.*;
-import model.Board;
 import model.Game;
-import model.Position;
 import resources.SoundResources;
 
 import javax.swing.*;
@@ -20,9 +18,9 @@ public class GameView extends JPanel {
     /**
      * Controller of the GUI.
      */
-    public Controller controller;
-    public PlayerPanelController playerPanelController;
-    public BoardController boardController;
+    public static Controller controller;
+    public static PlayerPanelController playerPanelController;
+    public static BoardController boardController;
 
     /**
      * Model of the GUI.
@@ -81,7 +79,7 @@ public class GameView extends JPanel {
     /**
      * Setup the JToolbar before adding it to GameView to be rendered out to the user.
      */
-    public void setupToolbar(){
+    private void setupToolbar(){
         toolbar = new JToolBar();
 
         // Setup buttons.
@@ -109,8 +107,8 @@ public class GameView extends JPanel {
      * @return
      *      modified JPanel of createBoard.
      */
-    public JPanel createBoard(){
-        BoardDrawer board = new BoardDrawer(gameModel, this);
+    private JPanel createBoard(){
+        BoardDrawer board = new BoardDrawer(gameModel);
         return board.createBoard();
     }
 
@@ -119,8 +117,8 @@ public class GameView extends JPanel {
      * @return
      *      Required top JPanel for top component of greenPlayerPane.
      */
-    public JPanel createGreenPanel(){
-        PlayerPanelDrawer green = new PlayerPanelDrawer(gameModel.getGreenPlayer(), gameModel, this);
+    private JPanel createGreenPanel(){
+        PlayerPanelDrawer green = new PlayerPanelDrawer(gameModel.getGreenPlayer(), gameModel);
         return green.createPanel();
     }
 
@@ -130,7 +128,7 @@ public class GameView extends JPanel {
      *      Required top JPanel for top component of yellowPlayerPane.
      */
     private JPanel createYellowPanel() {
-        PlayerPanelDrawer yellow = new PlayerPanelDrawer(gameModel.getYellowPlayer(), gameModel, this);
+        PlayerPanelDrawer yellow = new PlayerPanelDrawer(gameModel.getYellowPlayer(), gameModel);
         return yellow.createPanel();
     }
 
@@ -142,11 +140,6 @@ public class GameView extends JPanel {
     private JPanel createYellowCemetery() {
         CemeteryDrawer yellow = new CemeteryDrawer(gameModel.getYellowPlayer(), gameModel);
         return yellow.createCemetery();
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        return PrimaryView.primaryDimension;
     }
 
     private void createPanels(){
@@ -161,9 +154,7 @@ public class GameView extends JPanel {
      * Update the components in GameView after a change in the state of gameModel have been modified.
      */
     private void update(){
-        if(gameModel.getWarnings() > 0)
-            beep(SoundResources.Sound.WARNING);
-
+        warnPlayer();
         topPane.setBottomComponent(status());
 
         leftPane.setTopComponent(greenPanel);
@@ -177,6 +168,32 @@ public class GameView extends JPanel {
 
     }
 
+    /**
+     * warnPlayer warns the player in the event when they attempts to click on their creation
+     * shelf multiple times when their creation grid is already occupied.
+     */
+    private void warnPlayer() {
+        if(gameModel.getWarnings() == 1)
+            beep(SoundResources.Sound.WARNING);
+
+        if(gameModel.getWarnings() == 2)
+            beep(SoundResources.Sound.SECOND_WARNING);
+
+        if(gameModel.getWarnings() >= 3){
+            Dialogs.creationErrorDialog("Your creation grid is occupied!\n" +
+                    "Hint: Pass your creation phase");
+        }
+    }
+
+    /**
+     * beep method loads the sound that needs to be played during the game.
+     * @param sound
+     *          SoundResources of the sound that is to be played.
+     */
+    private void beep(SoundResources.Sound sound){
+        new SoundResources(sound);
+    }
+
     @Override
     public void revalidate() {
         if(gameModel == null) return;
@@ -184,7 +201,8 @@ public class GameView extends JPanel {
         update();
     }
 
-    public void beep(SoundResources.Sound sound){
-        new SoundResources(sound);
+    @Override
+    public Dimension getPreferredSize() {
+        return PrimaryView.primaryDimension;
     }
 }

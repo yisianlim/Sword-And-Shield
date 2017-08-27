@@ -37,11 +37,14 @@ public class FacePiece extends Piece {
     @Override
     public SquareButton createButton(Position position, SquareButton.Panel squareType) {
         SquareButton squareButton = new SquareButton(this, position, squareType);
+
+        // Get the scaled image for the FacePiece.
         Image img = greenPlayer() ? ImageResources.GREEN.img : ImageResources.YELLOW.img;
         img = img.getScaledInstance(
                 PrimaryView.getPreferredIconSize().width > 0 ? PrimaryView.getPreferredIconSize().width : 1,
                 PrimaryView.getPreferredIconSize().height > 0 ? PrimaryView.getPreferredIconSize().height : 1,
-                java.awt.Image.SCALE_SMOOTH) ;
+                java.awt.Image.SCALE_SMOOTH);
+
         squareButton.setIcon(new ImageIcon(img));
         squareButton.setOpaque(false);
         squareButton.setBorderPainted(false);

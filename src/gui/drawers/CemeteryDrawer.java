@@ -29,7 +29,7 @@ public class CemeteryDrawer extends JPanel {
         for(int row = 0; row < cemetery.length; row++){
             for(int col = 0; col < cemetery[0].length; col++){
                 Position currentPosition = new Position(row, col);
-                SquareButton squareButton = new ButtonDrawer(cemetery[row][col],
+                SquareButton squareButton = new SquareButtonDrawer(cemetery[row][col],
                         currentPosition,
                         SquareButton.Panel.CEMETERY).makeButton();
                 add(squareButton);

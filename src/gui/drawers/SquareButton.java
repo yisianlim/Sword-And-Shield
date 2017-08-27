@@ -3,11 +3,9 @@ package gui.drawers;
 import gui.views.PrimaryView;
 import model.Position;
 import model.piece.*;
-import model.player.Player;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 
 /**
  * SquareButton keeps all the information needed when it is laid out on GameView to the user.
@@ -44,17 +42,20 @@ public class SquareButton extends JButton {
     private Panel panelType;
 
     /**
-     * Flag on whether this button should be highlighted or not.
+     * Flag on whether this button should be selected or not.
      */
-    private boolean highlighted;
+    private boolean selected;
 
+    /**
+     * Flag on whether this button have been moved or not.
+     */
     private boolean moved;
 
     public SquareButton(Piece piece, Position position, Panel panelType){
         this.position = position;
         this.piece = piece;
         this.panelType = panelType;
-        this.highlighted = false;
+        this.selected = false;
         this.moved = false;
     }
 
@@ -65,7 +66,7 @@ public class SquareButton extends JButton {
         int width = PrimaryView.getPreferredIconSize().width;
         int height = PrimaryView.getPreferredIconSize().height;
 
-        if(highlighted){
+        if(selected){
             g.setColor(new Color(163,12,232,100));
             g.fillRect(0,0, width, height);
         }
@@ -76,6 +77,11 @@ public class SquareButton extends JButton {
         }
     }
 
+    /**
+     * Check if it is Yellow PlayerPiece.
+     * @return
+     *      true if the Piece binded to this SquareButton is Yellow's PlayerPiece.
+     */
     public boolean isYellow(){
         if(piece instanceof PlayerPiece){
             return ((PlayerPiece) piece).yellowPlayer();
@@ -83,6 +89,11 @@ public class SquareButton extends JButton {
         return false;
     }
 
+    /**
+     * Check if it is Green PlayerPiece.
+     * @return
+     *      true if the Piece binded to this SquareButton is Green's PlayerPiece.
+     */
     public boolean isGreen(){
         if(piece instanceof PlayerPiece){
             return ((PlayerPiece) piece).greenPlayer();
@@ -90,12 +101,12 @@ public class SquareButton extends JButton {
         return false;
     }
 
-    public void flagUnavailable() {
+    public void flagMoved() {
         this.moved = true;
     }
 
-    public void highlight() {
-        this.highlighted = true;
+    public void flagSelected() {
+        this.selected = true;
     }
 
     public Position getPosition(){
