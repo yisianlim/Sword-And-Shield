@@ -177,6 +177,15 @@ public class Cemetery {
     }
 
     /**
+     * Return how many pieces have landed in the cemetery.
+     * @return
+     *      Number of Pieces in the cemetery.
+     */
+    public int getDeadPiecesCount(){
+        return cemetery.size();
+    }
+
+    /**
      * Deep clone the Cemetery object.
      * @return
      *      Cloned Cemetery.

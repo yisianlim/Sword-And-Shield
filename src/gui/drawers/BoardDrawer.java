@@ -7,6 +7,7 @@ import model.Game;
 import model.Position;
 
 import javax.swing.*;
+import javax.swing.plaf.LayerUI;
 import java.awt.*;
 
 /**
@@ -19,23 +20,34 @@ public class BoardDrawer extends JPanel {
      */
     private Game gameModel;
 
+    /**
+     * Dimension of the board.
+     */
+    private int width;
+    private int height;
+
     public BoardDrawer(Game gameModel){
         this.gameModel = gameModel;
+
+        // Calculate the dimension of the board based on the size of the PrimaryView panel.
+        this.width = (int) (PrimaryView.BOARD_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
+        this.height = (int) (PrimaryView.BOARD_HEIGHT_RATIO * PrimaryView.getPrimaryViewHeight());
     }
 
     /**
      * Read the board of the game and render the all the graphical assets of the board
-     * onto the JPanel.
+     * onto the JLayeredPane.
      * @return
-     *      Rendered JPanel based on the gameModel's board.
+     *      Rendered JLayeredPane based on the gameModel's board.
      */
     public JPanel createBoard(){
-        // Calculate the dimension of the board based on the size of the PrimaryView panel.
-        int boardWidth = (int) (PrimaryView.BOARD_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
-        int boardHeight = (int) (PrimaryView.BOARD_HEIGHT_RATIO * PrimaryView.getPrimaryViewHeight());
-        setPreferredSize(new Dimension(boardWidth,boardHeight));
+        setPreferredSize(new Dimension(width, height));
 
-        setLayout(new GridLayout(10,10));
+        JPanel boardPanel = new JPanel();
+        boardPanel.setPreferredSize(new Dimension(width, height));
+        boardPanel.setBounds(0,0, width, height);
+
+        boardPanel.setLayout(new GridLayout(10,10));
         Board gameBoard = gameModel.getBoard();
 
         // Create a custom, responsive SquareButton for each Piece in gameBoard.
@@ -67,10 +79,20 @@ public class BoardDrawer extends JPanel {
                 squareButton.addActionListener(GameView.boardController);
 
                 // Finally, add the SquareButton assets into the JPanel.
-                add(squareButton);
+                boardPanel.add(squareButton);
             }
         }
+
+        // Add the board panel to the JLayered pane.
+        add(boardPanel, new Integer(0));
         return this;
+    }
+
+    public JLayer createGameOverBoard(){
+        createBoard();
+        LayerUI<JPanel> boardLayerUI = new BoardLayerUI();
+        JLayer<JPanel> jPanelJLayer = new JLayer<>(this, boardLayerUI);
+        return jPanelJLayer;
     }
 
 }

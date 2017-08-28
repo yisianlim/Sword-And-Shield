@@ -92,12 +92,20 @@ public class Game extends Observable {
     private int warning;
 
     /**
+     * Start and end time of the game used to determine how long the game was played.
+     */
+    private long startTime;
+    private long endTime;
+
+
+    /**
      * Construct a new game from a given starting createBoard.
      *
      * @param b
      */
     public Game(Board b) {
         setupPlayers();
+        this.startTime = System.currentTimeMillis();
         this.gamePhase = Phase.DISPLAY;
         this.board = b;
         this.gameOver = false;
@@ -196,6 +204,7 @@ public class Game extends Observable {
         if(!commandManager.isUndoAvailable()){
             throw new IllegalArgumentException("There are no more commands to undo");
         }
+        currentPlayer.increaseUndo();
         commandManager.undo();
     }
 
@@ -783,13 +792,38 @@ public class Game extends Observable {
      * The game is finally won by the currentPlayer. Set the gameOver flag to true and update the winner.
      */
     public void playerHasWon(){
+        endTime = System.currentTimeMillis();
         gameOver = true;
         winner = currentPlayer;
+        setStatus("Game over");
     }
 
     public void playerHasSurrender(){
+        endTime = System.currentTimeMillis();
         gameOver = true;
         winner = currentPlayer instanceof GreenPlayer ? getYellowPlayer() : getGreenPlayer();
+        setStatus("Game over");
+    }
+
+    public String timeTaken(){
+        long timeElapsed = endTime - startTime;
+        int minutes = (int)((timeElapsed/1000) / 60);
+        int seconds = (int)((timeElapsed/1000) % 60);
+        return minutes + " minutes and " + seconds + " seconds";
+    }
+
+    public String undoMoves(){
+        String s = "Green player have used undo " + getGreenPlayer().getUndoMoves() + " times\n";
+        s += "Yellow player have used undo " + getYellowPlayer().getUndoMoves() + " times";
+        return s;
+    }
+
+    public String moves(){
+        return moves + " moves";
+    }
+
+    public String deadPieces(){
+        return "Number of pieces died: " + cemetery.getDeadPiecesCount();
     }
 
     /**

@@ -77,10 +77,19 @@ public class Controller implements ActionListener {
                 // Update the game to set the winner
                 // Notify the players of the winner with a dialog.
                 gameModel.playerHasSurrender();
-
-                //
-                Dialogs.gameOverDialog("Congratulations! " + gameModel.getWinner() + " player has won!");
+                Dialogs.gameOverDialog(
+                        getStatistics(),
+                        gameModel.getWinner()
+                );
         }
+    }
+
+    public String getStatistics(){
+        String statistics = "Number of moves was " + gameModel.moves() + "\n";
+        statistics += "Time taken to play was " + gameModel.timeTaken() + "\n";
+        statistics += gameModel.undoMoves() + "\n";
+        statistics += gameModel.deadPieces();
+        return statistics;
     }
 
 }

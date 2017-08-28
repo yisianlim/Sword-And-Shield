@@ -44,7 +44,7 @@ public class FacePiece extends Piece {
                 PrimaryView.getPreferredIconSize().width > 0 ? PrimaryView.getPreferredIconSize().width : 1,
                 PrimaryView.getPreferredIconSize().height > 0 ? PrimaryView.getPreferredIconSize().height : 1,
                 java.awt.Image.SCALE_SMOOTH);
-
+        squareButton.setBackground(Color.BLACK);
         squareButton.setIcon(new ImageIcon(img));
         squareButton.setOpaque(false);
         squareButton.setBorderPainted(false);

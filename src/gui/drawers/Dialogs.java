@@ -17,10 +17,10 @@ public class Dialogs {
      * @param msg
      *          Message to be displayed to the user.
      */
-    public static void gameOverDialog(String msg){
+    public static void gameOverDialog(String msg, String winner){
         String[] options = {"OK"};
 
-        int choice = JOptionPane.showOptionDialog(null, msg, "Game Over",
+        int choice = JOptionPane.showOptionDialog(null, msg, winner + " player won!",
                 JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
         if(choice == 0){
             Main.newGame();

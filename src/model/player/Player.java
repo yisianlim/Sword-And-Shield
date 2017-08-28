@@ -50,6 +50,13 @@ public abstract class Player {
      */
     public Set<PlayerPiece> piecesInBoard;
 
+    private int playerMoves;
+
+    /**
+     * Number of times the player have undo.
+     */
+    private int undoMoves;
+
     /**
      * Game that the Player is currently dealing with.
      */
@@ -126,6 +133,17 @@ public abstract class Player {
 
     public boolean isYellow(){
         return playerName.equals("Yellow");
+    }
+
+    /**
+     * Increment the undoMoves.
+     */
+    public void increaseUndo(){
+        undoMoves++;
+    }
+
+    public int getUndoMoves(){
+        return undoMoves;
     }
 
 }
