@@ -31,8 +31,6 @@ public class GameView extends JPanel {
      * UI elements
      */
     private JToolBar toolbar;
-    private JPanel displayBoard;
-    private JLayer gameOverBoard;
     private JPanel greenPanel, yellowPanel, greenCemetery, yellowCemetery;
     private JSplitPane leftPane, rightPane, middlePane, topPane;
 
@@ -55,7 +53,7 @@ public class GameView extends JPanel {
 
         middlePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         middlePane.setTopComponent(topPane);
-        middlePane.setBottomComponent(displayBoard);
+        middlePane.setBottomComponent(createDisplayBoard());
 
         rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         rightPane.setTopComponent(yellowPanel);
@@ -150,8 +148,6 @@ public class GameView extends JPanel {
     }
 
     private void createPanels(){
-        this.gameOverBoard = createGameOverBoard();
-        this.displayBoard = createDisplayBoard();
         this.greenPanel = createGreenPanel();
         this.yellowPanel = createYellowPanel();
         this.yellowCemetery = createYellowCemetery();
@@ -171,10 +167,10 @@ public class GameView extends JPanel {
         middlePane.setTopComponent(topPane);
 
         if(gameModel.gameOver()){
-            middlePane.setBottomComponent(gameOverBoard);
+            middlePane.setBottomComponent(createGameOverBoard());
         }
         else{
-            middlePane.setBottomComponent(displayBoard);
+            middlePane.setBottomComponent(createDisplayBoard());
         }
 
         rightPane.setTopComponent(yellowPanel);

@@ -90,7 +90,7 @@ public class BoardDrawer extends JPanel {
 
     public JLayer createGameOverBoard(){
         createBoard();
-        LayerUI<JPanel> boardLayerUI = new BoardLayerUI();
+        LayerUI<JPanel> boardLayerUI = new BoardLayerUI(gameModel);
         JLayer<JPanel> jPanelJLayer = new JLayer<>(this, boardLayerUI);
         return jPanelJLayer;
     }

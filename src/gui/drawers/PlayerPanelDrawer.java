@@ -65,7 +65,6 @@ public class PlayerPanelDrawer extends JPanel {
                 squareButton.addActionListener(GameView.playerPanelController);
                 add(squareButton);
             }
-
         } else {
             // Display all the PlayerPiece available in player's hand.
             setLayout(new GridLayout(4, 6, 10, 10));

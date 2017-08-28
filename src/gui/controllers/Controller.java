@@ -79,7 +79,7 @@ public class Controller implements ActionListener {
                 gameModel.playerHasSurrender();
                 Dialogs.gameOverDialog(
                         getStatistics(),
-                        gameModel.getWinner()
+                        gameModel.getWinnerName()
                 );
         }
     }

@@ -672,7 +672,6 @@ public class Game extends Observable {
             switch(gamePhase){
                 case DISPLAY:
                     resetFuture();
-                    System.out.println("setting warning to 0");
                     warning = 0;
                     if(future.isEmpty()) gamePhase = FINAL;
                     else gamePhase = ACTION;
@@ -831,8 +830,17 @@ public class Game extends Observable {
      * @return
      *      String containing the name of the winning player.
      */
-    public String getWinner(){
+    public String getWinnerName(){
         return winner.getName();
+    }
+
+    /**
+     * Return the winning player.
+     * @return
+     *      Player of the winning player.
+     */
+    public Player getWinner(){
+        return winner;
     }
 
 
