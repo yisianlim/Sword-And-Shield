@@ -17,6 +17,8 @@ import java.util.Observer;
  */
 public class PrimaryView extends JComponent implements Observer {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Dimension ratios and constant for each panels.
      */
@@ -27,8 +29,6 @@ public class PrimaryView extends JComponent implements Observer {
     public static final double BOARD_WIDTH_RATIO = 0.375;
     public static final double BOARD_HEIGHT_RATIO = 0.8;
     public static final Dimension MINIMUM_DIMENSION = new Dimension(700,400);
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * Model of the GUI.
