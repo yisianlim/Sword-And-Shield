@@ -23,6 +23,9 @@ import static model.Game.Phase.FINAL;
  */
 public class PlayerPanelController implements ActionListener {
 
+    /**
+     * Model of the GUI.
+     */
     private Game gameModel;
 
     public PlayerPanelController(Game g) {
@@ -78,7 +81,7 @@ public class PlayerPanelController implements ActionListener {
                 break;
 
             case TRAINING:
-                // Get the selected piece by the player during CREATION_SHELF stage.
+                // Get the selected piece by the player.
                 PlayerPiece playerPiece = gameModel
                         .getCurrentPlayer()
                         .hand
@@ -86,7 +89,6 @@ public class PlayerPanelController implements ActionListener {
 
                 // Create the selected piece
                 gameModel.createPiece(playerPiece.getLetter(), playerPiece.getRotation());
-                gameModel.setStatus("Created");
                 break;
         }
     }

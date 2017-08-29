@@ -66,11 +66,13 @@ public class SquareButton extends JButton {
         int width = PrimaryView.getPreferredIconSize().width;
         int height = PrimaryView.getPreferredIconSize().height;
 
+        // If the Piece is selected, then we draw highlight it with a purple alpha layer.
         if(selected){
             g.setColor(new Color(163,12,232,100));
             g.fillRect(0,0, width, height);
         }
 
+        // If the Piece has been moved, then we draw highlight it with a red alpha layer.
         if(moved){
             g.setColor(new Color(255,0,0,100));
             g.fillRect(0,0, width, height);

@@ -15,7 +15,7 @@ public class Main {
     }
 
     /**
-     * Called to restart/start a new game
+     * Called to start a new game.
      */
     public static void newGame(){
         PrimaryView.restartGame();

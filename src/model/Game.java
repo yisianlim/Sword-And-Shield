@@ -104,6 +104,11 @@ public class Game extends Observable {
      * @param b
      */
     public Game(Board b) {
+        reset(b);
+    }
+
+    public void reset(Board b){
+        this.moves = 0;
         setupPlayers();
         this.startTime = System.currentTimeMillis();
         this.gamePhase = Phase.DISPLAY;
@@ -161,6 +166,9 @@ public class Game extends Observable {
      */
     public void createPiece(String letter, int rotation){
         commandManager.executeCommand(new CreatePieceCommand(this, letter, rotation));
+
+        // Notify and update the observer.
+        setStatus("Created");
     }
 
     /**
@@ -187,6 +195,12 @@ public class Game extends Observable {
      */
     public void movePiece(String letter, Direction direction, boolean dominant){
         commandManager.executeCommand(new MovePieceCommand(this, letter, direction, dominant));
+
+        // Reset the selected square.
+        clearSelectedSquareInBoard();
+
+        // Notify and update the observer.
+        setStatus("Moved");
     }
 
     /**
@@ -792,6 +806,7 @@ public class Game extends Observable {
      */
     public void playerHasWon(){
         endTime = System.currentTimeMillis();
+        gamePhase = DISPLAY;
         gameOver = true;
         winner = currentPlayer;
         setStatus("Game over");
@@ -799,6 +814,7 @@ public class Game extends Observable {
 
     public void playerHasSurrender(){
         endTime = System.currentTimeMillis();
+        gamePhase = DISPLAY;
         gameOver = true;
         winner = currentPlayer instanceof GreenPlayer ? getYellowPlayer() : getGreenPlayer();
         setStatus("Game over");

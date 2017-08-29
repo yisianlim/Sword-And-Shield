@@ -11,6 +11,9 @@ import java.awt.event.ActionListener;
  */
 public class FunctionalAction extends AbstractAction {
 
+    /**
+     * ActionListener for the AbstractAction object.
+     */
     private ActionListener actionListener;
 
     public FunctionalAction(ActionListener actionListener){

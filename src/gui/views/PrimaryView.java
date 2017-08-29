@@ -13,6 +13,7 @@ import java.util.Observer;
 
 /**
  * This is the primary view which contains other views in its CardLayout such as the MainMenu, InfoView and GameView.
+ * Using its CardLayout, we can determine what views to show to the user without killing JPanels.
  */
 public class PrimaryView extends JComponent implements Observer {
 
@@ -99,10 +100,12 @@ public class PrimaryView extends JComponent implements Observer {
     public static void restartGame(){
         // Reset the gameModel to a new game.
         Board board = new Board();
-        gameModel = new Game(board);
+        gameModel.reset(board);
 
         // Update the gameView inside primaryView CardLayouts.
+        controller = new Controller(gameModel);
         gameView = new GameView(controller, gameModel);
+        primaryView.remove(gameView);
         primaryView.add(gameView, "Game");
 
         // Display the main menu.

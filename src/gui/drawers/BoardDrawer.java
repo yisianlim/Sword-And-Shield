@@ -11,7 +11,7 @@ import javax.swing.plaf.LayerUI;
 import java.awt.*;
 
 /**
- * BoardDrawer handles all the logic of drawing the board.
+ * BoardDrawer handles all the logic of drawing the board (both display and game over board).
  */
 public class BoardDrawer extends JPanel {
 
@@ -26,8 +26,14 @@ public class BoardDrawer extends JPanel {
     private int width;
     private int height;
 
-    public BoardDrawer(Game gameModel){
+    /**
+     * View that we draw this board on.
+     */
+    private GameView gameView;
+
+    public BoardDrawer(Game gameModel, GameView gameView){
         this.gameModel = gameModel;
+        this.gameView = gameView;
 
         // Calculate the dimension of the board based on the size of the PrimaryView panel.
         this.width = (int) (PrimaryView.BOARD_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
@@ -40,14 +46,12 @@ public class BoardDrawer extends JPanel {
      * @return
      *      Rendered JLayeredPane based on the gameModel's board.
      */
-    public JPanel createBoard(){
+    public JComponent createBoard(){
+
         setPreferredSize(new Dimension(width, height));
+        setBounds(0,0, width, height);
 
-        JPanel boardPanel = new JPanel();
-        boardPanel.setPreferredSize(new Dimension(width, height));
-        boardPanel.setBounds(0,0, width, height);
-
-        boardPanel.setLayout(new GridLayout(10,10));
+        setLayout(new GridLayout(10,10));
         Board gameBoard = gameModel.getBoard();
 
         // Create a custom, responsive SquareButton for each Piece in gameBoard.
@@ -65,8 +69,8 @@ public class BoardDrawer extends JPanel {
                 // and bind the appropriate listeners from boardController.
                 if(gameBoard.selectedSquare(squareButton.getPosition())){
                     squareButton.setPanelType(SquareButton.Panel.BOARD_SELECTED);
-                    squareButton.addMouseListener(GameView.boardController);
-                    GameView.boardController.bindWASDKey(squareButton);
+                    squareButton.addMouseListener(gameView.boardController);
+                    gameView.boardController.bindWASDKey(squareButton);
                     squareButton.flagSelected();
                 }
 
@@ -76,23 +80,30 @@ public class BoardDrawer extends JPanel {
                 }
 
                 // Bind all Pieces in the board with an ActionListener.
-                squareButton.addActionListener(GameView.boardController);
+                squareButton.addActionListener(gameView.boardController);
 
                 // Finally, add the SquareButton assets into the JPanel.
-                boardPanel.add(squareButton);
+                add(squareButton);
             }
         }
 
-        // Add the board panel to the JLayered pane.
-        add(boardPanel, new Integer(0));
-        return this;
-    }
+        if(gameModel.gameOver()){
+            // If the game is over, we decorate the board with a grey layer.
+            BoardLayerUI boardLayerUI = new BoardLayerUI(gameModel);
+            JLayer<JPanel> jPanelJLayer = new JLayer<>(this, boardLayerUI);
 
-    public JLayer createGameOverBoard(){
-        createBoard();
-        LayerUI<JPanel> boardLayerUI = new BoardLayerUI(gameModel);
-        JLayer<JPanel> jPanelJLayer = new JLayer<>(this, boardLayerUI);
-        return jPanelJLayer;
-    }
+            // Animation of the winning FacePiece being less greyed out over a period of time.
+            new Timer(100,
+                    e -> {
+                        boardLayerUI.increaseDist();
+                        repaint();
+                    }
+            ).start();
 
+            return jPanelJLayer;
+        } else {
+            // Otherwise, we just return the board itself.
+            return this;
+        }
+    }
 }

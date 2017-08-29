@@ -29,9 +29,15 @@ public class PlayerPanelDrawer extends JPanel {
      */
     private Game gameModel;
 
-    public PlayerPanelDrawer(Player player, Game game) {
+    /**
+     * View that the PlayerPanel is drawn on.
+     */
+    private GameView gameView;
+
+    public PlayerPanelDrawer(Player player, Game game, GameView gameView) {
         this.player = player;
         this.gameModel = game;
+        this.gameView = gameView;
     }
 
     /**
@@ -41,7 +47,7 @@ public class PlayerPanelDrawer extends JPanel {
      *      - Other phases: Display all the PlayerPiece in the player's hand.
      * @return
      */
-    public PlayerPanelDrawer createPanel(){
+    public JComponent createPanel(){
         Game.Phase phase = gameModel.getGamePhase();
 
         int panelWidth = (int) (PrimaryView.PANEL_WIDTH_RATIO * PrimaryView.getPrimaryViewWidth());
@@ -62,9 +68,23 @@ public class PlayerPanelDrawer extends JPanel {
                 SquareButton squareButton = new SquareButtonDrawer(current,
                         new Position(0, i),
                         SquareButton.Panel.TRAINING).makeButton();
-                squareButton.addActionListener(GameView.playerPanelController);
+                squareButton.addActionListener(gameView.playerPanelController);
                 add(squareButton);
             }
+
+            PlayerPanelLayerUI playerPanelLayerUI = new PlayerPanelLayerUI();
+            JLayer<JPanel> jPanelJLayer = new JLayer<>(this, playerPanelLayerUI);
+
+            // To create a smooth transition when the panel switches.
+            new Timer(5,
+                    e -> {
+                        playerPanelLayerUI.decreaseAlpha();
+                        repaint();
+                    }
+            ).start();
+
+            return jPanelJLayer;
+
         } else {
             // Display all the PlayerPiece available in player's hand.
             setLayout(new GridLayout(4, 6, 10, 10));
@@ -82,13 +102,14 @@ public class PlayerPanelDrawer extends JPanel {
                             currentPosition,
                             SquareButton.Panel.CREATION_SHELF)
                             .makeButton();
-                    squareButton.addActionListener(GameView.playerPanelController);
+                    squareButton.addActionListener(gameView.playerPanelController);
                     add(squareButton);
                 }
             }
+            return this;
         }
-        return this;
     }
+
 
     /**
      * Returns true if the game's current player and the player we are looking at are the same player

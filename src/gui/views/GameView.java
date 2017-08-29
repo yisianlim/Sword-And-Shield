@@ -3,7 +3,10 @@ package gui.views;
 import gui.controllers.BoardController;
 import gui.controllers.Controller;
 import gui.controllers.PlayerPanelController;
-import gui.drawers.*;
+import gui.drawers.BoardDrawer;
+import gui.drawers.CemeteryDrawer;
+import gui.drawers.Dialogs;
+import gui.drawers.PlayerPanelDrawer;
 import model.Game;
 import resources.SoundResources;
 
@@ -18,9 +21,9 @@ public class GameView extends JPanel {
     /**
      * Controller of the GUI.
      */
-    public static Controller controller;
-    public static PlayerPanelController playerPanelController;
-    public static BoardController boardController;
+    public Controller controller;
+    public PlayerPanelController playerPanelController;
+    public BoardController boardController;
 
     /**
      * Model of the GUI.
@@ -31,7 +34,8 @@ public class GameView extends JPanel {
      * UI elements
      */
     private JToolBar toolbar;
-    private JPanel greenPanel, yellowPanel, greenCemetery, yellowCemetery;
+    private JComponent greenPanel, yellowPanel, board;
+    private JPanel greenCemetery, yellowCemetery;
     private JSplitPane leftPane, rightPane, middlePane, topPane;
 
     public GameView(Controller c, Game g) {
@@ -53,7 +57,7 @@ public class GameView extends JPanel {
 
         middlePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         middlePane.setTopComponent(topPane);
-        middlePane.setBottomComponent(createDisplayBoard());
+        middlePane.setBottomComponent(board);
 
         rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         rightPane.setTopComponent(yellowPanel);
@@ -107,14 +111,9 @@ public class GameView extends JPanel {
      * @return
      *      modified JPanel of createDisplayBoard.
      */
-    private JPanel createDisplayBoard(){
-        BoardDrawer board = new BoardDrawer(gameModel);
+    private JComponent createBoard(){
+        BoardDrawer board = new BoardDrawer(gameModel, this);
         return board.createBoard();
-    }
-
-    private JLayer createGameOverBoard(){
-        BoardDrawer board = new BoardDrawer(gameModel);
-        return board.createGameOverBoard();
     }
 
     /**
@@ -122,8 +121,8 @@ public class GameView extends JPanel {
      * @return
      *      Required top JPanel for top component of greenPlayerPane.
      */
-    private JPanel createGreenPanel(){
-        PlayerPanelDrawer green = new PlayerPanelDrawer(gameModel.getGreenPlayer(), gameModel);
+    private JComponent createGreenPanel(){
+        PlayerPanelDrawer green = new PlayerPanelDrawer(gameModel.getGreenPlayer(), gameModel, this);
         return green.createPanel();
     }
 
@@ -132,22 +131,36 @@ public class GameView extends JPanel {
      * @return
      *      Required top JPanel for top component of yellowPlayerPane.
      */
-    private JPanel createYellowPanel() {
-        PlayerPanelDrawer yellow = new PlayerPanelDrawer(gameModel.getYellowPlayer(), gameModel);
+    private JComponent createYellowPanel() {
+        PlayerPanelDrawer yellow = new PlayerPanelDrawer(gameModel.getYellowPlayer(), gameModel, this);
         return yellow.createPanel();
     }
 
+    /**
+     * createGreenCemetery returns the JPanel for GreenPlayer's cemetery.
+     * @return
+     *      Required JPanel for the green player.
+     */
     private JPanel createGreenCemetery() {
         CemeteryDrawer green = new CemeteryDrawer(gameModel.getGreenPlayer(), gameModel);
         return green.createCemetery();
     }
 
+    /**
+     * createYellowCemetery returns the JPanel for YellowPlayer's cemetery.
+     * @return
+     *      Required JPanel for the yellow player.
+     */
     private JPanel createYellowCemetery() {
         CemeteryDrawer yellow = new CemeteryDrawer(gameModel.getYellowPlayer(), gameModel);
         return yellow.createCemetery();
     }
 
+    /**
+     * Initialise all of the panels in GameView.
+     */
     private void createPanels(){
+        this.board = createBoard();
         this.greenPanel = createGreenPanel();
         this.yellowPanel = createYellowPanel();
         this.yellowCemetery = createYellowCemetery();
@@ -158,20 +171,16 @@ public class GameView extends JPanel {
      * Update the components in GameView after a change in the state of gameModel have been modified.
      */
     private void update(){
+        // Warn player if needed.
         warnPlayer();
+
         topPane.setBottomComponent(status());
 
         leftPane.setTopComponent(greenPanel);
         leftPane.setBottomComponent(greenCemetery);
 
         middlePane.setTopComponent(topPane);
-
-        if(gameModel.gameOver()){
-            middlePane.setBottomComponent(createGameOverBoard());
-        }
-        else{
-            middlePane.setBottomComponent(createDisplayBoard());
-        }
+        middlePane.setBottomComponent(board);
 
         rightPane.setTopComponent(yellowPanel);
         rightPane.setBottomComponent(yellowCemetery);

@@ -207,21 +207,6 @@ public class GameTest {
         assertTrue(game.getGamePhase().equals(Game.Phase.FINAL));
     }
 
-    /**
-     * Undo Pass of CREATION phase should go back to CREATION phase.
-     */
-    @Test
-    public void test_Pass_ChangePhase_Undo(){
-        Board board = new Board();
-        Game game = new Game(board);
-        Player player = new GreenPlayer(game);
-        game.setCurrentPlayer(player);
-        game.pass();
-        game.undo();
-        assertTrue(game.getGamePhase().equals(Game.Phase.CREATE));
-
-    }
-
   /**
    * Test if undo move is successful.
    */

@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 
 /**
  * Controller handles all the actions that should be after any button click in all views
- * (except for SquareButton which needs to be handled separately as it is more complex).
+ * (except for SquareButton which needs to be handled separately in its respective panels).
  */
 public class Controller implements ActionListener {
 

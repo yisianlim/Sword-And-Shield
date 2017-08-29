@@ -77,8 +77,6 @@ public class BoardController implements ActionListener, MouseListener {
 
         // Move the piece in the board and update the game state accordingly.
         gameModel.movePiece(toMove.getLetter(), headedDirection, true);
-        gameModel.clearSelectedSquareInBoard();
-        gameModel.setStatus("Moved");
     }
 
     /**
@@ -145,23 +143,15 @@ public class BoardController implements ActionListener, MouseListener {
         // Binds the action value to a FunctionalAction in order to execute the action.
         squareButton.getActionMap().put("UpAction", new FunctionalAction(ae -> {
             gameModel.movePiece(toMove.getLetter(), Player.Direction.UP, true);
-            gameModel.clearSelectedSquareInBoard();
-            gameModel.setStatus("Moved");
         }));
         squareButton.getActionMap().put("LeftAction", new FunctionalAction(ae -> {
             gameModel.movePiece(toMove.getLetter(), Player.Direction.LEFT, true);
-            gameModel.clearSelectedSquareInBoard();
-            gameModel.setStatus("Moved");
         }));
         squareButton.getActionMap().put("DownAction", new FunctionalAction(ae -> {
             gameModel.movePiece(toMove.getLetter(), Player.Direction.DOWN, true);
-            gameModel.clearSelectedSquareInBoard();
-            gameModel.setStatus("Moved");
         }));
         squareButton.getActionMap().put("RightAction", new FunctionalAction(ae -> {
             gameModel.movePiece(toMove.getLetter(), Player.Direction.RIGHT, true);
-            gameModel.clearSelectedSquareInBoard();
-            gameModel.setStatus("Moved");
         }));
     }
 

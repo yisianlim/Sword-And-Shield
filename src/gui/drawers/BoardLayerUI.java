@@ -8,6 +8,10 @@ import javax.swing.plaf.LayerUI;
 import java.awt.*;
 import java.awt.geom.Point2D;
 
+/**
+ * BoardLayerUI serves as a helper class which extends LayerUI
+ * to render the board with a grey layer of radial gradient paint when the game is over.
+ */
 public class BoardLayerUI extends LayerUI<JPanel> {
 
     /**
@@ -15,17 +19,38 @@ public class BoardLayerUI extends LayerUI<JPanel> {
      */
     private Game gameModel;
 
-    public BoardLayerUI(Game game){
-        this.gameModel = game;
-    }
-
+    /**
+     * Colors for layer.
+     */
     private static final Color GRAY = new Color(127,127,127,200);
     private static final Color TRANSPARENT = new Color(255,255,255,0);
+
+    /**
+     * Ratio and position constants.
+     */
     private static final double GREEN_POSITION_RATIO = 0.15;
     private static final double YELLOW_POSITION_RATIO = 0.85;
     private static final double FACE_IMAGE_SIZE_RATIO = 0.25;
-    private static final int CORNER = 100;
+    private static final int CORNER = 150;
 
+    /**
+     * Distance from the center for the RadialGradientPaint.
+     */
+    private float dist1, dist2;
+
+    public BoardLayerUI(Game game){
+        this.gameModel = game;
+        this.dist1 = 0.01f;
+        this.dist2 = 0.02f;
+    }
+
+    /**
+     * increaseDist helps to make the area of the winning face being less greyed out by increasing the dist.
+     */
+    public void increaseDist(){
+        dist1 = dist1 < 0.3f ? dist1 + 0.01f : dist1;
+        dist2 = dist2 < 0.5f ? dist1 + 0.01f : dist2;
+    }
 
     @Override
     public void paint(Graphics g, JComponent c) {
@@ -60,19 +85,21 @@ public class BoardLayerUI extends LayerUI<JPanel> {
             center = new Point2D.Float(yellowX + CORNER, yellowY + CORNER);
         }
 
+        // Finally, we create the specified RadialGradientPaint.
         float radius = w;
-        // 0 , 0.3 , 0.5 , 1
-        float[] dist = {0f, 0.3f, 0.5f, 1f};
+        float[] dist = {0f, dist1, dist2, 1f};
         Color[] colors = {
                 TRANSPARENT,
                 TRANSPARENT,
                 GRAY,
                 GRAY};
-        RadialGradientPaint p =
-                new RadialGradientPaint(center, radius, center,
-                        dist, colors,
-                        MultipleGradientPaint.CycleMethod.NO_CYCLE);
+        RadialGradientPaint p = new RadialGradientPaint(
+                center, radius, center,
+                dist, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE
+        );
         g2.setPaint(p);
+
+        // Draw the grey layer.
         g2.fillOval(-CORNER,-CORNER, 900, 900);
         g2.dispose();
     }
