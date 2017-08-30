@@ -130,7 +130,13 @@ public class BoardController implements ActionListener, MouseListener {
      *          SquareButton to bind the WASD keys to.
      */
     public void bindWASDKey(SquareButton squareButton) {
-        PlayerPiece toMove = (PlayerPiece) gameModel.getBoard().getPiece(squareButton);
+        Piece piece = gameModel.getBoard().getPiece(squareButton);
+
+        // We only bind WASD key to a PlayerPiece.
+        if(!(piece instanceof PlayerPiece))
+            return;
+
+        PlayerPiece toMove = (PlayerPiece) piece;
 
         // Update the InputMap on the squareButton
         // Binds WASD keys to a specified action value.

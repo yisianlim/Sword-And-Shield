@@ -57,6 +57,10 @@ public class SquareButton extends JButton {
      */
     private int translateY;
     private long animStartTime;
+
+    /**
+     * Animation duration is about 2 seconds.
+     */
     private int animationDuration = 2000;
 
     public SquareButton(Piece piece, Position position, Panel panelType){
@@ -132,8 +136,10 @@ public class SquareButton extends JButton {
         this.panelType = panel;
     }
 
+    /**
+     * Set a timer to illustrate the demise of the PlayerPiece.
+     */
     public void fall(){
-        // Animation of the winning FacePiece being less greyed out over a period of time.
         new Timer(100,
                 e -> {
                     increaseTranslateY();
@@ -155,10 +161,11 @@ public class SquareButton extends JButton {
         }
         float fraction = (float)totalTime / animationDuration;
         fraction = Math.min(1.0f, fraction);
-        // This calculation will cause translateY to go from 0 to MAX_Y
-        // as the fraction goes from 0 to 1
+
+        // This calculation will cause translateY to go from 0 to boundary.
+        int boundary = PrimaryView.getPrimaryViewHeight()/2;
         if (fraction < .5f) {
-            translateY = (int)(600 * (2 * fraction));
+            translateY = (int)(boundary * (2 * fraction));
         }
     }
 
