@@ -9,9 +9,7 @@ import model.piece.PlayerPiece;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import static model.Game.Phase.ACTION;
-import static model.Game.Phase.CREATE;
-import static model.Game.Phase.FINAL;
+import static model.Game.Phase.*;
 
 /**
  * PlayerPanelController handles the user actions in the panels for both green and yellow players.

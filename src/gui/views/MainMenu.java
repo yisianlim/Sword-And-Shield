@@ -1,6 +1,6 @@
 package gui.views;
 
-import gui.controllers.Controller;
+import gui.controllers.ButtonController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,9 +11,9 @@ import java.awt.*;
 public class MainMenu extends JPanel{
 
     /**
-     * Controller of MainMenu view.
+     * ButtonController of MainMenu view.
      */
-    private Controller controller;
+    private ButtonController buttonController;
 
     /**
      * UI elements.
@@ -21,8 +21,8 @@ public class MainMenu extends JPanel{
     private JLabel title;
     private JButton begin, info, quit;
 
-    public MainMenu(Controller c){
-        this.controller = c;
+    public MainMenu(ButtonController c){
+        this.buttonController = c;
 
         // Setup the layouts.
         setLayout(new GridBagLayout());
@@ -38,9 +38,9 @@ public class MainMenu extends JPanel{
         quit = new JButton("Quit");
 
         // Add controllers.
-        begin.addActionListener(controller);
-        info.addActionListener(controller);
-        quit.addActionListener(controller);
+        begin.addActionListener(buttonController);
+        info.addActionListener(buttonController);
+        quit.addActionListener(buttonController);
 
         // Add buttons to this JPanel.
         add(title, gbc);

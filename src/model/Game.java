@@ -1,8 +1,12 @@
 package model;
 
+import gui.drawers.SquareButton;
 import model.command.Command;
 import model.command.CommandManager;
-import model.piece.*;
+import model.piece.EmptyPiece;
+import model.piece.FacePiece;
+import model.piece.Piece;
+import model.piece.PlayerPiece;
 import model.player.GreenPlayer;
 import model.player.Hand;
 import model.player.Player;
@@ -97,6 +101,11 @@ public class Game extends Observable {
     private long startTime;
     private long endTime;
 
+    /**
+     * PlayerPiece that just died in the previous move by the player. We use this to animate
+     * the demise of the piece in the GUI.
+     */
+    private List<PlayerPiece> newlyDead;
 
     /**
      * Construct a new game from a given starting createBoard.
@@ -165,6 +174,7 @@ public class Game extends Observable {
      *            rotation of the PlayerPiece input by the user.
      */
     public void createPiece(String letter, int rotation){
+        clearNewlyDead();
         commandManager.executeCommand(new CreatePieceCommand(this, letter, rotation));
 
         // Notify and update the observer.
@@ -180,6 +190,7 @@ public class Game extends Observable {
      *          angle of rotation.
      */
     public void rotatePiece(String letter, int rotation){
+        clearNewlyDead();
         commandManager.executeCommand(new RotatePieceCommand(this, letter, rotation));
     }
 
@@ -194,6 +205,7 @@ public class Game extends Observable {
      *
      */
     public void movePiece(String letter, Direction direction, boolean dominant){
+        clearNewlyDead();
         commandManager.executeCommand(new MovePieceCommand(this, letter, direction, dominant));
 
         // Reset the selected square.
@@ -207,6 +219,7 @@ public class Game extends Observable {
      * Pass creating a PlayerPiece or pass the game to the next player.
      */
     public void pass(){
+        clearNewlyDead();
         commandManager.executeCommand(new PassCommand());
     }
 
@@ -215,6 +228,7 @@ public class Game extends Observable {
      * commandManager will check if there are any commands left before undo.
      */
     public void undo() {
+        clearNewlyDead();
         if(!commandManager.isUndoAvailable()){
             throw new IllegalArgumentException("There are no more commands to undo");
         }
@@ -344,6 +358,21 @@ public class Game extends Observable {
         setStatus("Error: " + message);
     }
 
+    /**
+     * Return true if there was a piece that just died. Used for sound effects.
+     * @return
+     */
+    public boolean pieceJustDied(){
+        return newlyDead != null && newlyDead.size() > 0;
+    }
+
+    /**
+     * Clear the newlyDead record.
+     */
+    public void clearNewlyDead(){
+        newlyDead = new ArrayList<>();
+    }
+
 
     /**
      * Return how many times have the user been warned of their invalid inputs.
@@ -356,6 +385,101 @@ public class Game extends Observable {
     public String getStatus(){
         return this.status;
     }
+
+    /**
+     * The game is finally won by the currentPlayer. Set the gameOver flag to true and update the winner.
+     */
+    public void playerHasWon(){
+        endTime = System.currentTimeMillis();
+        gamePhase = DISPLAY;
+        gameOver = true;
+        winner = currentPlayer;
+        setStatus("Game over");
+    }
+
+    public void playerHasSurrender(){
+        endTime = System.currentTimeMillis();
+        gamePhase = DISPLAY;
+        gameOver = true;
+        winner = currentPlayer instanceof GreenPlayer ? getYellowPlayer() : getGreenPlayer();
+        setStatus("Game over");
+    }
+
+    public String timeTaken(){
+        long timeElapsed = endTime - startTime;
+        int minutes = (int)((timeElapsed/1000) / 60);
+        int seconds = (int)((timeElapsed/1000) % 60);
+        return minutes + " minutes and " + seconds + " seconds";
+    }
+
+    public String undoMoves(){
+        String s = "Green player have used undo " + getGreenPlayer().getUndoMoves() + " times\n";
+        s += "Yellow player have used undo " + getYellowPlayer().getUndoMoves() + " times";
+        return s;
+    }
+
+    public String moves(){
+        return moves + " moves";
+    }
+
+    public String deadPieces(){
+        return "Number of pieces died: " + cemetery.getDeadPiecesCount();
+    }
+
+    /**
+     * Return the name of the winning player.
+     * @return
+     *      String containing the name of the winning player.
+     */
+    public String getWinnerName(){
+        return winner.getName();
+    }
+
+    /**
+     * Return the winning player.
+     * @return
+     *      Player of the winning player.
+     */
+    public Player getWinner(){
+        return winner;
+    }
+
+    /**
+     * Return true if there used to be a PlayerPiece in that position in the board.
+     * @param position
+     *          Position in the board.
+     * @return
+     *          true if there used to be a PlayerPiece
+     */
+    public boolean usedToHaveAPiece(Position position){
+        if(newlyDead == null) return false;
+        for(PlayerPiece p: newlyDead){
+            if(p.getPosition().getX() == position.getX() &&
+                    p.getPosition().getY() == position.getY()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Return a SquareButton of the PlayerPiece that used to be in the position of the
+     * board.
+     * @param position
+     *             Position of the board that used to have a PlayerPiece.
+     * @return
+     *              Corresponding SquareButton of the newly dead PlayerPiece.
+     */
+    public SquareButton getNewlyDead(Position position){
+        for(PlayerPiece p: newlyDead){
+            if(p.getPosition().getX() == position.getX() &&
+                    p.getPosition().getY() == position.getY()){
+                return p.createButton(position, SquareButton.Panel.BOARD_DISPLAY);
+            }
+        }
+        return null;
+    }
+
 
     /**
      * CreatePieceCommand class executes the create as well as undo the created.
@@ -521,6 +645,7 @@ public class Game extends Observable {
             // The game state is updated accordingly before finishing its execution.
             if(board.outOfBoard(new_position)) {
                 cemetery.add(pieceToMove);
+                newlyDead.add(pieceToMove);
                 currentPlayer.removeFromPiecesInBoard(pieceToMove);
                 removeFromFuture(pieceToMove);
 
@@ -784,6 +909,7 @@ public class Game extends Observable {
     public void eliminate(List<PlayerPiece> toEliminate) {
         for(PlayerPiece piece : toEliminate){
             cemetery.add(piece);
+            newlyDead.add(piece);
             currentPlayer.removeFromPiecesInBoard(piece);
             future.remove(piece);
             board.setSquare(piece.getPosition(), new EmptyPiece());
@@ -800,64 +926,4 @@ public class Game extends Observable {
     public void push(PlayerPiece toPush, Direction direction){
         new MovePieceCommand(this, toPush.getLetter(), direction, false).execute();
     }
-
-    /**
-     * The game is finally won by the currentPlayer. Set the gameOver flag to true and update the winner.
-     */
-    public void playerHasWon(){
-        endTime = System.currentTimeMillis();
-        gamePhase = DISPLAY;
-        gameOver = true;
-        winner = currentPlayer;
-        setStatus("Game over");
-    }
-
-    public void playerHasSurrender(){
-        endTime = System.currentTimeMillis();
-        gamePhase = DISPLAY;
-        gameOver = true;
-        winner = currentPlayer instanceof GreenPlayer ? getYellowPlayer() : getGreenPlayer();
-        setStatus("Game over");
-    }
-
-    public String timeTaken(){
-        long timeElapsed = endTime - startTime;
-        int minutes = (int)((timeElapsed/1000) / 60);
-        int seconds = (int)((timeElapsed/1000) % 60);
-        return minutes + " minutes and " + seconds + " seconds";
-    }
-
-    public String undoMoves(){
-        String s = "Green player have used undo " + getGreenPlayer().getUndoMoves() + " times\n";
-        s += "Yellow player have used undo " + getYellowPlayer().getUndoMoves() + " times";
-        return s;
-    }
-
-    public String moves(){
-        return moves + " moves";
-    }
-
-    public String deadPieces(){
-        return "Number of pieces died: " + cemetery.getDeadPiecesCount();
-    }
-
-    /**
-     * Return the name of the winning player.
-     * @return
-     *      String containing the name of the winning player.
-     */
-    public String getWinnerName(){
-        return winner.getName();
-    }
-
-    /**
-     * Return the winning player.
-     * @return
-     *      Player of the winning player.
-     */
-    public Player getWinner(){
-        return winner;
-    }
-
-
 }

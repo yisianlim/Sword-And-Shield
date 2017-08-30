@@ -1,6 +1,6 @@
 package gui.views;
 
-import gui.controllers.Controller;
+import gui.controllers.ButtonController;
 import model.Board;
 import model.Game;
 
@@ -36,15 +36,15 @@ public class PrimaryView extends JComponent implements Observer {
     private static Game gameModel;
 
     /**
-     * Controller of PrimaryView.
+     * ButtonController of PrimaryView.
      */
-    private static Controller controller;
+    private static ButtonController buttonController;
 
     /**
      * UI elements.
      */
-    private MainMenu mainMenu;
-    private InfoView infoView;
+    private static MainMenu mainMenu;
+    private static InfoView infoView;
     private static GameView gameView;
     private static JPanel primaryView;
     private static CardLayout viewCards;
@@ -58,11 +58,11 @@ public class PrimaryView extends JComponent implements Observer {
         gameModel = g;
         gameModel.addObserver(this);
 
-        controller = new Controller(gameModel);
+        buttonController = new ButtonController(gameModel);
 
-        mainMenu = new MainMenu(controller);
-        infoView = new InfoView(controller);
-        gameView = new GameView(controller, gameModel);
+        mainMenu = new MainMenu(buttonController);
+        infoView = new InfoView(buttonController);
+        gameView = new GameView(buttonController, gameModel);
 
         JFrame frame = new JFrame("Sword and Shield Game");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -103,8 +103,8 @@ public class PrimaryView extends JComponent implements Observer {
         gameModel.reset(board);
 
         // Update the gameView inside primaryView CardLayouts.
-        controller = new Controller(gameModel);
-        gameView = new GameView(controller, gameModel);
+        buttonController = new ButtonController(gameModel);
+        gameView = new GameView(buttonController, gameModel);
         primaryView.remove(gameView);
         primaryView.add(gameView, "Game");
 

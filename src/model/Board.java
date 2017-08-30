@@ -70,10 +70,6 @@ public class Board {
         return board[pos.getX()][pos.getY()];
     }
 
-    public Piece getSquare(int x, int y){
-        return board[x][y];
-    }
-
 
     /**
      * Check if the Position is out of the createBoard.

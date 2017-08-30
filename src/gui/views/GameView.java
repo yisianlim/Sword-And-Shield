@@ -1,7 +1,7 @@
 package gui.views;
 
 import gui.controllers.BoardController;
-import gui.controllers.Controller;
+import gui.controllers.ButtonController;
 import gui.controllers.PlayerPanelController;
 import gui.drawers.BoardDrawer;
 import gui.drawers.CemeteryDrawer;
@@ -19,9 +19,9 @@ import java.awt.*;
 public class GameView extends JPanel {
 
     /**
-     * Controller of the GUI.
+     * ButtonController of the GUI.
      */
-    public Controller controller;
+    public ButtonController buttonController;
     public PlayerPanelController playerPanelController;
     public BoardController boardController;
 
@@ -38,8 +38,8 @@ public class GameView extends JPanel {
     private JPanel greenCemetery, yellowCemetery;
     private JSplitPane leftPane, rightPane, middlePane, topPane;
 
-    public GameView(Controller c, Game g) {
-        this.controller = c;
+    public GameView(ButtonController c, Game g) {
+        this.buttonController = c;
         this.playerPanelController = new PlayerPanelController(g);
         this.boardController = new BoardController(g);
         this.gameModel = g;
@@ -93,10 +93,10 @@ public class GameView extends JPanel {
         JButton back = new JButton("Back");
 
         // Allow buttons to respond.
-        pass.addActionListener(controller);
-        undo.addActionListener(controller);
-        surrender.addActionListener(controller);
-        back.addActionListener(controller);
+        pass.addActionListener(buttonController);
+        undo.addActionListener(buttonController);
+        surrender.addActionListener(buttonController);
+        back.addActionListener(buttonController);
 
         // Add the buttons into the toolbar.
         toolbar.add(back);
@@ -174,6 +174,9 @@ public class GameView extends JPanel {
         // Warn player if needed.
         warnPlayer();
 
+        // Play sound effect if needed.
+        soundEffect();
+
         topPane.setBottomComponent(status());
 
         leftPane.setTopComponent(greenPanel);
@@ -185,6 +188,15 @@ public class GameView extends JPanel {
         rightPane.setTopComponent(yellowPanel);
         rightPane.setBottomComponent(yellowCemetery);
 
+    }
+
+    /**
+     * Play a sound effect if a PlayerPiece just died.
+     */
+    private void soundEffect() {
+        if(gameModel.pieceJustDied()){
+            beep(SoundResources.Sound.FALL);
+        }
     }
 
     /**

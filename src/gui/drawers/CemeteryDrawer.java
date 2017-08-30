@@ -47,7 +47,11 @@ public class CemeteryDrawer extends JPanel {
     public JPanel createCemetery(){
         setPreferredSize(new Dimension(width, height));
         setLayout(new GridLayout(4, 6, 10,10));
+
+        // Get the model's cemetery.
         Piece[][] cemetery = gameModel.getCemetery().getPlayerPiecesInCemetery(player);
+
+        // Draw the cemetery.
         for(int row = 0; row < cemetery.length; row++){
             for(int col = 0; col < cemetery[0].length; col++){
                 Position currentPosition = new Position(row, col);

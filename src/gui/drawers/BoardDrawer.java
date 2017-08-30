@@ -7,7 +7,6 @@ import model.Game;
 import model.Position;
 
 import javax.swing.*;
-import javax.swing.plaf.LayerUI;
 import java.awt.*;
 
 /**
@@ -67,7 +66,7 @@ public class BoardDrawer extends JPanel {
 
                 // If the PlayerPiece is selected, then we flagSelected the piece
                 // and bind the appropriate listeners from boardController.
-                if(gameBoard.selectedSquare(squareButton.getPosition())){
+                if(gameBoard.selectedSquare(currentPosition)){
                     squareButton.setPanelType(SquareButton.Panel.BOARD_SELECTED);
                     squareButton.addMouseListener(gameView.boardController);
                     gameView.boardController.bindWASDKey(squareButton);
@@ -75,15 +74,24 @@ public class BoardDrawer extends JPanel {
                 }
 
                 // If the PlayerPiece has been moved, then we set unavailable for action.
-                if(gameModel.movedPiece(squareButton.getPosition())){
+                if(gameModel.movedPiece(currentPosition)){
                     squareButton.flagMoved();
                 }
 
                 // Bind all Pieces in the board with an ActionListener.
                 squareButton.addActionListener(gameView.boardController);
 
-                // Finally, add the SquareButton assets into the JPanel.
-                add(squareButton);
+                // If in the previous state, there used to be a PlayerPiece in that position,
+                // draw the PlayerPiece and animate its demise.
+                if(gameModel.usedToHaveAPiece(currentPosition)){
+                    SquareButton justDied = gameModel.getNewlyDead(currentPosition);
+                    justDied.fall();
+                    add(justDied);
+                } else {
+                    // Otherwise, we add existing SquareButton into the board.
+                    add(squareButton);
+                }
+
             }
         }
 

@@ -2,7 +2,8 @@ package gui.drawers;
 
 import gui.views.PrimaryView;
 import model.Position;
-import model.piece.*;
+import model.piece.Piece;
+import model.piece.PlayerPiece;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,12 +52,20 @@ public class SquareButton extends JButton {
      */
     private boolean moved;
 
+    /**
+     * For falling animation when the Piece dies.
+     */
+    private int translateY;
+    private long animStartTime;
+    private int animationDuration = 2000;
+
     public SquareButton(Piece piece, Position position, Panel panelType){
         this.position = position;
         this.piece = piece;
         this.panelType = panelType;
         this.selected = false;
         this.moved = false;
+        this.translateY = 0;
     }
 
     @Override
@@ -123,4 +132,39 @@ public class SquareButton extends JButton {
         this.panelType = panel;
     }
 
+    public void fall(){
+        // Animation of the winning FacePiece being less greyed out over a period of time.
+        new Timer(100,
+                e -> {
+                    increaseTranslateY();
+                    repaint();
+                }
+        ).start();
+    }
+
+    /**
+     * Increase the translateY of SquareButton to animate its demise.
+     * Code snippets were referred from:
+     *      http://www.java2s.com/Code/Java/Advanced-Graphics/MovingButton.htm
+     */
+    public void increaseTranslateY(){
+        long currentTime = System.nanoTime() / 1000000;
+        long totalTime = currentTime - animStartTime;
+        if (totalTime > animationDuration) {
+            animStartTime = currentTime;
+        }
+        float fraction = (float)totalTime / animationDuration;
+        fraction = Math.min(1.0f, fraction);
+        // This calculation will cause translateY to go from 0 to MAX_Y
+        // as the fraction goes from 0 to 1
+        if (fraction < .5f) {
+            translateY = (int)(600 * (2 * fraction));
+        }
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        g.translate(0, translateY);
+        super.paint(g);
+    }
 }

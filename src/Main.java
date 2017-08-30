@@ -1,5 +1,3 @@
-package main;
-
 import gui.views.PrimaryView;
 import model.Board;
 import model.Game;
@@ -14,10 +12,4 @@ public class Main {
         SwingUtilities.invokeLater(() -> new PrimaryView(game));
     }
 
-    /**
-     * Called to start a new game.
-     */
-    public static void newGame(){
-        PrimaryView.restartGame();
-    }
 }

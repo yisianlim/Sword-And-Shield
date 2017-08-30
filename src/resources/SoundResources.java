@@ -7,7 +7,8 @@ import java.net.URL;
 public class SoundResources{
     public enum Sound{
         WARNING("warning_beep.wav"),
-        SECOND_WARNING("second_warning_beep.wav");
+        SECOND_WARNING("second_warning_beep.wav"),
+        FALL("fall.wav");
 
         private String resourceName;
 

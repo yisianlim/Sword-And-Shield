@@ -1,6 +1,6 @@
 package gui.views;
 
-import gui.controllers.Controller;
+import gui.controllers.ButtonController;
 import resources.ImageResources;
 
 import javax.swing.*;
@@ -9,36 +9,40 @@ import java.awt.*;
 public class InfoView extends JPanel {
 
     /**
-     * Controller for InfoView.
+     * ButtonController for InfoView.
      */
-    private Controller controller;
+    private ButtonController buttonController;
 
     /**
      * UI elements.
      */
     private JButton back;
 
-    public InfoView(Controller c){
-        this.controller = c;
+    public InfoView(ButtonController c){
+        this.buttonController = c;
         setSize(new Dimension(1600, PrimaryView.getPrimaryViewHeight()));
         setLayout(new BorderLayout());
         back = new JButton("Back");
         setupInstructions();
     }
 
+    /**
+     * Setup the instructions to explain how to navigate around the game.
+     */
     private void setupInstructions(){
         JLabel boardImage = createImage(ImageResources.BOARD_INFO.img, 2);
-
         JLabel creationImage = createImage(ImageResources.CREATION.img, 4);
-        JLabel instructionCreation = createText("Clicking on your PlayerPiece to create will show up all 4 rotations");
-
+        JLabel instructionCreation = createText(
+                "Clicking on your PlayerPiece to create will show up all 4 rotations"
+        );
         JSplitPane create = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         create.setTopComponent(creationImage);
         create.setBottomComponent(instructionCreation);
 
         JLabel createdImage = createImage(ImageResources.CREATED.img, 4);
-        JLabel instructionCreated = createText("After choosing your rotation, your piece will show up on the board");
-
+        JLabel instructionCreated = createText(
+                "After choosing your rotation, your piece will show up on the board"
+        );
         JSplitPane created = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         created.setTopComponent(createdImage);
         created.setBottomComponent(instructionCreated);
@@ -53,8 +57,10 @@ public class InfoView extends JPanel {
 
         JLabel selectedPieceImage = createSquareImage(ImageResources.SELECTED.img, 8);
         JLabel instructionMoveSelected = createText(
-                "You can move the pieces on the board by selecting the<br>"
-                        + "edges of the pieces or pressing any of the WASD key");
+                "If you select a piece, it will be highlighted purple. " +
+                "You can move the pieces on the board by selecting the " +
+                "edges of the pieces or pressing any of the WASD key"
+        );
         JLabel wasdKeysImage = createImage(ImageResources.KEY.img, 6);
 
         JSplitPane right = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -76,7 +82,7 @@ public class InfoView extends JPanel {
         rightPane.setTopComponent(topRight);
         rightPane.setBottomComponent(bottomRight);
 
-        back.addActionListener(controller);
+        back.addActionListener(buttonController);
         add(back, BorderLayout.PAGE_START);
         add(leftPane, BorderLayout.WEST);
         add(rightPane, BorderLayout.CENTER);

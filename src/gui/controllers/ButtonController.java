@@ -8,17 +8,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Controller handles all the actions that should be after any button click in all views
+ * ButtonController handles all the actions that should be after any button click in all views
  * (except for SquareButton which needs to be handled separately in its respective panels).
  */
-public class Controller implements ActionListener {
+public class ButtonController implements ActionListener {
 
     /**
      * Model of the GUI.
      */
     private Game gameModel;
 
-    public Controller(Game g){
+    public ButtonController(Game g){
         this.gameModel = g;
     }
 
@@ -84,6 +84,10 @@ public class Controller implements ActionListener {
         }
     }
 
+    /**
+     * Return the statistics of the game.
+     * @return
+     */
     public String getStatistics(){
         String statistics = "Number of moves was " + gameModel.moves() + "\n";
         statistics += "Time taken to play was " + gameModel.timeTaken() + "\n";

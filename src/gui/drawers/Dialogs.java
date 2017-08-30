@@ -1,6 +1,6 @@
 package gui.drawers;
 
-import main.Main;
+import gui.views.PrimaryView;
 
 import javax.swing.*;
 
@@ -23,7 +23,7 @@ public class Dialogs {
         int choice = JOptionPane.showOptionDialog(null, msg, winner + " player won!",
                 JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
         if(choice == 0){
-            Main.newGame();
+            PrimaryView.restartGame();
         }
     }
 

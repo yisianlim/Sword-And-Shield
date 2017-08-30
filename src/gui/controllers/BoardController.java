@@ -8,7 +8,10 @@ import model.piece.PlayerPiece;
 import model.player.Player;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import static model.Game.Phase.ACTION;
 
@@ -60,6 +63,7 @@ public class BoardController implements ActionListener, MouseListener {
 
         // Highlight the selected piece.
         gameModel.board.setSelectedSquare(squareButton.getPosition());
+        gameModel.clearNewlyDead();
         gameModel.setStatus("Selected");
     }
 
